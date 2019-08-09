@@ -1,5 +1,6 @@
 #! /usr/bin/env python3
 
+import config as cfg
 import csv_parse as csv_p
 import csv_clean as csv_c
 import create_xml as xml_c
@@ -47,6 +48,8 @@ def main():
     """
 
     date = str(strftime("%Y%m%d%H%M", localtime()))
+
+    cfg.ensure_dirs()
 
     gor_csv = g_query.buildcsv(date)
     diva_csv = d_query.buildcsv(date)
