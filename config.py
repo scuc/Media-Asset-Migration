@@ -1,5 +1,6 @@
 #! /usr/bin/env python3
 
+import os
 import yaml
 
 
@@ -12,3 +13,14 @@ def get_config():
         config = yaml.safe_load(f.read())
 
     return config
+
+
+def ensure_dirs():
+
+    dirs = ["_CSV_Exports", "_logs", "_xml"]
+
+    for dir in dirs:
+        if not os.path.exists(dir):
+            os.makedirs(dir)
+
+    return
