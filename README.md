@@ -17,22 +17,38 @@ create new XMLs records to check into in the Dalet MAM.
 ## Prerequisites 
 
 * Python 3.6 or higher
-* pandas 
-* cx_Oracle
+* [pandas](https://pandas.pydata.org) 
+* [cx_Oracle](https://oracle.github.io/python-cx_Oracle/)
 
 ## Files Included
 
-* main.py
-* config.py
-* gorilla_oracle_query.py
-* diva_oracle_query.py
-* merge_gor_diva_dbs.py
-* csv_parse.py
-* csv_clean.py
-* create_xml.py
-
-* logging.yaml 
+* `main.py`
+* `config.py`
+* `gorilla_oracle_query.py`
+* `diva_oracle_query.py`
+* `merge_gor_diva_dbs.py`
+* `csv_parse.py`
+* `csv_clean.py`
+* `create_xml.py`
+* `logging.yaml `
 
 
 ## Getting Started
+
+* Install prerequisities 
+* Create a `config.yaml` document with the format: 
+&nbsp;   &nbsp;   &nbsp;   &nbsp;   &nbsp;  
+
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; paths: &nbsp;   &nbsp;   &nbsp;   &nbsp;   &nbsp;  
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; rootpath:&nbsp;   &nbsp;   &nbsp;   &nbsp;   &nbsp;  
+
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; oracle-db-gor:&nbsp;   &nbsp;   &nbsp;   &nbsp;   &nbsp;  
+  &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; user:&nbsp;   &nbsp;   &nbsp;   &nbsp;   &nbsp;  
+  &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; pass:&nbsp;   &nbsp;   &nbsp;   &nbsp;   &nbsp;  
+  &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; url: &nbsp;   &nbsp;   &nbsp;   &nbsp;   &nbsp;  
+
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; oracle-db-diva: &nbsp;   &nbsp;   &nbsp;   &nbsp;   &nbsp;  
+  &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; user:  &nbsp;   &nbsp;   &nbsp;   &nbsp;   &nbsp;  
+  &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; pass:  &nbsp;   &nbsp;   &nbsp;   &nbsp;   &nbsp;  
+  &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; url:  &nbsp;   &nbsp;   &nbsp;   &nbsp;   &nbsp;  
 
