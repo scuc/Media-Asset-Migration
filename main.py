@@ -58,7 +58,7 @@ def main():
     parsed_csv = csv_p.db_parse(date, merged_csv)
     cleaned_csv = csv_c.db_clean(date)
     xml_c.create_xml(cleaned_csv)
-    gp.getproxy()
+    gp.get_proxy()
 
     print("="*25 + "  FINISHED  " + "="*25)
 
