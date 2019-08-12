@@ -3,7 +3,6 @@
 import logging
 import os
 
-import xml.etree.ElementTree as ET
 import config as cfg
 import pandas as pd
 
@@ -12,7 +11,7 @@ from xml.dom import minidom
 logger = logging.getLogger(__name__)
 
 
-def create_xml(date, cleaned_csv):
+def create_xml(cleaned_csv):
     """
     Use the merged, parsed, cleaned, DB data to generate an XML used for file check in on the MAM.
     """
@@ -21,16 +20,14 @@ def create_xml(date, cleaned_csv):
 
     rootpath = config['paths']['rootpath']
 
-    os.chdir(rootpath + "_xml/")
-
-    cleaned_csv = rootpath + '_CSV_Exports/' + cleaned_csv
+    clean_csv = os.path.join(rootpath, '_CSV_Exports/', cleaned_csv)
 
     xml_1_msg = f"START GORILLA-DIVA XML CREATION"
     logger.info(xml_1_msg)
 
     index = 0
 
-    with open(cleaned_csv, mode='r', encoding='utf-8-sig') as c_csv:
+    with open(clean_csv, mode='r', encoding='utf-8-sig') as c_csv:
 
         try:
             pd_reader = pd.read_csv(c_csv, header=0)
@@ -51,6 +48,7 @@ def create_xml(date, cleaned_csv):
                 v_height = row['V_HEIGHT']
                 duration = row['DURATION_MS']
 
+                os.chdir(rootpath + "_xml/")
                 xml_doc = str(guid) + '.xml'
 
                 with open(xml_doc, mode="w", encoding='utf-8-sig') as xdoc:
@@ -90,6 +88,8 @@ def create_xml(date, cleaned_csv):
                     xdoc.write(xmlstr)
                     xdoc.close()
 
+                df.at[index, 'XML_CREATED'] = "1"
+
             xml_2_msg = f"GORILLA-DIVA XML CREATION COMPLETED"
             logger.info(xml_2_msg)
             print(xml_2_msg)
@@ -104,5 +104,8 @@ def create_xml(date, cleaned_csv):
             logger.exception(xml_excp_msg)
 
 
-# if __name__ == '__main__':
-#     create_xml()
+if __name__ == '__main__':
+    create_xml()
+
+
+# cleaned_csv='201908081555_gor_diva_merged_cleaned.csv'
