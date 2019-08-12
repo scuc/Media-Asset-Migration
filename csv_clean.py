@@ -42,6 +42,7 @@ def db_clean(date):
         df.insert(17, "V_HEIGHT", 'NULL', allow_duplicates=True)
         df.insert(18, "TRAFFIC_CODE", 'NULL', allow_duplicates=True)
         df.insert(19, "DURATION_MS", 'NULL', allow_duplicates=True)
+        df.insert(20, "XML_CREATED", '0', allow_duplicates=True)
 
         df.to_csv(clean_csv)
 
