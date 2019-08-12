@@ -4,6 +4,7 @@ import config as cfg
 import csv_parse as csv_p
 import csv_clean as csv_c
 import create_xml as xml_c
+import get_proxy as gp
 
 import diva_oracle_query as d_query
 import gorilla_oracle_query as g_query
@@ -56,8 +57,8 @@ def main():
     merged_csv = mdb.pandas_merge(date, diva_csv, gor_csv)
     parsed_csv = csv_p.db_parse(date, merged_csv)
     cleaned_csv = csv_c.db_clean(date)
-    xml_c.create_xml(date, cleaned_csv)
-    get_proxy()
+    xml_c.create_xml(cleaned_csv)
+    gp.getproxy()
 
     print("="*25 + "  FINISHED  " + "="*25)
 
