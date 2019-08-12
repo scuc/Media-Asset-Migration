@@ -42,7 +42,7 @@ def create_xml(date, cleaned_csv):
                 name = row['NAME']
                 datatapeid = row['DATATAPEID']
                 timecodein = row['TIMECODEIN']
-                folderpath = "T:\\\\DaletStorage\\Video_Watch_Folder\\" + row["OC_COMPONENT_NAME"]
+                folderpath = "T://DaletStorage/Video_Watch_Folder/" + row["OC_COMPONENT_NAME"]
                 traffic_code = row['TRAFFIC_CODE'].strip("=\"")
                 title_type = row['TITLETYPE']
                 framerate = row['FRAMERATE']
