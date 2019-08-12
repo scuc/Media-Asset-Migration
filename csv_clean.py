@@ -32,7 +32,7 @@ def db_clean(date):
     index = 0
 
     try:
-        pd_reader = pd.read_csv(parsed_csv, header=0, nrows=1000)
+        pd_reader = pd.read_csv(parsed_csv, header=0, nrows=200)
         df = pd.DataFrame(pd_reader)
 
         df.insert(13, "TITLETYPE", 'NULL', allow_duplicates=True)
