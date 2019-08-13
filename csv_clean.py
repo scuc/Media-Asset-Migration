@@ -29,8 +29,6 @@ def db_clean(date):
     logger.info(clean_1_msg)
     print(clean_1_msg)
 
-    index = 0
-
     try:
         pd_reader = pd.read_csv(parsed_csv, header=0)
         df = pd.DataFrame(pd_reader)
@@ -84,9 +82,7 @@ def db_clean(date):
 
             df.at[index, 'CONTENT_TYPE'] = content_type
 
-            df.to_csv(clean_csv)
-
-            index += 1
+        df.to_csv(clean_csv)
 
         clean_3_msg = f"GORILLA-DIVA DB CLEAN COMPLETE"
         logger.info(clean_3_msg)
@@ -110,31 +106,49 @@ def get_mediainfo(row):
     """
     Extract mediainfo from the metaxml field of the DB.
     """
-    tree = ET.ElementTree(ET.fromstring(row['METAXML']))
-    root = tree.getroot()
 
-    codec = root.find('VideoTrack/Video/Format').text
-    framerate = root.find('VideoTrack/Video/AverageFrameRate').text
-    v_width = root.find('VideoTrack/Video/Width').text
-    v_height = root.find('VideoTrack/Video/Height').text
-    duration = root.find('DurationInMs').text
+    try:
+        tree = ET.ElementTree(ET.fromstring(row['METAXML']))
+        root = tree.getroot()
 
-    if codec == "AVC" and int(v_width) < 720:
-        codec = "NULL"
-        v_width = "NULL"
-        v_height = "NULL"
+        codec = root.find('VideoTrack/Video/Format').text
+        framerate = root.find('VideoTrack/Video/AverageFrameRate').text
+        v_width = root.find('VideoTrack/Video/Width').text
+        v_height = root.find('VideoTrack/Video/Height').text
+        duration = root.find('DurationInMs').text
 
-    if v_height == '1062' and v_width == '1888':
-        v_width = '1920'
-        v_height = '1080'
+        if codec == "AVC" and int(v_width) < 720:
+            codec = "NULL"
+            v_width = "NULL"
+            v_height = "NULL"
 
-    else:
-        pass
+        if v_height == '1062' and v_width == '1888':
+            v_width = '1920'
+            v_height = '1080'
 
-    mediainfo = [framerate, codec, v_width, v_height, duration]
+        else:
+            pass
+
+        mediainfo = [framerate, codec, v_width, v_height, duration]
+
+    except Exception as e:
+        mediainfo_err_msg = f"\n\
+        Exception raised on get_mediainfo.\
+        Setting mediainfo values to 'NULL'\
+        GUID: {row['GUID']}\
+        NAME: {row['NAME']}\
+        Error Message: {e}\n"
+
+        logger.exception(mediainfo_err_msg)
+
+        framerate='NULL'
+        codec='NULL'
+        v_width='NULL'
+        v_height='NULL'
+        duration='NULL'
+        mediainfo = [framerate, codec, v_width, v_height, duration]
 
     return mediainfo
-
 
 def get_traffic_code(name):
     """
