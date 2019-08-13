@@ -59,28 +59,28 @@ def db_clean(date):
 
             archive_check = re.search(r'([_]AVP)|([_]PPRO)|([_]FCP)|([_]PTS)|([_]AVP)|([_]GRFX)|([_]GFX)', name)
 
-            mediainfo = get_mediainfo(row)
-
-            df.at[index, 'FRAMERATE'] = mediainfo[0]
-            df.at[index, 'CODEC'] = mediainfo[1]
-            df.at[index, 'V_WIDTH'] = mediainfo[2]
-            df.at[index, 'V_HEIGHT'] = mediainfo[3]
-            df.at[index, 'DURATION_MS'] = mediainfo[4]
-
             if video_check is not None and archive_check is None:
                 df.at[index, 'TITLETYPE'] = 'video'
                 content_type = re.sub('_', '', video_check.group(0))
+                mediainfo = get_mediainfo(row)
 
             elif video_check is None and archive_check is not None:
                 df.at[index, 'TITLETYPE'] = 'archive'
                 version_type = re.sub('_', '', archive_check.group(0))
+                mediainfo = ['NULL', 'NULL', 'NULL', 'NULL', 'NULL', 'NULL',]
 
             else:
                 df.at[index, 'TITLETYPE'] = 'NULL'
                 clean_2_msg = f"TITLETYPE for {name} is NULL. "
                 logger.info(clean_2_msg)
+                mediainfo = ['NULL', 'NULL', 'NULL', 'NULL', 'NULL', 'NULL',]
 
             df.at[index, 'CONTENT_TYPE'] = content_type
+            df.at[index, 'FRAMERATE'] = mediainfo[0]
+            df.at[index, 'CODEC'] = mediainfo[1]
+            df.at[index, 'V_WIDTH'] = mediainfo[2]
+            df.at[index, 'V_HEIGHT'] = mediainfo[3]
+            df.at[index, 'DURATION_MS'] = mediainfo[4]
 
         df.to_csv(clean_csv)
 
@@ -133,10 +133,10 @@ def get_mediainfo(row):
 
     except Exception as e:
         mediainfo_err_msg = f"\n\
-        Exception raised on get_mediainfo.\
-        Setting mediainfo values to 'NULL'\
-        GUID: {row['GUID']}\
-        NAME: {row['NAME']}\
+        Exception raised on get_mediainfo.\n\
+        Setting mediainfo values to 'NULL'\n\
+        GUID: {row['GUID']}\n\
+        NAME: {row['NAME']}\n\
         Error Message: {e}\n"
 
         logger.exception(mediainfo_err_msg)
