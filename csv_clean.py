@@ -32,7 +32,7 @@ def db_clean(date):
     index = 0
 
     try:
-        pd_reader = pd.read_csv(parsed_csv, header=0, nrows=200)
+        pd_reader = pd.read_csv(parsed_csv, header=0)
         df = pd.DataFrame(pd_reader)
 
         df.insert(13, "TITLETYPE", 'NULL', allow_duplicates=True)
@@ -50,7 +50,7 @@ def db_clean(date):
 
             name = str(row['NAME']).upper()
             traffic_code = get_traffic_code(name)
-            df.at[index, 'TRAFFIC_CODE'] = "=\"" + traffic_code + "\""
+            df.at[index, 'TRAFFIC_CODE'] = traffic_code
 
             print(str(index) + "    " + name)
 
@@ -157,9 +157,10 @@ def get_traffic_code(name):
             traffic_code = 'NULL'
 
     else:
-        traffic_code = name[:6]
+        traffic_code = "=\"" + name[:6] + "\""
 
     return traffic_code
 
-# if __name__ == '__main__':
-#     db_clean()
+
+if __name__ == '__main__':
+    db_clean()
