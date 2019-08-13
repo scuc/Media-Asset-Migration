@@ -36,7 +36,7 @@ def create_xml(cleaned_csv, xml_total):
 
             count = 0
 
-            for index, row in sdf.iterrows():
+            for index, row in df.iterrows():
 
                 if (row['XML_CREATED'] == '0'
                     and count <= xml_total):
