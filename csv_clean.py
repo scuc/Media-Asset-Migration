@@ -71,7 +71,7 @@ def db_clean(date):
 
             if video_check is not None and archive_check is None:
                 df.at[index, 'TITLETYPE'] = 'video'
-                version_type = re.sub('_', '', video_check.group(0))
+                content_type = re.sub('_', '', video_check.group(0))
 
             elif video_check is None and archive_check is not None:
                 df.at[index, 'TITLETYPE'] = 'archive'
@@ -82,7 +82,7 @@ def db_clean(date):
                 clean_2_msg = f"TITLETYPE for {name} is NULL. "
                 logger.info(clean_2_msg)
 
-            df.at[index, 'VERSION_TYPE'] = version_type
+            df.at[index, 'CONTENT_TYPE'] = content_type
 
             df.to_csv(clean_csv)
 
