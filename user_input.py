@@ -1,6 +1,8 @@
 #! /usr/bin/env python3
 
-import os
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 def get_user_input():
@@ -14,13 +16,24 @@ def get_user_input():
                 continue
             else:
                 xml_total = xml_val
+                xml_info_msg = (f"{xml_total} selected value for xml creation.")
+                logger.info(xml_info_msg)
                 break
 
-        except ValueError:
+        except ValueError as e:
+            xml_excp_msg = f"\n\
+            ValueError raised for xml value: {xml_val}.\n\
+            Error Message:  {str(e)} \n\
+            "
             print(f"{xml_val} is not a valid entry for the starting index, try again.")
             continue
 
     return xml_total
+
+
+if __name__ == '__main__':
+    get_user_input()
+
 
 
 
