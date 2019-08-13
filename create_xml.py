@@ -56,7 +56,7 @@ def create_xml(cleaned_csv):
 
                     xml_body = f"\
                     <Titles> \
-                    <Title><!-- title type video -->>\
+                    <Title><!-- title type video -->\
                     <key1>{guid}</key1>\
                     <itemcode>{guid}</itemcode>\
                     <title>{name}</title>\
@@ -111,4 +111,4 @@ if __name__ == '__main__':
     create_xml()
 
 
-# cleaned_csv='201908081555_gor_diva_merged_cleaned.csv'
+# create_xml(cleaned_csv='201908131300_gor_diva_merged_cleaned.csv')
