@@ -47,6 +47,7 @@ def create_xml(cleaned_csv):
                 v_width = row['V_WIDTH']
                 v_height = row['V_HEIGHT']
                 duration = row['DURATION_MS']
+                content_type = row['CONTENT_TYPE']
 
                 os.chdir(rootpath + "_xml/")
                 xml_doc = str(guid) + '.xml'
@@ -65,6 +66,7 @@ def create_xml(cleaned_csv):
                     <StartOfMaterial>{timecodein}</StartOfMaterial>\
                     <NGC_NGCITrafficCode>{traffic_code}</NGC_NGCITrafficCode>\
                     <titletype>{title_type}</titletype>\
+                    <NGC_ContentType>{content_type} </NGC_ContentType>\
                     <AMFieldFromParsing_FrameRate>{framerate}</AMFieldFromParsing_FrameRate>\
                     <AMFieldFromParsing_Codec>{codec}</AMFieldFromParsing_Codec>\
                     <AMFieldFromParsing_Width>{v_width}</AMFieldFromParsing_Width>\
