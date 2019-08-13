@@ -19,6 +19,8 @@ import logging.config
 import os
 import yaml
 
+logger = logging.getLogger(__name__)
+
 
 def set_logger():
     """Setup logging configuration
@@ -52,6 +54,16 @@ def main():
     date = str(strftime("%Y%m%d%H%M", localtime()))
 
     cfg.ensure_dirs()
+
+    start_msg = f"\n\
+    ================================================================\n \
+                Gorilla-Diva Asset Migration Script\n\
+                Version: 0.0.1\n\
+                Date: August 14 2019\n\
+    ================================================================\n\
+    \n"
+
+    logger.info(start_msg)
 
     xml_total = ui.get_user_input()
 
