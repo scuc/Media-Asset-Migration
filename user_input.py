@@ -8,8 +8,7 @@ logger = logging.getLogger(__name__)
 def get_user_input():
 
     while True:
-        xml_val = str(input(f"\
-            How many xmls / proxies are needed in this batch? "))
+        xml_val = str(input(f"How many xmls / proxies are needed in this batch?  "))
         try:
             if int(xml_val) > 10000:
                 print(f"{xml_val} is not a valid entry for the starting index, try again.")
