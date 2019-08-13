@@ -46,7 +46,9 @@ def get_proxy():
             else:
                 guid_x = xml.replace("-", "")
                 guid = guid_x[24:-4]
+                proxy_fn = xml[:-4] + '.mov'
                 n = 2
+
                 glist = [guid[i:i+n] for i in range(0, len(guid), n)]
 
                 full_proxypath = os.path.join(proxypath, glist[2], glist[3], xml[:-4], xml[:-4] + '.mov')
@@ -59,7 +61,7 @@ def get_proxy():
                 else:
                     try:
                         shutil.copy2(full_proxypath, tmp_checkin)
-                        proxy_cp_msg = f"{guid} was copied to the dalet tmp."
+                        proxy_cp_msg = f"{proxy_fn} was copied to the dalet tmp."
                         logger.info(proxy_cp_msg)
 
                         shutil.move(xml_fpath, tmp_checkin)
