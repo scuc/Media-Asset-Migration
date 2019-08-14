@@ -64,7 +64,7 @@ def get_proxy():
                         proxy_cp_msg = f"{proxy_fn} was copied to the dalet tmp."
                         logger.info(proxy_cp_msg)
 
-                        shutil.move(xml_fpath, tmp_checkin)
+                        shutil.move(xml_fpath, os.path.join(tmp_checkin, xml))
                         xml_mv_msg = f"{xml} was moved to the dalet tmp."
                         logger.info(xml_mv_msg)
 
