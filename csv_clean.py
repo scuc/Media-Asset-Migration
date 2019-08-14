@@ -54,7 +54,7 @@ def db_clean(date):
 
             else:
                 r_metaxml = row['METAXML']
-                metaxml = clean_metaxml(r_metaxml, name)
+                df.at[index, 'METAXML'] = clean_metaxml(r_metaxml, name)
 
             traffic_code = get_traffic_code(name)
             df.at[index, 'TRAFFIC_CODE'] = traffic_code
@@ -69,7 +69,7 @@ def db_clean(date):
             if (
                 video_check is not None
                 and archive_check is None
-                and row['METAXML'] is not 'NULL'
+                and metaxml is not 'NULL'
                 ):
                 df.at[index, 'TITLETYPE'] = 'video'
                 content_type = re.sub('_', '', video_check.group(0))
@@ -78,7 +78,7 @@ def db_clean(date):
             elif (
                 video_check is not None
                 and archive_check is None
-                and row['METAXML'] == 'NULL'
+                and metaxml == 'NULL'
                 ):
                 df.at[index, 'TITLETYPE'] = 'video'
                 content_type = re.sub('_', '', video_check.group(0))
@@ -240,4 +240,4 @@ def clean_metaxml(r_metaxml, name):
 
 
 if __name__ == '__main__':
-    db_clean('')
+    db_clean()
