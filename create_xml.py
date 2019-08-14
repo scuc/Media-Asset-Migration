@@ -38,15 +38,15 @@ def create_xml(cleaned_csv, xml_total):
 
             for index, row in df.iterrows():
 
-                if (row['XML_CREATED'] == '0'
-                    and count <= xml_total):
+                if (row['XML_CREATED'] == 0
+                    and count <= int(xml_total)):
 
                     guid = row['GUID']
                     name = row['NAME']
                     datatapeid = row['DATATAPEID']
                     timecodein = row['TIMECODEIN']
                     folderpath = "T://DaletStorage/Video_Watch_Folder/" + row["OC_COMPONENT_NAME"]
-                    traffic_code = row['TRAFFIC_CODE'].strip("=\"")
+                    traffic_code = str(row['TRAFFIC_CODE']).strip("=\"")
                     title_type = row['TITLETYPE']
                     framerate = row['FRAMERATE']
                     codec = row['CODEC']
