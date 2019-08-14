@@ -40,39 +40,64 @@ def db_clean(date):
         df.insert(17, "V_HEIGHT", 'NULL', allow_duplicates=True)
         df.insert(18, "TRAFFIC_CODE", 'NULL', allow_duplicates=True)
         df.insert(19, "DURATION_MS", 'NULL', allow_duplicates=True)
-        df.insert(20, "XML_CREATED", '0', allow_duplicates=True)
+        df.insert(20, "XML_CREATED", 0, allow_duplicates=True)
 
         df.to_csv(clean_csv)
 
         for index, row in df.iterrows():
 
             name = str(row['NAME']).upper()
+            print(str(index) + "    " + name)
+
+            if(pd.isnull(row['METAXML'])):
+                df.at[index, 'METAXML'] = 'NULL'
+
+            else:
+                r_metaxml = row['METAXML']
+                metaxml = clean_metaxml(r_metaxml, name)
+
             traffic_code = get_traffic_code(name)
             df.at[index, 'TRAFFIC_CODE'] = traffic_code
-
-            print(str(index) + "    " + name)
 
             if row['_merge'] is not "both":
                 df.drop(df.index)
 
             video_check = re.search(r'([_]VM)|([_]EM)|([_]UHD)', name)
 
-            archive_check = re.search(r'([_]AVP)|([_]PPRO)|([_]FCP)|([_]PTS)|([_]AVP)|([_]GRFX)|([_]GFX)', name)
+            archive_check = re.search(r'([_]AVP)|([_]PPRO)|([_]FCP)|([_]PTS)|([_]AVP)|([_]GRFX)|([_]GFX)|([_]WAV)', name)
 
-            if video_check is not None and archive_check is None:
+            if (
+                video_check is not None
+                and archive_check is None
+                and row['METAXML'] is not 'NULL'
+                ):
                 df.at[index, 'TITLETYPE'] = 'video'
                 content_type = re.sub('_', '', video_check.group(0))
                 mediainfo = get_mediainfo(row)
 
+            elif (
+                video_check is not None
+                and archive_check is None
+                and row['METAXML'] == 'NULL'
+                ):
+                df.at[index, 'TITLETYPE'] = 'video'
+                content_type = re.sub('_', '', video_check.group(0))
+
             elif video_check is None and archive_check is not None:
                 df.at[index, 'TITLETYPE'] = 'archive'
-                version_type = re.sub('_', '', archive_check.group(0))
+                content_type = re.sub('_', '', archive_check.group(0))
+                mediainfo = ['NULL', 'NULL', 'NULL', 'NULL', 'NULL', 'NULL',]
+
+            elif video_check is not None and archive_check is not None:
+                df.at[index, 'TITLETYPE'] = 'archive'
+                content_type = re.sub('_', '', archive_check.group(0))
                 mediainfo = ['NULL', 'NULL', 'NULL', 'NULL', 'NULL', 'NULL',]
 
             else:
                 df.at[index, 'TITLETYPE'] = 'NULL'
                 clean_2_msg = f"TITLETYPE for {name} is NULL. "
                 logger.info(clean_2_msg)
+                content_type = 'NULL'
                 mediainfo = ['NULL', 'NULL', 'NULL', 'NULL', 'NULL', 'NULL',]
 
             df.at[index, 'CONTENT_TYPE'] = content_type
@@ -107,46 +132,67 @@ def get_mediainfo(row):
     Extract mediainfo from the metaxml field of the DB.
     """
 
-    try:
-        tree = ET.ElementTree(ET.fromstring(row['METAXML']))
-        root = tree.getroot()
+    if row['METAXML'] != 0 or row['METAXML'] is not 'NULL':
 
-        codec = root.find('VideoTrack/Video/Format').text
-        framerate = root.find('VideoTrack/Video/AverageFrameRate').text
-        v_width = root.find('VideoTrack/Video/Width').text
-        v_height = root.find('VideoTrack/Video/Height').text
-        duration = root.find('DurationInMs').text
+        try:
+            tree = ET.ElementTree(ET.fromstring(row['METAXML']))
+            root = tree.getroot()
 
-        if codec == "AVC" and int(v_width) < 720:
-            codec = "NULL"
-            v_width = "NULL"
-            v_height = "NULL"
+            codec = root.find('VideoTrack/Video/Format').text
+            framerate = root.find('VideoTrack/Video/AverageFrameRate').text
+            v_width = root.find('VideoTrack/Video/Width').text
+            v_height = root.find('VideoTrack/Video/Height').text
+            duration = root.find('DurationInMs').text
 
-        if v_height == '1062' and v_width == '1888':
-            v_width = '1920'
-            v_height = '1080'
+            if codec == "AVC" and int(v_width) < 720:
+                codec = "NULL"
+                if (int(row['FILESIZE']) > 30000000000 and
+                    int(row['FILESIZE']) < 200000000000):
+                    v_width = '1920'
+                    v_height = '1080'
+                    est_msg = f"{row['GUID']} - {row['NAME']} - Estimating file is HD - 1920x1080."
+                    logger.info(est_msg)
+                else:
+                    v_width = "NULL"
+                    v_height = "NULL"
 
-        else:
-            pass
+            if v_height == '1062' and v_width == '1888':
+                v_width = '1920'
+                v_height = '1080'
 
-        mediainfo = [framerate, codec, v_width, v_height, duration]
+            else:
+                pass
 
-    except Exception as e:
-        mediainfo_err_msg = f"\n\
-        Exception raised on get_mediainfo.\n\
-        Setting mediainfo values to 'NULL'\n\
-        GUID: {row['GUID']}\n\
-        NAME: {row['NAME']}\n\
-        Error Message: {e}\n"
+            mediainfo = [framerate, codec, v_width, v_height, duration]
 
-        logger.exception(mediainfo_err_msg)
+        except Exception as e:
+            mediainfo_err_msg = f"\
+            \n\
+            Exception raised on get_mediainfo.\n\
+            Setting mediainfo values to 'NULL'\n\
+            GUID: {row['GUID']}\n\
+            NAME: {row['NAME']}\n\
+            \n"
 
+            print("")
+            print(row['METAXML'])
+            print("")
+
+            logger.exception(mediainfo_err_msg)
+
+            framerate='NULL'
+            codec='NULL'
+            v_width='NULL'
+            v_height='NULL'
+            duration='NULL'
+            mediainfo = [framerate, codec, v_width, v_height, duration]
+
+    else:
         framerate='NULL'
         codec='NULL'
         v_width='NULL'
         v_height='NULL'
         duration='NULL'
-        mediainfo = [framerate, codec, v_width, v_height, duration]
 
     return mediainfo
 
@@ -158,9 +204,6 @@ def get_traffic_code(name):
     name = str(name)
 
     if name.startswith('0') is not True:
-        err_msg = f"Incompatible file ID - {str(name)}"
-
-        logger.error(err_msg)
 
         x = re.search(r"_?[0-9]{6}(_|-)?", name)
         # y = re.search(r"[0-9]{6}", name)
@@ -168,6 +211,8 @@ def get_traffic_code(name):
         if x is not None:
             traffic_code = x.group(0)
         else:
+            err_msg = f"Incompatible file ID - {str(name)}. traffic_code set to NULL"
+            logger.error(err_msg)
             traffic_code = 'NULL'
 
     else:
@@ -176,5 +221,23 @@ def get_traffic_code(name):
     return traffic_code
 
 
+def clean_metaxml(r_metaxml, name):
+
+    xml_search = re.search(r"[<FileName>].*&.*[</FileName>]", r_metaxml)
+
+    if xml_search is not None:
+        bad_xml = xml_search.group(0)
+        good_xml = bad_xml.replace("&", "and")
+        metaxml = good_xml
+
+        clean_xml_msg = f"metaxml for {name} was modified to remove & characters."
+        logger.info(clean_xml_msg)
+
+    else:
+        metaxml = r_metaxml
+
+    return metaxml
+
+
 if __name__ == '__main__':
-    db_clean()
+    db_clean('')
