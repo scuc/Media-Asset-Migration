@@ -27,7 +27,6 @@ def db_clean(date):
 
     clean_1_msg = f"START GORILLA-DIVA DB CLEAN"
     logger.info(clean_1_msg)
-    print(clean_1_msg)
 
     try:
         pd_reader = pd.read_csv(parsed_csv, header=0)
@@ -47,58 +46,66 @@ def db_clean(date):
         for index, row in df.iterrows():
 
             name = str(row['NAME']).upper()
-            print(str(index) + "    " + name)
+            name_clean = clean_name(name)
+            df.at[index, 'NAME'] = name_clean
+            print(str(index) + "    " + name_clean)
 
-            if(pd.isnull(row['METAXML'])):
-                df.at[index, 'METAXML'] = 'NULL'
+            traffic_code = get_traffic_code(name_clean)
+            df.at[index, 'TRAFFIC_CODE'] = traffic_code
+
+            df_row = df.loc[index]
+
+            if pd.isnull(df_row['METAXML']) is not True:
+                l_metaxml = df_row['METAXML']
+                r_metaxml = r'{}'.format(l_metaxml)
+                metaxml = clean_metaxml(r_metaxml, name_clean)
+                df.at[index, 'METAXML'] = metaxml
 
             else:
-                r_metaxml = row['METAXML']
-                df.at[index, 'METAXML'] = clean_metaxml(r_metaxml, name)
-
-            traffic_code = get_traffic_code(name)
-            df.at[index, 'TRAFFIC_CODE'] = traffic_code
+                df.at[index, 'METAXML'] = 'NULL'
+                metaxml = df.at[index, 'METAXML']
 
             if row['_merge'] is not "both":
                 df.drop(df.index)
 
-            video_check = re.search(r'([_]VM)|([_]EM)|([_]UHD)', name)
-
-            archive_check = re.search(r'([_]AVP)|([_]PPRO)|([_]FCP)|([_]PTS)|([_]AVP)|([_]GRFX)|([_]GFX)|([_]WAV)', name)
+            video_check = re.search(r'([_]VM)|([_]EM)|([_]UHD)', name_clean)
+            archive_check = re.search(
+                r'([_]AVP)|([_]PPRO)|([_]FCP)|([_]PTS)|([_]AVP)|([_]GRFX)|([_]GFX)|([_]WAV)', name_clean)
 
             if (
                 video_check is not None
                 and archive_check is None
                 and metaxml is not 'NULL'
-                ):
+            ):
+                df.at[index, 'TITLETYPE'] = 'video'
+                content_type = re.sub('(_|-)', '', video_check.group(0))
+                mediainfo = get_mediainfo(df_row, metaxml)
+
+
+            elif (video_check is not None
+                  and archive_check is None
+                  and metaxml is 'NULL'):
                 df.at[index, 'TITLETYPE'] = 'video'
                 content_type = re.sub('_', '', video_check.group(0))
-                mediainfo = get_mediainfo(row)
 
-            elif (
-                video_check is not None
-                and archive_check is None
-                and metaxml == 'NULL'
-                ):
-                df.at[index, 'TITLETYPE'] = 'video'
-                content_type = re.sub('_', '', video_check.group(0))
-
-            elif video_check is None and archive_check is not None:
+            elif (video_check is None
+                  and archive_check is not None):
                 df.at[index, 'TITLETYPE'] = 'archive'
                 content_type = re.sub('_', '', archive_check.group(0))
-                mediainfo = ['NULL', 'NULL', 'NULL', 'NULL', 'NULL', 'NULL',]
+                mediainfo = ['NULL', 'NULL', 'NULL', 'NULL', 'NULL', 'NULL', ]
 
-            elif video_check is not None and archive_check is not None:
+            elif (video_check is not None
+                  and archive_check is not None):
                 df.at[index, 'TITLETYPE'] = 'archive'
                 content_type = re.sub('_', '', archive_check.group(0))
-                mediainfo = ['NULL', 'NULL', 'NULL', 'NULL', 'NULL', 'NULL',]
+                mediainfo = ['NULL', 'NULL', 'NULL', 'NULL', 'NULL', 'NULL', ]
 
             else:
                 df.at[index, 'TITLETYPE'] = 'NULL'
                 clean_2_msg = f"TITLETYPE for {name} is NULL. "
                 logger.info(clean_2_msg)
                 content_type = 'NULL'
-                mediainfo = ['NULL', 'NULL', 'NULL', 'NULL', 'NULL', 'NULL',]
+                mediainfo = ['NULL', 'NULL', 'NULL', 'NULL', 'NULL', 'NULL', ]
 
             df.at[index, 'CONTENT_TYPE'] = content_type
             df.at[index, 'FRAMERATE'] = mediainfo[0]
@@ -124,18 +131,17 @@ def db_clean(date):
         "
         logger.exception(db_clean_excp_msg)
 
-        print(db_clean_excp_msg)
 
-
-def get_mediainfo(row):
+def get_mediainfo(df_row, metaxml):
     """
     Extract mediainfo from the metaxml field of the DB.
     """
 
-    if row['METAXML'] != 0 or row['METAXML'] is not 'NULL':
+    if df_row['METAXML'] != 0 or df_row['METAXML'] is not 'NULL':
 
         try:
-            tree = ET.ElementTree(ET.fromstring(row['METAXML']))
+            parser = ET.XMLParser(encoding="utf-8")
+            tree = ET.ElementTree(ET.fromstring(metaxml, parser=parser))
             root = tree.getroot()
 
             codec = root.find('VideoTrack/Video/Format').text
@@ -146,8 +152,8 @@ def get_mediainfo(row):
 
             if codec == "AVC" and int(v_width) < 720:
                 codec = "NULL"
-                if (int(row['FILESIZE']) > 30000000000 and
-                    int(row['FILESIZE']) < 200000000000):
+                if (int(df_row['FILESIZE']) > 30000000000 and
+                        int(df_row['FILESIZE']) < 200000000000):
                     v_width = '1920'
                     v_height = '1080'
                     est_msg = f"{row['GUID']} - {row['NAME']} - Estimating file is HD - 1920x1080."
@@ -159,7 +165,6 @@ def get_mediainfo(row):
             if v_height == '1062' and v_width == '1888':
                 v_width = '1920'
                 v_height = '1080'
-
             else:
                 pass
 
@@ -170,51 +175,47 @@ def get_mediainfo(row):
             \n\
             Exception raised on get_mediainfo.\n\
             Setting mediainfo values to 'NULL'\n\
-            GUID: {row['GUID']}\n\
-            NAME: {row['NAME']}\n\
+            GUID: {df_row['GUID']}\n\
+            NAME: {df_row['NAME']}\n\
             \n"
-
-            print("")
-            print(row['METAXML'])
-            print("")
 
             logger.exception(mediainfo_err_msg)
 
-            framerate='NULL'
-            codec='NULL'
-            v_width='NULL'
-            v_height='NULL'
-            duration='NULL'
+            framerate = 'NULL'
+            codec = 'NULL'
+            v_width = 'NULL'
+            v_height = 'NULL'
+            duration = 'NULL'
             mediainfo = [framerate, codec, v_width, v_height, duration]
 
     else:
-        framerate='NULL'
-        codec='NULL'
-        v_width='NULL'
-        v_height='NULL'
-        duration='NULL'
+        framerate = 'NULL'
+        codec = 'NULL'
+        v_width = 'NULL'
+        v_height = 'NULL'
+        duration = 'NULL'
 
     return mediainfo
 
-def get_traffic_code(name):
+
+def get_traffic_code(name_clean):
     """
     Validate the the traffic code begins with a 0, and contains the correct number of characters.
     """
 
-    name = str(name)
+    name = str(name_clean)
 
     if name.startswith('0') is not True:
+        code_search = re.search(r"(_|-)?0[0-9]{5}(_|-)?", name)
 
-        x = re.search(r"_?[0-9]{6}(_|-)?", name)
-        # y = re.search(r"[0-9]{6}", name)
-
-        if x is not None:
-            traffic_code = x.group(0)
+        if code_search is not None:
+            traffic_match = code_search.group(0)
+            traffic_code_r = re.sub(r'(_|-)', '', traffic_match)
+            traffic_code = "=\"" + traffic_code_r + "\""
         else:
             err_msg = f"Incompatible file ID - {str(name)}. traffic_code set to NULL"
             logger.error(err_msg)
             traffic_code = 'NULL'
-
     else:
         traffic_code = "=\"" + name[:6] + "\""
 
@@ -228,15 +229,30 @@ def clean_metaxml(r_metaxml, name):
     if xml_search is not None:
         bad_xml = xml_search.group(0)
         good_xml = bad_xml.replace("&", "and")
-        metaxml = good_xml
-
-        clean_xml_msg = f"metaxml for {name} was modified to remove & characters."
+        metaxml = good_xml.replace("\\", "/")
+        clean_xml_msg = f"metaxml for {name} was modified to remove '&' characters."
         logger.info(clean_xml_msg)
-
     else:
-        metaxml = r_metaxml
+        metaxml = r_metaxml.replace("\\", "/")
 
     return metaxml
+
+
+def clean_name(name):
+
+    name_search = re.search(r".*&.*", name)
+
+    if name_search is not None:
+
+        bad_name = name_search.group(0)
+        good_name = bad_name.replace("&", "and")
+        name_clean = good_name
+        clean_name_msg = f"metaxml for {name} was modified to remove '&' characters."
+        logger.info(clean_name_msg)
+    else:
+        name_clean = name
+
+    return name_clean
 
 
 if __name__ == '__main__':
