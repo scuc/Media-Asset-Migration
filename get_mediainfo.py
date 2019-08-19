@@ -29,7 +29,8 @@ def get_mediainfo(df_row, metaxml):
 
             if codec == "AVC" and int(v_width) < 720:
                 codec = "NULL"
-                v_width, v_height = est_resolution(df_row)
+                codec_match = re.search(r'(UHD|XAVC(?=[-UHD]?|-|_))|PRORES(?=[HQ]?|-|_)', df_row['NAME'])
+                v_width, v_height = est_resolution(df_row, codec_match)
 
             if v_height == '1062' and v_width == '1888':
                 v_width = '1920'
