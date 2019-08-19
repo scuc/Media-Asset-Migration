@@ -16,9 +16,6 @@ def get_mediainfo(df_row, metaxml):
 
     if df_row['METAXML'] != 'nan':
 
-        print("="*25 + "  NOT NULL  " + "="*25)
-        print(df_row['METAXML'])
-
         try:
             parser = ET.XMLParser(encoding="utf-8")
             tree = ET.ElementTree(ET.fromstring(metaxml, parser=parser))
@@ -55,10 +52,10 @@ def get_mediainfo(df_row, metaxml):
    
     else:
         try:
-            codec_match = re.search(r'PRORES(?=[HQ]?|-|_)', df_row['NAME'])
-            framerate_match = re.search(r'[25][359](?!\d|_|-)[\.]?([46789]{2,3})?', df_row['NAME'])
+            codec_match = re.search(r'(UHD|XAVC(?=[-UHD]?|-|_))|PRORES(?=[HQ]?|-|_)', df_row['NAME'])
+            framerate_match = re.search(r'[25][359](?![a-zA-Z]+|_|-)[\.]?([46789]{1,3})?', df_row['NAME'])
             duration_match=int(df_row['CONTENTLENGTH']) * 1000
-            v_width, v_height = est_resolution(df_row)
+            v_width, v_height = est_resolution(df_row, codec_match)
 
             if framerate_match is not None:
                 framerate=framerate_match.group(0)
@@ -91,20 +88,30 @@ def get_mediainfo(df_row, metaxml):
     return mediainfo
 
 
-def est_resolution(df_row):
+def est_resolution(df_row, codec_match):
     """
     Estimate the resolution based on filesize.
     """
+    
+    if codec_match is not None: 
+        codec = codec_match.group(0)
 
     if (int(df_row['FILESIZE']) > 33000000000 and
-        int(df_row['FILESIZE']) < 200000000000):
+        int(df_row['FILESIZE']) < 200000000000
+        and codec is 'PRORES'):
         v_width='1920'
         v_height='1080'
         est_msg=f"{df_row['GUID']} - {df_row['NAME']} - Estimating file is HD - 1920x1080."
         logger.info(est_msg)
+    elif codec is 'XAVC' or codec is 'UHD':
+        v_width='3840'
+        v_height='2160'
+        est_msg=f"{df_row['GUID']} - {df_row['NAME']} - Estimating file is UHD - 3840x2160."
+        logger.info(est_msg)
     else:
         v_width="NULL"
         v_height="NULL"
+        est_msg = f"{df_row['GUID']} - {df_row['NAME']} - Cannot determine v_width or v_height, setting to Null."
 
     return v_width, v_height
 
