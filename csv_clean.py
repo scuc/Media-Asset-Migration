@@ -8,6 +8,8 @@ import config as cfg
 import pandas as pd
 import xml.etree.ElementTree as ET
 
+import get_mediainfo as gmi
+
 logger = logging.getLogger(__name__)
 
 
@@ -79,8 +81,7 @@ def db_clean(date):
             ):
                 df.at[index, 'TITLETYPE'] = 'video'
                 content_type = re.sub('(_|-)', '', video_check.group(0))
-                mediainfo = get_mediainfo(df_row, metaxml)
-
+                mediainfo = gmi.get_mediainfo(df_row, metaxml)
 
             elif (video_check is not None
                   and archive_check is None
@@ -130,72 +131,6 @@ def db_clean(date):
         Index Count: {index}\n\
         "
         logger.exception(db_clean_excp_msg)
-
-
-def get_mediainfo(df_row, metaxml):
-    """
-    Extract mediainfo from the metaxml field of the DB.
-    """
-
-    if df_row['METAXML'] != 0 or df_row['METAXML'] is not 'NULL':
-
-        try:
-            parser = ET.XMLParser(encoding="utf-8")
-            tree = ET.ElementTree(ET.fromstring(metaxml, parser=parser))
-            root = tree.getroot()
-
-            codec = root.find('VideoTrack/Video/Format').text
-            framerate = root.find('VideoTrack/Video/AverageFrameRate').text
-            v_width = root.find('VideoTrack/Video/Width').text
-            v_height = root.find('VideoTrack/Video/Height').text
-            duration = root.find('DurationInMs').text
-
-            if codec == "AVC" and int(v_width) < 720:
-                codec = "NULL"
-                if (int(df_row['FILESIZE']) > 30000000000 and
-                        int(df_row['FILESIZE']) < 200000000000):
-                    v_width = '1920'
-                    v_height = '1080'
-                    est_msg = f"{row['GUID']} - {row['NAME']} - Estimating file is HD - 1920x1080."
-                    logger.info(est_msg)
-                else:
-                    v_width = "NULL"
-                    v_height = "NULL"
-
-            if v_height == '1062' and v_width == '1888':
-                v_width = '1920'
-                v_height = '1080'
-            else:
-                pass
-
-            mediainfo = [framerate, codec, v_width, v_height, duration]
-
-        except Exception as e:
-            mediainfo_err_msg = f"\
-            \n\
-            Exception raised on get_mediainfo.\n\
-            Setting mediainfo values to 'NULL'\n\
-            GUID: {df_row['GUID']}\n\
-            NAME: {df_row['NAME']}\n\
-            \n"
-
-            logger.exception(mediainfo_err_msg)
-
-            framerate = 'NULL'
-            codec = 'NULL'
-            v_width = 'NULL'
-            v_height = 'NULL'
-            duration = 'NULL'
-            mediainfo = [framerate, codec, v_width, v_height, duration]
-
-    else:
-        framerate = 'NULL'
-        codec = 'NULL'
-        v_width = 'NULL'
-        v_height = 'NULL'
-        duration = 'NULL'
-
-    return mediainfo
 
 
 def get_traffic_code(name_clean):
@@ -256,4 +191,4 @@ def clean_name(name):
 
 
 if __name__ == '__main__':
-    db_clean()
+    db_clean('201908190949')
