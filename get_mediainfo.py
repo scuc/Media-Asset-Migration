@@ -28,15 +28,15 @@ def get_mediainfo(df_row, metaxml):
             duration = root.find('DurationInMs').text
 
             if codec == "AVC" and int(v_width) < 720:
-                codec = "NULL"
                 codec_match = re.search(r'(UHD|XAVC(?=[-UHD]?|-|_))|PRORES(?=[HQ]?|-|_)', df_row['NAME'])
+                codec = codec_match.group(0)
                 v_width, v_height = est_resolution(df_row, codec_match)
 
             if v_height == '1062' and v_width == '1888':
                 v_width = '1920'
                 v_height = '1080'
-            else:
-                pass
+            # else:
+            #     pass
 
             mediainfo = [framerate, codec, v_width, v_height, duration]
 
