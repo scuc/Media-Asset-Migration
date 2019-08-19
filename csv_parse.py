@@ -45,15 +45,20 @@ def db_parse(date, merged_csv):
                 name = str(row['NAME']).upper()
                 print(str(index_count) + "    " + name)
 
-                if index_count <= 150000:
+                if index_count <= 180000:
 
                     em_check = re.search(r'([_]VM)|([_]EM)|([_]AVP)|([_]PPRO)|([_]FCP)|([_]PTS)|([_]AVP)|([_]GRFX)|([_]GFX)|([_]UHD)', name)
+                    qc_check = re.search(r'(?<=-|_)OUTGOING(?=[QC]?|-|_)', name)
 
-                    if em_check is not None and parsed_count == 0:
+                    if (em_check is not None 
+                        and qc_check is None
+                        and parsed_count == 0):
                         dft = pd.DataFrame(row).transpose()
                         dft.to_csv(p_csv, mode='a', index=False, header=True)
                         parsed_count += 1
-                    elif em_check is not None and parsed_count != 0:
+                    elif (em_check is not None 
+                          and qc_check is None
+                          and parsed_count != 0):
                         dft = pd.DataFrame(row).transpose()
                         dft.to_csv(p_csv, mode='a', index=False, header=False)
                         parsed_count += 1
