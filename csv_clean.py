@@ -33,6 +33,7 @@ def db_clean(date):
     try:
         pd_reader = pd.read_csv(parsed_csv, header=0)
         df = pd.DataFrame(pd_reader)
+        df = df.astype({"METAXML": str})
 
         df.insert(13, "TITLETYPE", 'NULL', allow_duplicates=True)
         df.insert(14, "FRAMERATE", 'NULL', allow_duplicates=True)
@@ -77,17 +78,17 @@ def db_clean(date):
             if (
                 video_check is not None
                 and archive_check is None
-                and metaxml is not 'NULL'
+                # and metaxml is not 'NULL'
             ):
                 df.at[index, 'TITLETYPE'] = 'video'
                 content_type = re.sub('(_|-)', '', video_check.group(0))
                 mediainfo = gmi.get_mediainfo(df_row, metaxml)
 
-            elif (video_check is not None
-                  and archive_check is None
-                  and metaxml is 'NULL'):
-                df.at[index, 'TITLETYPE'] = 'video'
-                content_type = re.sub('_', '', video_check.group(0))
+            # elif (video_check is not None
+            #       and archive_check is None
+            #       and metaxml is 'NULL'):
+            #     df.at[index, 'TITLETYPE'] = 'video'
+            #     content_type = re.sub('_', '', video_check.group(0))
 
             elif (video_check is None
                   and archive_check is not None):
