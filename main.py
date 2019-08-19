@@ -59,7 +59,7 @@ def main():
     ================================================================\n \
                 Gorilla-Diva Asset Migration Script\n\
                 Version: 0.0.1\n\
-                Date: August 14 2019\n\
+                Date: August 19 2019\n\
     ================================================================\n\
     \n"
 
@@ -72,8 +72,8 @@ def main():
     merged_csv = mdb.pandas_merge(date, diva_csv, gor_csv)
     parsed_csv = csv_p.db_parse(date, merged_csv)
     cleaned_csv = csv_c.db_clean(date)
-    xml_c.create_xml(cleaned_csv, xml_total)
-    gp.get_proxy()
+    # xml_c.create_xml(cleaned_csv, xml_total)
+    # gp.get_proxy()
 
     print("="*25 + "  FINISHED  " + "="*25)
 
