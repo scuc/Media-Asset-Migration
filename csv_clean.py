@@ -13,7 +13,7 @@ import get_mediainfo as gmi
 logger = logging.getLogger(__name__)
 
 
-def db_clean(date):
+def csv_clean(date):
     """
     Parse out data from the db, insert into new fields,  and assign values for these fields in each row.
     """
@@ -192,4 +192,4 @@ def clean_name(name):
 
 
 if __name__ == '__main__':
-    db_clean('201908190949')
+    csv_clean('201908190949')
