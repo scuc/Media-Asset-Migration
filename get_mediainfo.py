@@ -14,7 +14,10 @@ def get_mediainfo(df_row, metaxml):
     Extract mediainfo from the metaxml field of the DB.
     """
 
-    if df_row['METAXML'] is not 'NULL':
+    if df_row['METAXML'] != 'nan':
+
+        print("="*25 + "  NOT NULL  " + "="*25)
+        print(df_row['METAXML'])
 
         try:
             parser = ET.XMLParser(encoding="utf-8")
@@ -45,16 +48,16 @@ def get_mediainfo(df_row, metaxml):
             Exception raised on 1st block of get_mediainfo.\n\
             GUID:  {df_row['GUID']}\n\
             NAME:  {df_row['NAME']}\n\
-            ERROR:  str(e) \n\
+            ERROR:  {str(e)} \n\
             \n"
 
             logger.exception(mediainfo_err_msg)
    
     else:
         try:
-            codec_match = re.search(r'PRORES([HQ]?|-|_)', df_row['NAME'])
-            framerate_match = re.search(r'(29(.97)?|23(.98)?|23(.976)?|25|59(.94)?)', df_row['NAME'])
-            duration_match=int(df_row['CONTENT_LENGTH']) * 1000
+            codec_match = re.search(r'PRORES(?=[HQ]?|-|_)', df_row['NAME'])
+            framerate_match = re.search(r'[25][359](?!\d|_|-)[\.]?([46789]{2,3})?', df_row['NAME'])
+            duration_match=int(df_row['CONTENTLENGTH']) * 1000
             v_width, v_height = est_resolution(df_row)
 
             if framerate_match is not None:
@@ -80,7 +83,7 @@ def get_mediainfo(df_row, metaxml):
             Exception raised on 2nd block of get_mediainfo.\n\
             GUID:  {df_row['GUID']}\n\
             NAME:  {df_row['NAME']}\n\
-            ERROR:  str(e) \n\
+            ERROR:  {str(e)} \n\
             \n"
 
             logger.exception(mediainfo_err_msg)
