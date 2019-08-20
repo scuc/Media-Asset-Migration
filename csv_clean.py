@@ -63,7 +63,6 @@ def csv_clean(date):
                 r_metaxml = r'{}'.format(l_metaxml)
                 metaxml = clean_metaxml(r_metaxml, name_clean)
                 df.at[index, 'METAXML'] = metaxml
-
             else:
                 df.at[index, 'METAXML'] = 'NULL'
                 metaxml = df.at[index, 'METAXML']
@@ -73,22 +72,35 @@ def csv_clean(date):
 
             video_check = re.search(r'([_]VM)|([_]EM)|([_]UHD)', name_clean)
             archive_check = re.search(
-                r'([_]AVP)|([_]PPRO)|([_]FCP)|([_]PTS)|([_]AVP)|([_]GRFX)|([_]GFX)|([_]WAV)', name_clean)
+                r'([_]AVP)|([_]PPRO)|([_]FCP)|([_]PTS)|([_]AVP)|([_]GRFX)|([_]GFX)|([_]WAV)|([_]SPLITS)', name_clean)
 
             if (
                 video_check is not None
-                and archive_check is None
-                # and metaxml is not 'NULL'
-            ):
+                and archive_check is None):
                 df.at[index, 'TITLETYPE'] = 'video'
                 content_type = re.sub('(_|-)', '', video_check.group(0))
                 mediainfo = gmi.get_mediainfo(df_row, metaxml)
 
-            # elif (video_check is not None
-            #       and archive_check is None
-            #       and metaxml is 'NULL'):
-            #     df.at[index, 'TITLETYPE'] = 'video'
-            #     content_type = re.sub('_', '', video_check.group(0))
+                print("")
+                print("MEDIA-INFO:   " + str(mediainfo))
+                print("")
+
+                if mediainfo[4] == 0:
+                    df.at[index, 'TITLETYPE'] = 'archive'
+                    df.at[index, 'CONTENT_TYPE'] = content_type
+                    df.at[index, 'FRAMERATE'] = 'NULL'
+                    df.at[index, 'CODEC'] = 'NULL'
+                    df.at[index, 'V_WIDTH'] = 'NULL'
+                    df.at[index, 'V_HEIGHT'] = 'NULL'
+                    df.at[index, 'DURATION_MS'] = 'NULL'
+
+                else:
+                    df.at[index, 'CONTENT_TYPE'] = content_type
+                    df.at[index, 'FRAMERATE'] = mediainfo[0]
+                    df.at[index, 'CODEC'] = mediainfo[1]
+                    df.at[index, 'V_WIDTH'] = mediainfo[2]
+                    df.at[index, 'V_HEIGHT'] = mediainfo[3]
+                    df.at[index, 'DURATION_MS'] = mediainfo[4]
 
             elif (video_check is None
                   and archive_check is not None):
@@ -108,13 +120,6 @@ def csv_clean(date):
                 logger.info(clean_2_msg)
                 content_type = 'NULL'
                 mediainfo = ['NULL', 'NULL', 'NULL', 'NULL', 'NULL', 'NULL', ]
-
-            df.at[index, 'CONTENT_TYPE'] = content_type
-            df.at[index, 'FRAMERATE'] = mediainfo[0]
-            df.at[index, 'CODEC'] = mediainfo[1]
-            df.at[index, 'V_WIDTH'] = mediainfo[2]
-            df.at[index, 'V_HEIGHT'] = mediainfo[3]
-            df.at[index, 'DURATION_MS'] = mediainfo[4]
 
         df.to_csv(clean_csv)
 
@@ -159,6 +164,9 @@ def get_traffic_code(name_clean):
 
 
 def clean_metaxml(r_metaxml, name):
+    """
+    Replace '&'  and '\\' characters in the metaxml field. 
+    """
 
     xml_search = re.search(r"[<FileName>].*&.*[</FileName>]", r_metaxml)
 
@@ -175,6 +183,9 @@ def clean_metaxml(r_metaxml, name):
 
 
 def clean_name(name):
+    """
+    Replace '&' character with 'and' in the filename field. 
+    """
 
     name_search = re.search(r".*&.*", name)
 
@@ -192,4 +203,4 @@ def clean_name(name):
 
 
 if __name__ == '__main__':
-    csv_clean('201908190949')
+    csv_clean()
