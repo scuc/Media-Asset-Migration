@@ -70,9 +70,10 @@ def csv_clean(date):
             if row['_merge'] is not "both":
                 df.drop(df.index)
 
-            video_check = re.search(r'([_]VM)|([_]EM)|([_]UHD)', name_clean)
+            video_check = re.search(
+                r'((?<![0-9]|[A-Z])|(?<=(-|_)))(VM|EM|UHD)(?=(-|_)?)(?![0-9]|[A-Z])', name_clean)
             archive_check = re.search(
-                r'([_]AVP)|([_]PPRO)|([_]FCP)|([_]PTS)|([_]AVP)|([_]GRFX)|([_]GFX)|([_]WAV)|([_]SPLITS)', name_clean)
+                r'((?<![0-9]|[A-Z])|(?<=(-|_)))(AVP|PPRO|FCP|PTS|AVP|GRFX|GFX|WAV|WAVS|SPLITS)(?=(-|_)?)(?![0-9]|[A-Z])', name_clean)
 
             if (
                 video_check is not None
@@ -147,12 +148,13 @@ def get_traffic_code(name_clean):
     name = str(name_clean)
 
     if name.startswith('0') is not True:
-        code_search = re.search(r"(_|-)?0[0-9]{5}(_|-)?", name)
+        code_search = re.search(
+            r"((?<![0-9]|[A-Z])|(?<=(-|_)))0[0-9]{5}(?=(_|-))", name)
 
         if code_search is not None:
             traffic_match = code_search.group(0)
-            traffic_code_r = re.sub(r'(_|-)', '', traffic_match)
-            traffic_code = "=\"" + traffic_code_r + "\""
+            # traffic_code_r = re.sub(r'(_|-)', '', traffic_match)
+            traffic_code = "=\"" + traffic_match + "\""
         else:
             err_msg = f"Incompatible file ID - {str(name)}. traffic_code set to NULL"
             logger.error(err_msg)
@@ -203,4 +205,4 @@ def clean_name(name):
 
 
 if __name__ == '__main__':
-    csv_clean()
+    csv_clean('201908211053')
