@@ -33,6 +33,7 @@ def csv_clean(date):
     try:
         pd_reader = pd.read_csv(parsed_csv, header=0)
         df = pd.DataFrame(pd_reader)
+        df.index.name = 'Index'
         df = df.astype({"METAXML": str})
 
         df.insert(13, "TITLETYPE", 'NULL', allow_duplicates=True)
@@ -75,8 +76,7 @@ def csv_clean(date):
             archive_check = re.search(
                 r'((?<![0-9]|[A-Z])|(?<=(-|_)))(AVP|PPRO|FCP|PTS|AVP|GRFX|GFX|WAV|WAVS|SPLITS)(?=(-|_)?)(?![0-9]|[A-Z])', name_clean)
 
-            if (
-                video_check is not None
+            if ( video_check is not None
                 and archive_check is None):
                 df.at[index, 'TITLETYPE'] = 'video'
                 content_type = re.sub('(_|-)', '', video_check.group(0))
@@ -205,4 +205,4 @@ def clean_name(name):
 
 
 if __name__ == '__main__':
-    csv_clean('201908211053')
+    csv_clean('201908211731')
