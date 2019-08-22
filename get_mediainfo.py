@@ -31,7 +31,18 @@ def get_mediainfo(df_row, metaxml):
                 v_width = '1920'
                 v_height = '1080'
 
-            v_width, v_height = est_resolution(df_row, codec)
+            if framerate not in ['23.98', '25', '29.97', '59.94']:
+                framerate = framerate[0:2]
+                if framerate == '23': 
+                    framerate = '23.98'
+                elif framerate == '25': 
+                    framerate = '25'
+                elif framerate == '29':
+                    framerate = '29.97'
+                elif framerate == '59':
+                    framerate = '59.94'
+                else:
+                    framerate = get_framerate(df_row)
 
             mediainfo = [framerate, codec, v_width, v_height, duration]
 
@@ -48,59 +59,16 @@ def get_mediainfo(df_row, metaxml):
    
     else:
         try:
-            codec_match = re.search(
-                r'(((?<![A-Z])|(?<=(-|_)))(UHD|XAVC|UHD|PRORES|XDCAM|DNX)(?=(-|_|HQ|HD)?))', df_row['NAME'])
-            framerate_match = re.search(
-                r'(?<![0-9]|[A-Z])[25][359][\.]?([46789]{1,3}(?=[IP]?))?|(?<=(-|_))(NTSC|PAL)(?=(-|_)?)', df_row['NAME'])
-            duration_match=int(df_row['CONTENTLENGTH']) * 1000
+            framerate = get_framerate(df_row)
+            codec = get_codec(df_row)
+            v_width, v_height = est_resolution(df_row, codec)
 
-            if framerate_match is not None:
-                framerate_value=framerate_match.group(0)
-                if framerate_value in ['2398','23976','2997','5994']:
-                    framerate = framerate_value[0:2] + "." + framerate_value[2:]
-                elif framerate_value == 'NTSC':
-                    framerate = 29.97
-                elif framerate_value == 'PAL':
-                    framerate = 25
-                else: 
-                    framerate = framerate_value
-                est_msg = f"{df_row['GUID']} - {df_row['NAME']} - Framerate {framerate} value based on filename."
-                logger.info(est_msg)
-            else:
-                framerate='NULL'
+            duration_match = int(df_row['CONTENTLENGTH']) * 1000
 
             if duration_match != 0:
                 duration=duration_match
             else:
                 duration=0
-
-            if codec_match is not None:
-                codec_value = codec_match.group(0)
-                if str(codec_value) == "XDCAM":
-                    codec = "MPEG Video"
-                    v_width = '1920'
-                    v_height = '1080'
-                elif str(codec_value) == "DNXHD":
-                    codec = "VC-3"
-                    v_width = '1920'
-                    v_height = '1080'
-                elif str(codec_value) == "UHD":
-                    codec = "AVdh"
-                    v_width = '3840'
-                    v_height = '2160'
-                elif str(codec_value) == "PRORES":
-                    codec = "PRORES"
-                    v_width, v_height = est_resolution(df_row, codec_match)
-                else:
-                    codec = codec_value
-                    v_width, v_height = est_resolution(df_row, codec_match)
-
-                est_msg = f"{df_row['GUID']} - {df_row['NAME']} - filesize: {df_row['FILESIZE']} - Estimating file is HD: {v_width}x{v_height},  Codec: {codec} "
-                logger.info(est_msg)
-
-            else:
-                codec = 'NULL'
-                v_width, v_height = est_resolution(df_row, codec_match)
 
             mediainfo = [framerate, codec, v_width, v_height, duration]
             
@@ -118,15 +86,78 @@ def get_mediainfo(df_row, metaxml):
     return mediainfo
 
 
+def get_codec(df_row):
+    """
+    Match the codec of a file using the info in the filename. 
+    """
+    codec_match = re.search(r'(((?<![A-Z])|(?<=(-|_)))(UHD|XAVC|UHD|PRORES|XDCAM|DNX)(?=(-|_|HQ|HD)?))', df_row['NAME'])
+    
+    if codec_match is not None:
+        codec_value = codec_match.group(0)
+        if str(codec_value) == "XDCAM":
+            codec = "MPEG Video"
+            v_width = '1920'
+            v_height = '1080'
+        elif str(codec_value) == "DNXHD":
+            codec = "VC-3"
+            v_width = '1920'
+            v_height = '1080'
+        elif str(codec_value) == "UHD":
+            codec = "AVdh"
+            v_width = '3840'
+            v_height = '2160'
+        elif str(codec_value) == "PRORES":
+            codec = "PRORES"
+            v_width, v_height = est_resolution(df_row, codec_match)
+        else:
+            codec = codec_value
+            v_width, v_height = est_resolution(df_row, codec_match)
+
+    else:
+        codec = 'NULL'
+        v_width, v_height = est_resolution(df_row, codec_match)
+
+    est_msg = f'{df_row["GUID"]} - {df_row["NAME"]} - filesize: {df_row["FILESIZE"]} - Estimating file is HD: {v_width}x{v_height},  Codec: {codec}'
+    logger.info(est_msg)
+
+    return codec 
+
+
+def get_framerate(df_row):
+    """
+    Match the framerate of a file using the info in the filename.
+    """
+    framerate_match = re.search(
+        r'(?<![0-9]|[A-Z])(25|23|29|59)[\.]?((98|976|97|94)(?=[IP]?))?|(?<=(-|_))(NTSC|PAL)(?=(-|_)?)', df_row['NAME'])
+    if framerate_match is not None:
+        framerate_value = framerate_match.group(0)
+        if framerate_value in ['2398', '23976', '2997', '5994']:
+            framerate = framerate_value[0:2] + \
+                "." + framerate_value[2:]
+        elif framerate_value == 'NTSC':
+            framerate = 29.97
+        elif framerate_value == 'PAL':
+            framerate = 25
+        else:
+            framerate = framerate_value
+    
+        est_msg = f"{df_row['GUID']} - {df_row['NAME']} - Framerate {framerate} value based on filename."
+        logger.info(est_msg)
+
+    else:
+        framerate = 'NULL'
+
+    return framerate
+
 def est_resolution(df_row, codec):
     """
-    Estimate the resolution based on filesize.
+    Estimate the resolution based on filesize and codec.
     """
 
     if (int(df_row['FILESIZE']) > 18000000000 and
         int(df_row['FILESIZE']) < 200000000000
-        and codec is not 'XAVC' 
-        and codec is not 'UHD'
+        and codec !='XAVC' 
+        and codec != 'UHD'
         and df_row['CONTENTLENGTH'] != 0):
         v_width='1920'
         v_height='1080'
