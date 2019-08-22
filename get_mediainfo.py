@@ -128,7 +128,7 @@ def get_framerate(df_row):
     Match the framerate of a file using the info in the filename.
     """
     framerate_match = re.search(
-        r'(?<![0-9]|[A-Z])(23|25|29|59)[\.]?((98|976|97|94)(?=[IP]?))?|(?<=(-|_))(NTSC|PAL)(?=(-|_)?)|(?<=(-|_))(24P|720P)(?=(-|_)?)', df_row['NAME'])
+        r'(?<![0-9]|[A-Z])(23|25|29|59)\.?((98|976|97|94)(?=[IP]?))?|(?<=(-|_))(NTSC|PAL)(?=(-|_)?)|(?<=(-|_))(24P|720P)(?=(-|_)?)', df_row['NAME'][6:])
     if framerate_match is not None:
         framerate_value = framerate_match.group(0)
         if framerate_value in ['2398', '23976', '2997', '5994']:
