@@ -73,11 +73,31 @@ def csv_clean(date):
             if row['_merge'] is not "both":
                 df.drop(df.index)
 
-            video_check = re.search(
+            video_check_1 = re.search(
                 r'((?<![0-9]|[A-Z])|(?<=(-|_)))(VM|EM|UHD)(?=(-|_)?)(?![0-9]|[A-Z])', name_clean)
-            archive_check = re.search(
-                r'((?<![0-9]|[A-Z])|(?<=(-|_)))(AVP|PPRO|FCP|PTS|AVP|GRFX|GFX|WAV|WAVS|SPLITS)(?=(-|_)?)(?![0-9]|[A-Z])', name_clean)
+            video_check_2 = re.search(
+                r'((?<![0-9]|[A-Z])|(?<=(-|_)))(VM|EM)(?=(-|_)?)(?![0-9]|[A-Z])', name_clean)
+            video_check_3 = re.search(
+                r'((?<![0-9]|[A-Z])|(?<=(-|_)))(UHD|VM|EM)(?=(-|_)?)(?![0-9]|[A-Z])', name_clean)
 
+            if video_check_1 is not None:
+                if (video_check_1.group(0) == 'UHD'
+                    and video_check_2.group(0) == "EM"
+                    or video_check_1.group(0) == 'EM'
+                        and video_check_3.group(0) == 'UHD'):
+                    content_type_v = 'UHD,EM'
+                elif (video_check_1.group(0) == 'UHD'
+                        and video_check_2.group(0) == "VM"
+                        or video_check_1.group(0) == 'VM'
+                        and video_check_3.group(0) == 'UHD'):
+                        content_type_v = 'UHD,VM'
+                else:
+                    content_type_v = video_check_1.group(0)
+            else:
+                content_type_v = None
+
+            archive_check = re.search(r'((?<![0-9]|[A-Z])|(?<=(-|_)))(AVP|PPRO|FCP|PTS|AVP|GRFX|GFX|WAV|WAVS|SPLITS)(?=(-|_)?)(?![0-9]|[A-Z])', name_clean)
+            
             if archive_check is not None: 
                 if archive_check.group(0) == 'SPLITS':
                     content_type_a = "WAV"
@@ -90,19 +110,7 @@ def csv_clean(date):
             else: 
                 content_type_a = None
 
-            if video_check is not None: 
-                if (video_check.group(0) == 'UHD'
-                    and video_check.group(1) == 'EM'):
-                    content_type_v = 'UHD,EM'
-                elif (video_check.group(0) == 'UHD'
-                    and video_check.group(1) == 'VM'):
-                    content_type_v = 'UHD,VM'
-                else:
-                    content_type_v = video_check.group(0)
-            else:
-                content_type_v = None
-
-            if (video_check is not None
+            if (video_check_1 is not None
                 and archive_check is None):
                 df.at[index, 'TITLETYPE'] = 'video'
                 mediainfo = gmi.get_mediainfo(df_row, metaxml)
@@ -128,13 +136,13 @@ def csv_clean(date):
                     df.at[index, 'V_HEIGHT'] = mediainfo[3]
                     df.at[index, 'DURATION_MS'] = mediainfo[4]
 
-            elif (video_check is None
+            elif (video_check_1 is None
                   and archive_check is not None):
                 df.at[index, 'TITLETYPE'] = 'archive'
                 df.at[index, 'CONTENT_TYPE'] = content_type_a
                 mediainfo = ['NULL', 'NULL', 'NULL', 'NULL', 'NULL', 'NULL', ]
 
-            elif (video_check is not None
+            elif (video_check_1 is not None
                   and archive_check is not None):
                 df.at[index, 'TITLETYPE'] = 'archive'
                 df.at[index, 'CONTENT_TYPE'] = content_type_a
@@ -148,14 +156,13 @@ def csv_clean(date):
                 mediainfo = ['NULL', 'NULL', 'NULL', 'NULL', 'NULL', 'NULL', ]
 
         df.to_csv(clean_csv)
+        os.chdir(rootpath)
 
         conn = db.connect()
         db.create_table('database.db', 'assets', df)
 
         clean_3_msg = f"GORILLA-DIVA DB CLEAN COMPLETE, NEW DB TABLE CREATED"
         logger.info(clean_3_msg)
-
-        os.chdir(rootpath)
 
         return clean_csv
 
@@ -233,4 +240,4 @@ def clean_name(name):
 
 
 if __name__ == '__main__':
-    csv_clean('201908211731')
+    csv_clean('201908231545')
