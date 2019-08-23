@@ -90,7 +90,7 @@ def csv_clean(date):
             else: 
                 content_type_a = None
 
-            if archive_check is not None: 
+            if video_check is not None: 
                 if (video_check.group(0) == 'UHD'
                     and video_check.group(1) == 'EM'):
                     content_type_v = 'UHD,EM'
