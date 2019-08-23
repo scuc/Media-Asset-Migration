@@ -9,7 +9,7 @@ import user_input as ui
 
 import diva_oracle_query as d_query
 import gorilla_oracle_query as g_query
-import merge_gor_diva_dbs as mdb
+import merge_dbs as mdb
 
 from time import localtime, strftime
 from logging.handlers import TimedRotatingFileHandler
@@ -65,15 +65,22 @@ def main():
 
     logger.info(start_msg)
 
-    xml_total = ui.get_user_input()
+    xml_total, getnew_db = ui.get_user_input()
 
-    gor_csv = g_query.buildcsv(date)
-    diva_csv = d_query.buildcsv(date)
-    merged_csv = mdb.pandas_merge(date, diva_csv, gor_csv)
-    parsed_csv = csv_p.db_parse(date, merged_csv)
-    cleaned_csv = csv_c.csv_clean(date)
-    # xml_c.create_xml(cleaned_csv, xml_total)
-    # gp.get_proxy()
+    if getnew_db == True: 
+        gor_csv = g_query.buildcsv(date)
+        diva_csv = d_query.buildcsv(date)
+        merged_csv = mdb.pandas_merge(date, diva_csv, gor_csv)
+        parsed_csv = csv_p.db_parse(date, merged_csv)
+        cleaned_csv = csv_c.csv_clean(date)
+        final_steps(cleaned_csv, xml_total)
+    else: 
+        final_steps(cleaned_csv, xml_total)
+
+
+def final_steps(date, xml_total):
+    xml_c.create_xml(date, xml_total)
+    gp.get_proxy()
 
     print("="*25 + "  FINISHED  " + "="*25)
 
