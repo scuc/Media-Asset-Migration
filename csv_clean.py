@@ -80,7 +80,10 @@ def csv_clean(date):
             video_check_3 = re.search(
                 r'((?<![0-9]|[A-Z])|(?<=(-|_)))(UHD|VM|EM)(?=(-|_)?)(?![0-9]|[A-Z])', name_clean)
 
-            if video_check_1 is not None:
+            if (video_check_1 is not None
+                and video_check_2 is not None
+                and video_check_3 is not None):
+
                 if (video_check_1.group(0) == 'UHD'
                     and video_check_2.group(0) == "EM"
                     or video_check_1.group(0) == 'EM'
@@ -94,7 +97,8 @@ def csv_clean(date):
                 else:
                     content_type_v = video_check_1.group(0)
             else:
-                content_type_v = None
+                if video_check_2 is not None: 
+                    content_type_v = video_check_2.group(0)
 
             archive_check = re.search(r'((?<![0-9]|[A-Z])|(?<=(-|_)))(AVP|PPRO|FCP|PTS|AVP|GRFX|GFX|WAV|WAVS|SPLITS)(?=(-|_)?)(?![0-9]|[A-Z])', name_clean)
             
@@ -240,4 +244,4 @@ def clean_name(name):
 
 
 if __name__ == '__main__':
-    csv_clean('201908231545')
+    csv_clean('201908231610')
