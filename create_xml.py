@@ -13,19 +13,17 @@ from xml.dom import minidom
 logger = logging.getLogger(__name__)
 
 
-def create_xml(cleaned_csv, xml_total):
+def create_xml(date, xml_total):
     """
     Use the merged, parsed, cleaned, DB data to generate an XML used for file check in on the MAM.
     """
 
     config = cfg.get_config()
     rootpath = config['paths']['rootpath']
-    clean_csv = os.path.join(rootpath, '_CSV_Exports/', cleaned_csv)
+    clean_csv = os.path.join(rootpath, '_CSV_Exports/', date, "_gor_diva_merged_cleaned.csv")
 
     pd_reader = pd.read_csv(clean_csv, header=0)
     df_csv = pd.DataFrame(pd_reader)
-    conn = db.connect()
-    db.create_table('database.db','assets', df_csv)
 
     xml_1_msg = f"START GORILLA-DIVA XML CREATION"
     logger.info(xml_1_msg)
