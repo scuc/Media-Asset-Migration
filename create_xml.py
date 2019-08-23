@@ -6,6 +6,8 @@ import os
 import config as cfg
 import pandas as pd
 
+import database as db
+
 from xml.dom import minidom
 
 logger = logging.getLogger(__name__)
@@ -17,10 +19,13 @@ def create_xml(cleaned_csv, xml_total):
     """
 
     config = cfg.get_config()
-
     rootpath = config['paths']['rootpath']
-
     clean_csv = os.path.join(rootpath, '_CSV_Exports/', cleaned_csv)
+
+    pd_reader = pd.read_csv(clean_csv, header=0)
+    df_csv = pd.DataFrame(pd_reader)
+    conn = db.connect()
+    db.create_table('database.db','assets', df_csv)
 
     xml_1_msg = f"START GORILLA-DIVA XML CREATION"
     logger.info(xml_1_msg)
@@ -30,17 +35,22 @@ def create_xml(cleaned_csv, xml_total):
     with open(clean_csv, mode='r', encoding='utf-8-sig') as c_csv:
 
         try:
-            pd_reader = pd.read_csv(c_csv, header=0)
-            df = pd.DataFrame(pd_reader)
-            df.sort_values(by=['CREATEDT'], ascending=False)
+            pd_reader = pd.read_sql(
+                'SELECT * FROM assets', conn, index_col=['ROWID'])
+            df_db = pd.DataFrame(pd_reader)
+            df_db.sort_values(by=['CREATEDT'], ascending=False)
 
-            count = 0
+            xml_count = 0
 
-            for index, row in df.iterrows():
+            for index, row in df_db.iterrows():
 
-                if (row['XML_CREATED'] == 0
-                    and count <= int(xml_total)):
-
+                if xml_count > int(xml_total):
+                    break
+                elif row['XML_CREATED'] == 1:
+                    print('='*20 + '  skipping  '  + '='*20)
+                    print(str(index) +"    " + str(row['NAME']))
+                    continue
+                else:
                     guid = row['GUID']
                     name = row['NAME']
                     datatapeid = row['DATATAPEID']
@@ -96,10 +106,15 @@ def create_xml(cleaned_csv, xml_total):
                         xdoc.write(xmlstr)
                         xdoc.close()
 
-                    df.at[index, 'XML_CREATED'] = "1"
-                    count += 1
+                        df_db.at[index, 'XML_CREATED'] = "1"
+                        # db.update_table('assets', df_db.iloc[index])
+                        xml_count += 1
+                        print("#"*20 + "   XML CREATED   " + "#"*20)
+                        print(str(index) + "    " + str(xml_doc))
 
             os.chdir(rootpath)
+            df_db.to_sql('assets', conn, if_exists='replace')
+
             xml_2_msg = f"GORILLA-DIVA XML CREATION COMPLETED"
             logger.info(xml_2_msg)
             print(xml_2_msg)
@@ -115,7 +130,7 @@ def create_xml(cleaned_csv, xml_total):
 
 
 if __name__ == '__main__':
-    create_xml()
+    create_xml('201908211731_gor_diva_merged_cleaned.csv', 5)
 
 
 # create_xml(cleaned_csv='201908131300_gor_diva_merged_cleaned.csv')
