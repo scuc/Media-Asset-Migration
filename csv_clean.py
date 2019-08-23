@@ -8,6 +8,7 @@ import config as cfg
 import pandas as pd
 import xml.etree.ElementTree as ET
 
+import database as db
 import get_mediainfo as gmi
 
 logger = logging.getLogger(__name__)
@@ -33,7 +34,7 @@ def csv_clean(date):
     try:
         pd_reader = pd.read_csv(parsed_csv, header=0)
         df = pd.DataFrame(pd_reader)
-        df.index.name = 'Index'
+        df.index.name = 'ROWID'
         df = df.astype({"METAXML": str})
 
         df.insert(13, "TITLETYPE", 'NULL', allow_duplicates=True)
@@ -44,6 +45,7 @@ def csv_clean(date):
         df.insert(18, "TRAFFIC_CODE", 'NULL', allow_duplicates=True)
         df.insert(19, "DURATION_MS", 'NULL', allow_duplicates=True)
         df.insert(20, "XML_CREATED", 0, allow_duplicates=True)
+        df.insert(21, "CONTENT_TYPE", 'NULL', allow_duplicates=True)
 
         df.to_csv(clean_csv)
 
@@ -76,10 +78,33 @@ def csv_clean(date):
             archive_check = re.search(
                 r'((?<![0-9]|[A-Z])|(?<=(-|_)))(AVP|PPRO|FCP|PTS|AVP|GRFX|GFX|WAV|WAVS|SPLITS)(?=(-|_)?)(?![0-9]|[A-Z])', name_clean)
 
-            if ( video_check is not None
+            if archive_check is not None: 
+                if archive_check.group(0) == 'SPLITS':
+                    content_type_a = "WAV"
+                elif archive_check.group(0) == 'WAVS':
+                    content_type_a = "WAV"
+                elif archive_check.group(0) == 'GFX':
+                    content_type_a = "GRFX"
+                else:
+                    content_type_a = archive_check.group(0)
+            else: 
+                content_type_a = None
+
+            if archive_check is not None: 
+                if (video_check.group(0) == 'UHD'
+                    and video_check.group(1) == 'EM'):
+                    content_type_v = 'UHD,EM'
+                elif (video_check.group(0) == 'UHD'
+                    and video_check.group(1) == 'VM'):
+                    content_type_v = 'UHD,VM'
+                else:
+                    content_type_v = video_check.group(0)
+            else:
+                content_type_v = None
+
+            if (video_check is not None
                 and archive_check is None):
                 df.at[index, 'TITLETYPE'] = 'video'
-                content_type = re.sub('(_|-)', '', video_check.group(0))
                 mediainfo = gmi.get_mediainfo(df_row, metaxml)
 
                 print("")
@@ -88,7 +113,7 @@ def csv_clean(date):
 
                 if mediainfo[4] == 0:
                     df.at[index, 'TITLETYPE'] = 'archive'
-                    df.at[index, 'CONTENT_TYPE'] = content_type
+                    df.at[index, 'CONTENT_TYPE'] = content_type_v
                     df.at[index, 'FRAMERATE'] = 'NULL'
                     df.at[index, 'CODEC'] = 'NULL'
                     df.at[index, 'V_WIDTH'] = 'NULL'
@@ -96,7 +121,7 @@ def csv_clean(date):
                     df.at[index, 'DURATION_MS'] = 'NULL'
 
                 else:
-                    df.at[index, 'CONTENT_TYPE'] = content_type
+                    df.at[index, 'CONTENT_TYPE'] = content_type_v
                     df.at[index, 'FRAMERATE'] = mediainfo[0]
                     df.at[index, 'CODEC'] = mediainfo[1]
                     df.at[index, 'V_WIDTH'] = mediainfo[2]
@@ -106,25 +131,28 @@ def csv_clean(date):
             elif (video_check is None
                   and archive_check is not None):
                 df.at[index, 'TITLETYPE'] = 'archive'
-                content_type = re.sub('_', '', archive_check.group(0))
+                df.at[index, 'CONTENT_TYPE'] = content_type_a
                 mediainfo = ['NULL', 'NULL', 'NULL', 'NULL', 'NULL', 'NULL', ]
 
             elif (video_check is not None
                   and archive_check is not None):
                 df.at[index, 'TITLETYPE'] = 'archive'
-                content_type = re.sub('_', '', archive_check.group(0))
+                df.at[index, 'CONTENT_TYPE'] = content_type_a
                 mediainfo = ['NULL', 'NULL', 'NULL', 'NULL', 'NULL', 'NULL', ]
 
             else:
                 df.at[index, 'TITLETYPE'] = 'NULL'
                 clean_2_msg = f"TITLETYPE for {name} is NULL. "
                 logger.info(clean_2_msg)
-                content_type = 'NULL'
+                df.at[index, 'CONTENT_TYPE'] = 'NULL'
                 mediainfo = ['NULL', 'NULL', 'NULL', 'NULL', 'NULL', 'NULL', ]
 
         df.to_csv(clean_csv)
 
-        clean_3_msg = f"GORILLA-DIVA DB CLEAN COMPLETE"
+        conn = db.connect()
+        db.create_table('database.db', 'assets', df)
+
+        clean_3_msg = f"GORILLA-DIVA DB CLEAN COMPLETE, NEW DB TABLE CREATED"
         logger.info(clean_3_msg)
 
         os.chdir(rootpath)
