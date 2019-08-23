@@ -16,7 +16,6 @@ def get_user_input():
             else:
                 xml_total = xml_val
                 xml_info_msg = (f"{xml_total} selected value for xml creation.")
-                logger.info(xml_info_msg)
                 break
 
         except ValueError as e:
@@ -25,37 +24,37 @@ def get_user_input():
             Error Message:  {str(e)} \n\
             "
             print(f"{xml_val} is not a valid entry for the starting index, try again.")
+            logger.error(xml_excp_msg)
             continue
 
-    return xml_total
+    while True:
+        get_db = str(
+            input(f"Export a new copy of the Gor DB? [Y/N]  "))
+
+        try:
+            if str(get_db.upper()) in ["Y", "YES"]:
+                getnew_db = True
+            elif str(get_db.upper()) in ["N", "NO"]:
+                getnew_db = False
+            else:
+                print("Not a valid entry, please try again.")
+                continue
+            getdb_info_msg = (f"Create a new DB export: {getnew_db}")
+            break
+
+        except ValueError as e:
+            getnew_db_excp_msg = f"\n\
+            ValueError raised for the getnew_db value: {getnew_db_excp_msg}.\n\
+            Error Message:  {str(e)} \n\
+            "
+            print(f"{str(get_db)} is not a valid response, it must be Yes or No.")
+            logger.error(getnew_db_excp_msg)
+            continue
+
+    logger.info(xml_info_msg)
+    logger.info(getdb_info_msg)
+    return xml_total, getnew_db
 
 
 if __name__ == '__main__':
     get_user_input()
-
-
-
-
-    # while True:
-    #     index_1 = str(input(f"\
-    #         Index Number to start creating XMLs \
-    #         (enter 0 to start at the the first row): "))
-    #     try:
-    #         index_start = int(index_1)
-    #         break
-    #     except ValueError:
-    #         print(f"{index_1} is not a valid entry for the starting index, try again.")
-    #         continue
-
-    # while True:
-    #     index_2 = str(input(f"\
-    #         Index Number to stop creating XMLs\
-    #         (enter 0 to stop at the the final row): "))
-    #     try:
-    #         index_stop = int(index_2)
-    #         break
-    #     except ValueError:
-    #         print(f"{index_2} is not a valid entry for the stopping index, try again.")
-    #         continue
-
-    # return index_start, index_stop
