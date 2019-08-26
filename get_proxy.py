@@ -2,7 +2,9 @@
 
 import logging
 import os
-import shutil
+import subprocess
+
+import database as db
 
 import config as cfg
 import xml.etree.ElementTree as ET
@@ -17,6 +19,7 @@ def get_proxy():
     """
 
     config = cfg.get_config()
+    conn = db.connect()
 
     xmlpath = config['paths']['xmlpath']
     proxypath = config['paths']['proxypath']
@@ -51,7 +54,7 @@ def get_proxy():
 
                 glist = [guid[i:i+n] for i in range(0, len(guid), n)]
 
-                full_proxypath = os.path.join(proxypath, glist[2], glist[3], xml[:-4], xml[:-4] + '.mov')
+                full_proxypath = os.path.join(proxypath, glist[2], glist[3], proxy_fn)
 
                 if os.path.exists(full_proxypath) is not True:
                     proxy_err_msg = f"Proxy path does not exist. \
@@ -60,20 +63,32 @@ def get_proxy():
 
                 else:
                     try:
-                        shutil.copy2(full_proxypath, tmp_checkin)
-                        proxy_cp_msg = f"{proxy_fn} was copied to the dalet tmp."
-                        logger.info(proxy_cp_msg)
+                        print("")
+                        pcopy = subprocess.Popen(["rsync", "-vaE", "--progress", full_proxypath, tmp_checkin],
+                        stderr=subprocess.PIPE, stdout=subprocess.PIPE, universal_newlines=True)
+                        stdout, stderr = pcopy.communicate()
+                        logger.info(stdout)
+                        logger.error(stderr)
+                        
+                        xcopy = subprocess.Popen(["rsync", "-vaE", "--progress", tmp_checkin, xml],
+                        stderr=subprocess.PIPE, stdout=subprocess.PIPE, universal_newlines=True)
+                        stdout, stderr = xcopy.communicate()
+                        logger.info(stdout)
+                        logger.error(stderr)
 
-                        shutil.move(xml_fpath, os.path.join(tmp_checkin, xml))
+                        proxy_copied = 1
+                        db.update_row(index, proxy_copied)
+                        
+                        proxy_cp_msg = f"{proxy_fn} was copied to the dalet tmp."
                         xml_mv_msg = f"{xml} was moved to the dalet tmp."
                         logger.info(xml_mv_msg)
+                        logger.info(proxy_cp_msg)
 
                     except Exception as e:
                         proxy_excp_msg = f"\n\
                         Exception raised on the Proxy copy.\n\
                         Error Message:  {str(e)} \n\
                         "
-
                         logger.exception(proxy_excp_msg)
 
 
