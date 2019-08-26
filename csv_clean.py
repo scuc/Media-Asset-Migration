@@ -45,7 +45,8 @@ def csv_clean(date):
         df.insert(18, "TRAFFIC_CODE", 'NULL', allow_duplicates=True)
         df.insert(19, "DURATION_MS", 'NULL', allow_duplicates=True)
         df.insert(20, "XML_CREATED", 0, allow_duplicates=True)
-        df.insert(21, "CONTENT_TYPE", 'NULL', allow_duplicates=True)
+        df.insert(21, "PROXY_COPIED", 0, allow_duplicates=True)
+        df.insert(22, "CONTENT_TYPE", 'NULL', allow_duplicates=True)
 
         df.to_csv(clean_csv)
 
