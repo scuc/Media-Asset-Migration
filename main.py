@@ -1,6 +1,7 @@
 #! /usr/bin/env python3
 
 import config as cfg
+import crosscheck_assets as cca
 import csv_parse as csv_p
 import csv_clean as csv_c
 import create_xml as xml_c
@@ -65,20 +66,27 @@ def main():
 
     logger.info(start_msg)
 
-    xml_total, getnew_db = ui.get_user_input()
+    xml_total, getnew_db, crosscheck_db = ui.get_user_input()
+    print(xml_total, getnew_db, crosscheck_db)
 
     if getnew_db == True: 
         gor_csv = g_query.buildcsv(date)
         diva_csv = d_query.buildcsv(date)
         merged_csv = mdb.pandas_merge(date, diva_csv, gor_csv)
         parsed_csv = csv_p.db_parse(date, merged_csv)
-        cleaned_csv = csv_c.csv_clean(date)
+        cleaned_csv, tablename = csv_c.csv_clean(date)
+        cca.crosscheck_assets(table_name)
+        final_steps(cleaned_csv, xml_total)
+    elif (getnew_db == False
+          and crosscheck_db == True):
+        cca.crosscheck_assets(table_name)
         final_steps(cleaned_csv, xml_total)
     else: 
         final_steps(cleaned_csv, xml_total)
 
 
 def final_steps(date, xml_total):
+    cca.crosscheck_assets(table_name)
     xml_c.create_xml(date, xml_total)
     gp.get_proxy()
 
