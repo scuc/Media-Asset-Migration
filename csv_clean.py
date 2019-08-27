@@ -75,11 +75,11 @@ def csv_clean(date):
                 df.drop(df.index)
 
             video_check_1 = re.search(
-                r'((?<![0-9]|[A-Z])|(?<=(-|_)))(VM|EM|UHD)(?=(-|_)?)(?![0-9]|[A-Z])', name_clean)
+                r'((?<![0-9]|[A-Z])|(?<=(-|_)))(VM|EM|UHD)(?=(-|_|[1-5])?)(?![A-Z])', name_clean)
             video_check_2 = re.search(
-                r'((?<![0-9]|[A-Z])|(?<=(-|_)))(VM|EM)(?=(-|_)?)(?![0-9]|[A-Z])', name_clean)
+                r'((?<![0-9]|[A-Z])|(?<=(-|_)))(VM|EM)(?=(-|_|[1-5])?)(?![A-Z])', name_clean)
             video_check_3 = re.search(
-                r'((?<![0-9]|[A-Z])|(?<=(-|_)))(UHD|VM|EM)(?=(-|_)?)(?![0-9]|[A-Z])', name_clean)
+                r'((?<![0-9]|[A-Z])|(?<=(-|_)))(UHD|VM|EM)(?=(-|_|[1-5])?)(?![A-Z])', name_clean)
 
             if (video_check_1 is not None
                 and video_check_2 is not None
@@ -164,12 +164,13 @@ def csv_clean(date):
         os.chdir(rootpath)
 
         conn = db.connect()
-        db.create_table('database.db', 'assets', df)
+        tablename = 'assets'
+        db.create_table('database.db', table_name, df)
 
         clean_3_msg = f"GORILLA-DIVA DB CLEAN COMPLETE, NEW DB TABLE CREATED"
         logger.info(clean_3_msg)
 
-        return clean_csv
+        return clean_csv, tablename
 
     except Exception as e:
         db_clean_excp_msg = f"\n\
