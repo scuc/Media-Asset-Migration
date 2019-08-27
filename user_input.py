@@ -18,7 +18,7 @@ def get_user_input():
             else:
                 xml_total = xml_val
                 xml_info_msg = (
-                    f"{xml_total} selected value for xml creation.")
+                    f"Selected value for xml creation: {xml_total}")
                 break
 
         except ValueError as e:
