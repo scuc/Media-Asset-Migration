@@ -165,7 +165,7 @@ def csv_clean(date):
 
         conn = db.connect()
         tablename = 'assets'
-        db.create_table('database.db', table_name, df)
+        db.create_table('database.db', tablename, df)
 
         clean_3_msg = f"GORILLA-DIVA DB CLEAN COMPLETE, NEW DB TABLE CREATED"
         logger.info(clean_3_msg)
@@ -246,4 +246,4 @@ def clean_name(name):
 
 
 if __name__ == '__main__':
-    csv_clean('201908231610')
+    csv_clean('201908271542')
