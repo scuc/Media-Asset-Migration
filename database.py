@@ -78,10 +78,10 @@ def update_row(tablename, col_name, col_value, index):
 def fetchone_xml(guid): 
     try: 
         conn = connect()
-        c = conn.cursor()
+        cur = conn.cursor()
         sql = '''SELECT rowid, xml_created FROM assets WHERE guid = ?'''
         params = (guid,)
-        xml_status = c.execute(sql, params).fetchone()
+        xml_status = cur.execute(sql, params).fetchone()
         conn.close()
         return xml_status
     except Exception as e: 
@@ -93,10 +93,10 @@ def fetchone_xml(guid):
 def fetchone_proxy(guid): 
     try:
         conn = connect()
-        c = conn.cursor()
+        cur = conn.cursor()
         sql = '''SELECT rowid, proxy_copied FROM assets WHERE guid = ?'''
         params = (guid,)
-        proxy_status = c.execute(sql, params).fetchone()
+        proxy_status = cur.execute(sql, params).fetchone()
         conn.close()
         return proxy_status
     except Exception as e: 
