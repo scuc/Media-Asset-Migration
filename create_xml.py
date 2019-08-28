@@ -125,7 +125,6 @@ def create_xml(xml_total):
                 logger.info(xmlcreate_msg)
                 xml_count += 1
             else:
-                print("break")
                 break
 
         xml_2_msg = f"GORILLA-DIVA XML CREATION COMPLETED"
@@ -143,5 +142,5 @@ def create_xml(xml_total):
 
 
 if __name__ == '__main__':
-    create_xml(2)
+    create_xml(1)
 
