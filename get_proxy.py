@@ -40,44 +40,36 @@ def get_proxy():
 
             titletype = root[0][8].text
 
-            if titletype != "video":
+            if titletype == "archive":
                 tt_info_msg = f"{xml} titletype is not 'video', skipping get_proxy."
                 logger.info(tt_info_msg)
-                pass
-                # set up a move for the XML if it is an archive
+                file_copy(xml_fpath, tmp_checkin)
 
-            else:
+            elif titletype == "video":
                 guid_x = xml.replace("-", "")
-                guid = guid_x[24:-4]
+                guid_r = guid_x[24:-4]
                 proxy_fn = xml[:-4] + '.mov'
+                guid = xml[:-4]
+                
                 n = 2
+                glist = [guid_r[i:i+n] for i in range(0, len(guid_r), n)]
 
-                glist = [guid[i:i+n] for i in range(0, len(guid), n)]
+                proxy_fpath = os.path.join(proxypath, glist[2], glist[3], guid, proxy_fn)
 
-                full_proxypath = os.path.join(proxypath, glist[2], glist[3], proxy_fn)
-
-                if os.path.exists(full_proxypath) is not True:
+                if os.path.exists(proxy_fpath) is not True:
                     proxy_err_msg = f"Proxy path does not exist. \
-                    {full_proxypath}"
+                    {proxy_fpath}"
                     logger.error(proxy_err_msg)
 
                 else:
                     try:
                         print("")
-                        pcopy = subprocess.Popen(["rsync", "-vaE", "--progress", full_proxypath, tmp_checkin],
-                        stderr=subprocess.PIPE, stdout=subprocess.PIPE, universal_newlines=True)
-                        stdout, stderr = pcopy.communicate()
-                        logger.info(stdout)
-                        logger.error(stderr)
-                        
-                        xcopy = subprocess.Popen(["rsync", "-vaE", "--progress", tmp_checkin, xml],
-                        stderr=subprocess.PIPE, stdout=subprocess.PIPE, universal_newlines=True)
-                        stdout, stderr = xcopy.communicate()
-                        logger.info(stdout)
-                        logger.error(stderr)
-
-                        proxy_copied = 1
-                        db.update_row(index, proxy_copied)
+                        pcopy = file_copy(proxy_fpath, tmp_checkin)
+                        xcopy = file_copy(xml_fpath, tmp_checkin)
+                        row = db.fetchone_proxy(guid)
+                        rowid = row[0]
+                        db.update_row('assets', 'proxy_copied', 1, rowid)
+                        os.remove(xml_fpath)
                         
                         proxy_cp_msg = f"{proxy_fn} was copied to the dalet tmp."
                         xml_mv_msg = f"{xml} was moved to the dalet tmp."
@@ -90,6 +82,19 @@ def get_proxy():
                         Error Message:  {str(e)} \n\
                         "
                         logger.exception(proxy_excp_msg)
+            else: 
+                notitletype_msg = f"TitleType not determined for: {xml}"
+                logger.info(notitletype_msg)
+
+
+def file_copy(source, destination): 
+
+    copy = subprocess.Popen(["rsync", "-vaE", "--progress", source, destination],
+    stderr=subprocess.PIPE, stdout=subprocess.PIPE, universal_newlines=True)
+    stdout, stderr = copy.communicate()
+    logger.info(stdout)
+    logger.error(stderr)
+    return 
 
 
 if __name__ == '__main__':
