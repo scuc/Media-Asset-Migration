@@ -53,7 +53,8 @@ def main():
     """
 
     date = str(strftime("%Y%m%d%H%M", localtime()))
-
+    tablename = 'assets'
+ 
     cfg.ensure_dirs()
 
     start_msg = f"\n\
@@ -75,23 +76,23 @@ def main():
         merged_csv = mdb.pandas_merge(date, diva_csv, gor_csv)
         parsed_csv = csv_p.db_parse(date, merged_csv)
         cleaned_csv, tablename = csv_c.csv_clean(date)
-        cca.crosscheck_assets(table_name)
-        final_steps(cleaned_csv, xml_total)
+        cca.crosscheck_assets(tablename)
+        final_steps(date, tablename, xml_total)
     elif (getnew_db == False
           and crosscheck_db == True):
-        cca.crosscheck_assets(table_name)
-        final_steps(cleaned_csv, xml_total)
+        cca.crosscheck_assets(tablename)
+        final_steps(tablename, xml_total)
     else: 
-        final_steps(cleaned_csv, xml_total)
+        final_steps(tablename, xml_total)
 
 
-def final_steps(date, xml_total):
-    cca.crosscheck_assets(table_name)
-    xml_c.create_xml(date, xml_total)
+def final_steps(tablename, xml_total):
+    cca.crosscheck_assets(tablename)
+    xml_c.create_xml(xml_total)
     gp.get_proxy()
 
-    print("="*25 + "  FINISHED  " + "="*25)
-
+    complete_msg = f"{'='*25}  SCRIPT COMPLETE  {'='*25}"
+    logger.info(complete_msg)
 
 if __name__ == '__main__':
     set_logger()
