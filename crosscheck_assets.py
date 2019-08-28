@@ -25,7 +25,6 @@ def crosscheck_assets(tablename):
     plist = []
 
     try:
-
         for root, dirs, files in os.walk(xml_checkin_path):
             for f in files:
                 if f.find("test") != -1:
@@ -42,19 +41,19 @@ def crosscheck_assets(tablename):
         for file in flist: 
             guid = file[:-9]
             xml_status = db.fetchone_xml(guid)
-            print(guid)
             if xml_status != None: 
                 if xml_status[1] != 1:
                     index = xml_status[0]
-                    db.update_row(tablename, index, 'xml_created', 1)
-                    xml_status_msg = f"\n\
-                                        DB updated on crosscheck - \n\
-                                        rowid: {index}, \n\
-                                        guid: {guid} \n\
-                                        xml_created: 1 \n"
+                    db.update_row(tablename, 'xml_created', 1, index)
+                    xml_status_msg = f" \
+                                            DB updated on crosscheck - \n\
+                                            rowid: {index}, \n\
+                                            guid: {guid} \n\
+                                            xml_created: 1 \n"
                     print(xml_status_msg)
                     logger.info(xml_status_msg)
                 else:
+                    print(f"{guid} xml_status already = 1 ")
                     pass
             else: 
                 none_msg = f"{guid} was not found in the DB."
@@ -78,15 +77,16 @@ def crosscheck_assets(tablename):
             if proxy_status != None: 
                 if proxy_status[1] != 1:
                     index = proxy_status[0]
-                    db.update_row(tablename, index, 'proxy_copied', 1)
-                    proxy_status_msg = f"\n\
-                                        DB updated on crosscheck - \n\
-                                        rowid: {index}, \n\
-                                        guid: {guid} \n\
-                                        proxy_copied: 1 \n"
+                    db.update_row(tablename, 'proxy_copied', 1, index)
+                    proxy_status_msg = f" \
+                                            DB updated on crosscheck - \n\
+                                            rowid: {index}, \n\
+                                            guid: {guid} \n\
+                                            proxy_copied: 1 \n"
                     print(proxy_status_msg)
                     logger.info(proxy_status_msg)
                 else:
+                    print(f"{guid} proxy_status already = 1 ")
                     pass
             else: 
                 none_msg = f"{guid} was not found in the DB."
