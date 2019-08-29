@@ -25,13 +25,16 @@ def get_proxy():
     proxypath = config['paths']['proxypath']
     tmp_checkin = config['paths']['tmp']
 
-    file_list = [name for name in os.listdir(xmlpath)]
+    file_list = [name for name in os.listdir(
+        xmlpath) if name.startswith(".") != True]
+
+    xml_count = 0
+    proxy_count = 0
 
     for xml in file_list:
 
-        if xml == '.DS_Store':
-            os.remove(xmlpath + '.DS_Store')
-
+        if xml[-4:] != ".xml":
+            pass
         else:
             xml_fpath = os.path.join(xmlpath, xml)
 
@@ -44,6 +47,7 @@ def get_proxy():
                 tt_info_msg = f"{xml} titletype is not 'video', skipping get_proxy."
                 logger.info(tt_info_msg)
                 file_copy(xml_fpath, tmp_checkin)
+                xml_count += 1
 
             elif titletype == "video":
                 guid_x = xml.replace("-", "")
@@ -65,16 +69,29 @@ def get_proxy():
                     try:
                         print("")
                         pcopy = file_copy(proxy_fpath, tmp_checkin)
+                         
+                        if len(pcopy) == 0: 
+                            row = db.fetchone_proxy(guid)
+                            rowid = row[0]
+                            db.update_row('assets', 'proxy_copied', 1, rowid)
+                            proxy_cp_msg = f"{proxy_fn} was copied to the dalet tmp."
+                            logger.info(proxy_cp_msg)
+                            proxy_count += 1
+                        else: 
+                            pass
+                            proxy_err_cp_msg = f"{proxy_fn} encountered an error on the copy to the dalet tmp."
+                            logger.info(proxy_err_cp_msg)
+                             
                         xcopy = file_copy(xml_fpath, tmp_checkin)
-                        row = db.fetchone_proxy(guid)
-                        rowid = row[0]
-                        db.update_row('assets', 'proxy_copied', 1, rowid)
-                        os.remove(xml_fpath)
-                        
-                        proxy_cp_msg = f"{proxy_fn} was copied to the dalet tmp."
-                        xml_mv_msg = f"{xml} was moved to the dalet tmp."
-                        logger.info(xml_mv_msg)
-                        logger.info(proxy_cp_msg)
+                            
+                        if len(xcopy) == 0: 
+                            os.remove(xml_fpath)
+                            xml_mv_msg = f"{xml} was moved to the dalet tmp."
+                            logger.info(xml_mv_msg)
+                            xml_count += 1
+                        else: 
+                            xml_cp_err_msg = f"{xml} encountered an error on the copy to the dalet tmp."
+                            logger.error(xml_cp_err_msg)
 
                     except Exception as e:
                         proxy_excp_msg = f"\n\
@@ -86,15 +103,33 @@ def get_proxy():
                 notitletype_msg = f"TitleType not determined for: {xml}"
                 logger.info(notitletype_msg)
 
+        proxy_complete_msg = f"PROXY COPY AND XML MOVE COMPLETE. \n\
+                                {proxy_count} proxies copied \n\
+                                {xml_count} xmls copied \n"
+
 
 def file_copy(source, destination): 
+    """
+    Use rsync to copy files to from source to destination. 
+    """
+    try:
+        copy = subprocess.Popen(["rsync", "-vaE", "--exclude=\".*\"", "--progress", source, destination],
+        stderr=subprocess.PIPE, stdout=subprocess.PIPE, universal_newlines=True)
+        stdout, stderr = copy.communicate()
+        logger.info(stdout)
+        if len(stderr) != 0:
+            logger.error(stderr)
+            return stderr
+        else: 
+            return stderr
 
-    copy = subprocess.Popen(["rsync", "-vaE", "--progress", source, destination],
-    stderr=subprocess.PIPE, stdout=subprocess.PIPE, universal_newlines=True)
-    stdout, stderr = copy.communicate()
-    logger.info(stdout)
-    logger.error(stderr)
-    return 
+    except Exception as e:
+        copy_excp_msg = f"\n\
+        Exception raised on the file copy.\n\
+        File Name: {source} \n\
+        Error Message:  {str(e)} \n\
+        "
+        logger.exception(proxy_excp_msg)
 
 
 if __name__ == '__main__':
