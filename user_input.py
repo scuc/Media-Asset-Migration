@@ -45,7 +45,7 @@ def get_user_input():
 
         except ValueError as e:
             getnew_db_excp_msg = f"\n\
-            ValueError raised for the getnew_db value: {getnew_db_excp_msg}.\n\
+            ValueError raised for the getnew_db value: {response2}.\n\
             Error Message:  {str(e)} \n\
             "
             print(f"{str(get_db)} is not a valid response, it must be Yes or No.")
@@ -67,7 +67,7 @@ def get_user_input():
 
         except ValueError as e:
             crosscheck_db_excp_msg = f"\n\
-            ValueError raised for the crosscheck_db value: {crosscheck_db_excp_msg}.\n\
+            ValueError raised for the crosscheck_db value: {response3}.\n\
             Error Message:  {str(e)} \n\
             "
             print(f"{str(get_db)} is not a valid response, it must be Yes or No.")
@@ -82,10 +82,8 @@ def get_user_input():
 
 def yesno_rsp(response): 
     if str(response.upper()) in ["Y", "YES"]:
-        print("TRUE")
         return True
     elif str(response.upper()) in ["N", "NO"]:
-        print("FALSE")
         return False
     else:
         print("Not a valid entry, please try again.")
