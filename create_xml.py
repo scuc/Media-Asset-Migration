@@ -129,7 +129,6 @@ def create_xml(xml_total):
 
         xml_2_msg = f"GORILLA-DIVA XML CREATION COMPLETED"
         logger.info(xml_2_msg)
-        print(xml_2_msg)
 
     except Exception as e:
         xml_excp_msg = f"\n\
