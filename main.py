@@ -60,15 +60,15 @@ def main():
     start_msg = f"\n\
     ================================================================\n \
                 Gorilla-Diva Asset Migration Script\n\
-                Version: 0.0.1\n\
-                Date: August 19 2019\n\
+                Version: 0.0.2\n\
+                Date: August 29 2019\n\
     ================================================================\n\
     \n"
-
+   
     logger.info(start_msg)
+    logger.error(start_msg)
 
     xml_total, getnew_db, crosscheck_db = ui.get_user_input()
-    print(xml_total, getnew_db, crosscheck_db)
 
     if getnew_db == True: 
         gor_csv = g_query.buildcsv(date)
@@ -87,7 +87,7 @@ def main():
 
 
 def final_steps(tablename, xml_total):
-    cca.crosscheck_assets(tablename)
+    # cca.crosscheck_assets(tablename)
     xml_c.create_xml(xml_total)
     gp.get_proxy()
 
