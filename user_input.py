@@ -28,7 +28,7 @@ def get_user_input():
             "
             print(
                 f"{xml_val} is not a valid entry for the starting index, try again.")
-            logger.error(xml_excp_msg)
+            logger.exception(xml_excp_msg)
             continue
 
     while True:
@@ -49,7 +49,7 @@ def get_user_input():
             Error Message:  {str(e)} \n\
             "
             print(f"{str(get_db)} is not a valid response, it must be Yes or No.")
-            logger.error(getnew_db_excp_msg)
+            logger.exception(getnew_db_excp_msg)
             continue
 
     while True:
@@ -71,7 +71,7 @@ def get_user_input():
             Error Message:  {str(e)} \n\
             "
             print(f"{str(get_db)} is not a valid response, it must be Yes or No.")
-            logger.error(croscheck_db_excp_msg)
+            logger.exception(croscheck_db_excp_msg)
             continue
 
     logger.info(xml_info_msg)
