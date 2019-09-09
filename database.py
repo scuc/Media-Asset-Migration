@@ -18,8 +18,8 @@ def connect(db_name='database.db'):
         conn = sqlite3.connect('database.db')
     except Exception as e:
         conn_err_msg = (f"Error on connection to database.db")
-        logger.error(conn_err_msg)
-        logger.error(e)
+        logger.exception(conn_err_msg)
+        logger.exception(e)
     return conn
 
 
@@ -29,8 +29,8 @@ def create_table(db_name, tablename, df):
         df.to_sql(tablename, con=connect(), if_exists='replace')
     except Exception as e:
         cr_table_err_msg = f"Error on creating new db table: {tablename}"
-        logger.error(cr_table_err_msg)
-        logger.error(e)
+        logger.exception(cr_table_err_msg)
+        logger.exception(e)
     return
 
 
@@ -41,7 +41,7 @@ def update_table(tablename, df):
         return
     except Exception as e:
         upd_table_err_msg = f"Error on updating the db table: {tablename}"
-        logger.error(e)
+        logger.exception(e)
 
 
 def select_row(index):
@@ -55,8 +55,8 @@ def select_row(index):
         return row
     except Exception as e: 
         sel_row_err_msg = f"Error selecting row in 'assets' at index: {index}"
-        logger.error(sel_row_err_msg)
-        logger.error(e)
+        logger.exception(sel_row_err_msg)
+        logger.exception(e)
 
 
 def update_row(tablename, col_name, col_value, index):
@@ -71,8 +71,8 @@ def update_row(tablename, col_name, col_value, index):
         return
     except Exception as e:
         upd_row_err_msg = f"Error updating row in {tablename} at index: {index}" 
-        logger.error(upd_row_err_msg)
-        logger.error(e)
+        logger.exception(upd_row_err_msg)
+        logger.exception(e)
 
 
 def fetchone_xml(guid): 
@@ -86,8 +86,8 @@ def fetchone_xml(guid):
         return xml_status
     except Exception as e: 
         fetchxml_err_msg = f"Error on fetching xml status from db for guid: {guid}"
-        logger.error(fetchxml_err_msg)
-        logger.error(e)
+        logger.exception(fetchxml_err_msg)
+        logger.exception(e)
 
 
 def fetchone_proxy(guid): 
@@ -101,8 +101,8 @@ def fetchone_proxy(guid):
         return proxy_status
     except Exception as e: 
         fetchprxy_err_msg = f"Error on fetching proxy status from db for guid: {guid}"
-        logger.error(fetchprxy_err_msg)
-        logger.error(e)
+        logger.exception(fetchprxy_err_msg)
+        logger.exception(e)
 
 
 if __name__ == '__main__':
