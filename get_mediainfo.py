@@ -153,6 +153,7 @@ def get_framerate(df_row):
 
     return framerate
 
+
 def est_resolution(df_row, codec):
     """
     Estimate the resolution based on filesize and codec.
