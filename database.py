@@ -74,6 +74,18 @@ def update_row(tablename, col_name, col_value, index):
         logger.exception(upd_row_err_msg)
         logger.exception(e)
 
+def drop_row(tablename,index):
+    try:
+        conn = connect()
+        cur = conn.cursor()
+        sql = f'''DELETE FROM {tablename} WHERE rowid = {index}'''
+        cur.execute(sql)
+        conn.commit()
+        conn.close()
+    except Exception as e:
+        fetchxml_err_msg = f"Error dropping row in {tablename} at index: {index}"
+        logger.exception(fetchxml_err_msg)
+        logger.exception(e)
 
 def fetchone_xml(guid): 
     try: 
@@ -106,4 +118,4 @@ def fetchone_proxy(guid):
 
 
 if __name__ == '__main__':
-    update_row('assets','xml_created', 0, 0)
+    drop_row('assets',67340)
