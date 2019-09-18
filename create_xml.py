@@ -19,6 +19,7 @@ def create_xml(xml_total):
 
     config = cfg.get_config()
     rootpath = config['paths']['rootpath']
+    xml_checkin = config['paths']['xml_checkin_path']
     os.chdir(rootpath)
 
     xml_1_msg = f"START GORILLA-DIVA XML CREATION"
@@ -75,7 +76,7 @@ def create_xml(xml_total):
                 content_type = CONTENT_TYPE
 
                 conn.close()
-                os.chdir(rootpath + "_xml/")
+                os.chdir(xml_checkin)
                 xml_doc = str(guid) + '.xml'
 
                 with open(xml_doc, mode="w", encoding='utf-8-sig') as xdoc:
@@ -101,7 +102,7 @@ def create_xml(xml_total):
                     \
                     <MediaInfos>\
                     <MediaInfo>\
-                    <mediaFormatId>100099</mediaFormatId>\
+                    <mediaFormatId>100002</mediaFormatId>\
                     <mediaStorageName>G_DIVA</mediaStorageName>\
                     <mediaStorageId>161</mediaStorageId>\
                     <mediaFileName>{guid}</mediaFileName>\
@@ -117,7 +118,7 @@ def create_xml(xml_total):
                     xdoc.close()
 
                 os.chdir(rootpath)
-                update = db.update_row('assets', 'xml_created', 1, ROWID)
+                update = db.update_column('assets', 'xml_created', 1, ROWID)
                 xmlcreate_msg = (f"\n\
                                 RowID: {str(ROWID)}\n\
                                 xml_count: {xml_count}\n\
@@ -141,5 +142,5 @@ def create_xml(xml_total):
 
 
 if __name__ == '__main__':
-    create_xml(1)
+    create_xml(10000)
 
