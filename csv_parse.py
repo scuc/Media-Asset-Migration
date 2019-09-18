@@ -15,7 +15,8 @@ logger = logging.getLogger(__name__)
 
 def db_parse(date, merged_csv):
     """
-    Loop through the gor-diva merged csv and parse out rows for specific file types. write out the rows to a pandas df, then save to a new csv.
+    Loop through the gor-diva merged csv and parse out rows for specific file types. 
+    write out the rows to a pandas df, then save to a new csv.
     """
 
     config = cfg.get_config()
@@ -35,7 +36,6 @@ def db_parse(date, merged_csv):
             parse_1_msg = f"START GORILLA-DIVA DB PARSE"
             logger.info(parse_1_msg)
             print(parse_1_msg)
-
 
             pd_reader = pd.read_csv(m_csv, header=0)
             df = pd.DataFrame(pd_reader)
