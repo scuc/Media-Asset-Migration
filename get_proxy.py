@@ -73,7 +73,7 @@ def get_proxy():
                         if len(pcopy) == 0: 
                             row = db.fetchone_proxy(guid)
                             rowid = row[0]
-                            db.update_row('assets', 'proxy_copied', 1, rowid)
+                            db.update_column('assets', 'proxy_copied', 1, rowid)
                             proxy_cp_msg = f"{proxy_fn} was copied to the dalet tmp."
                             logger.info(proxy_cp_msg)
                             proxy_count += 1
