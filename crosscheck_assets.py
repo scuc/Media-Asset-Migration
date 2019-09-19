@@ -4,14 +4,35 @@
 import logging
 import os
 import re
+import shutil
 
 import config as cfg
-import pandas as pd
-
 import database as db
+import pandas as pd
+import xml.etree.ElementTree as ET
+
 
 logger = logging.getLogger(__name__)
 
+
+def get_root(xml_fname):
+    tree = ET.parse(fname)
+    root = tree.getroot()
+    return root
+
+
+def get_guid():
+
+        xml_fname = f[103:-5]
+        print(xml_fname)
+        dst_path = rootpath + "_tmp/" + xml_fname
+        xml_doc = shutil.copy2(f, dst_path)
+        root = get_root(xml_doc)
+        guid_elem = root.find('Title/key1')
+        guid = guid_elem.text + '.xml'
+        os.remove(xml_doc)
+        print(guid)
+    return guid
 
 def crosscheck_assets(tablename): 
     """
@@ -21,6 +42,7 @@ def crosscheck_assets(tablename):
     config = cfg.get_config()
     xml_checkin_path = config['paths']['xml_checkin_path']
     proxy_storage_path = config['paths']['proxy_storage_path']
+    rootpath = config['paths']['rootpath']
 
     flist = []
     plist = []
@@ -36,8 +58,10 @@ def crosscheck_assets(tablename):
                     pass
                 elif not f.endswith(".xml_DONE"):
                     pass
-                elif re.search(r"\(\d+\)", f) is not None: 
-                    pass
+                elif (re.search(r"\(\d+\)", f) is not None
+                      and os.file.endswith("_DONE")): 
+                    guid = get_guid(f)
+                    flist.append(guid)
                 else:
                     flist.append(f)
         xmltocheck = len(flist)
@@ -51,7 +75,7 @@ def crosscheck_assets(tablename):
             if xml_status != None: 
                 if xml_status[1] != 1:
                     index = xml_status[0]
-                    db.update_row(tablename, 'xml_created', 1, index)
+                    db.update_column(tablename, 'xml_created', 1, index)
                     xml_status_msg = f" \
                                             DB updated on crosscheck - \n\
                                             rowid: {index}, \n\
@@ -86,7 +110,7 @@ def crosscheck_assets(tablename):
             if proxy_status != None: 
                 if proxy_status[1] != 1:
                     index = proxy_status[0]
-                    db.update_row(tablename, 'proxy_copied', 1, index)
+                    db.update_column(tablename, 'proxy_copied', 1, index)
                     proxy_status_msg = f" \
                                             DB updated on crosscheck - \n\
                                             rowid: {index}, \n\
