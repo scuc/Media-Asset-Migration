@@ -3,6 +3,7 @@
 
 import logging
 import os
+import re
 
 import config as cfg
 import pandas as pd
@@ -35,6 +36,8 @@ def crosscheck_assets(tablename):
                     pass
                 elif not f.endswith(".xml_DONE"):
                     pass
+                elif re.search(r"\(\d+\)", f) is not None: 
+                    pass
                 else:
                     flist.append(f)
         xmltocheck = len(flist)
@@ -61,8 +64,10 @@ def crosscheck_assets(tablename):
                     pass
             else: 
                 none_msg = f"{guid} was not found in the DB."
+                print(xml_status)
                 print(none_msg)
                 logger.error(none_msg)
+                pass
             
         for root, dirs, files in os.walk(proxy_storage_path):
             for p in files:
