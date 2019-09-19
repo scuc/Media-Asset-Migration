@@ -24,6 +24,10 @@ def crosscheck_assets(tablename):
     flist = []
     plist = []
 
+    crosscheck_db_msg = f"BEGIN XML AND PROXY CROSSCHECK"
+    logger.info(crosscheck_db_msg)
+    print(crosscheck_db_msg)
+
     try:
         for root, dirs, files in os.walk(xml_checkin_path):
             for f in files:
@@ -92,6 +96,12 @@ def crosscheck_assets(tablename):
                 none_msg = f"{guid} was not found in the DB."
                 print(none_msg)
                 logger.error(none_msg)
+
+        crosscheck_complete_msg = f"XML AND PROXY CROSSCHECK COMPLETE"
+        logger.info(crosscheck_complete_msg)
+        print(crosscheck_complete_msg)
+        
+        return 
 
     except Exception as e:
         cc_excp_msg = f"\n\
