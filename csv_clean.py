@@ -6,7 +6,6 @@ import re
 
 import config as cfg
 import pandas as pd
-import xml.etree.ElementTree as ET
 
 import database as db
 import get_mediainfo as gmi
