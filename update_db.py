@@ -2,17 +2,19 @@
 
 import logging
 import os
+import shutil
 
 import config as cfg
 import pandas as pd
 
+import crosscheck_assets as cca
 import database as db
 import get_mediainfo as gmi
 
 logger = logging.getLogger(__name__)
 
 
-def update_db(date):
+def update_db(date, tablename):
     """
     Compare rows in new CSV export to rows in the existing DB. 
     """
@@ -21,18 +23,21 @@ def update_db(date):
     rootpath = config['paths']['rootpath']
     clean_csv = date + "_" + "gor_diva_merged_cleaned.csv"
 
-    if os.path.isfile(os.join(rootpath, 'database.db')) is not True: 
+    if os.path.isfile(os.path.join(rootpath, 'database.db')) is not True: 
         return
 
-    else: 
-        os.chdir(rootpath + "_CSV_Exports/")
-
+    else:
         try: 
-            with open(clean_csv, mode='r', encoding='utf-8-sig') as c_csv:
+            shutil.copy2(os.path.join(rootpath, 'database.db'), os.path.join(rootpath, 'database_BKP_'+ date + '.db'))
+            
+            update_db_msg = f"BEGIN DB UPDATE"
+            logger.info(update_db_msg)
+            print(update_db_msg)
 
-                update_db_msg = f"START UPDATING DB"
-                logger.info(update_db_msg)
-                print(update_db_msg)
+            cca.crosscheck_assets(tablename)
+            os.chdir(rootpath + "_CSV_Exports/")
+            
+            with open(clean_csv, mode='r', encoding='utf-8-sig') as c_csv:
 
                 pd_reader = pd.read_csv(m_csv, header=0)
                 df = pd.DataFrame(pd_reader)
@@ -60,21 +65,21 @@ def update_db(date):
 
                     if (guid == db_row[1]
                         and db_datatapeid == "Null"
-                        and db_aoid = "Null"):
+                        and db_aoid == "Null"):
                         db.update_row("assets", index, row)
-                        update_count + = 1
+                        update_count += 1
                         update_index.append(index)
 
                     elif (guid != db_row[1]
                         and db.fetchone_guid(guid) == None):
                         db.drop_row('assets', index, guid)
-                        drop_count + = 1
+                        drop_count += 1
                         drop_index.append(index)
 
                     elif (db_row == None
                         and row['_merge'] == 'both'): 
                         db.insert_row(index, row)
-                        insert_count + = 1
+                        insert_count += 1
                         insert_index.append(index)
 
                     elif (guid != db_row[1]
@@ -90,7 +95,7 @@ def update_db(date):
                         logger.error(update_error_msg)
                         pass
                     
-                    total_count + = 1
+                    total_count += 1
 
             update_summary_msg = f"\n\
                                 Update Count:  {update_cout}\n\
@@ -109,11 +114,14 @@ def update_db(date):
                             "
             logger.info(update_summary_msg)
             logger.info(update_index_msg)
-            
+        
+            db_update_complete_msg = f"DB UPDATE COMPLETE"
+            logger.info(db_update_complete_msg)
+
         except Exception as e:
             dbupdate_err_msg = f"Error updating the DB."
             logger.exception(dbupdate_err_msg)
 
 
 if __name__ == '__main__':
-    update_db('201908271542')
+    update_db('201908271802', 'assets')
