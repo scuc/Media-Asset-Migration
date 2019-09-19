@@ -7,6 +7,7 @@ import csv_clean as csv_c
 import create_xml as xml_c
 import get_proxy as gp
 import user_input as ui
+import update_db as udb
 
 import diva_oracle_query as d_query
 import gorilla_oracle_query as g_query
@@ -60,8 +61,8 @@ def main():
     start_msg = f"\n\
     ================================================================\n \
                 Gorilla-Diva Asset Migration Script\n\
-                Version: 0.0.2\n\
-                Date: August 29 2019\n\
+                Version: 0.0.3\n\
+                Date: Sept 20 2019\n\
     ================================================================\n\
     \n"
    
@@ -76,7 +77,7 @@ def main():
         merged_csv = mdb.pandas_merge(date, diva_csv, gor_csv)
         parsed_csv = csv_p.db_parse(date, merged_csv)
         cleaned_csv, tablename = csv_c.csv_clean(date)
-        cca.crosscheck_assets(tablename)
+        udb.update_db(date, tablename)
         final_steps(date, tablename, xml_total)
     elif (getnew_db == False
           and crosscheck_db == True):
@@ -87,7 +88,6 @@ def main():
 
 
 def final_steps(tablename, xml_total):
-    # cca.crosscheck_assets(tablename)
     xml_c.create_xml(xml_total)
     gp.get_proxy()
 
