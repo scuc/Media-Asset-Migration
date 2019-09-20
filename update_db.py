@@ -34,12 +34,12 @@ def update_db(date, tablename):
             logger.info(update_db_msg)
             print(update_db_msg)
 
-            cca.crosscheck_assets(tablename)
+            # cca.crosscheck_assets(tablename)
             os.chdir(rootpath + "_CSV_Exports/")
-            
+
             with open(clean_csv, mode='r', encoding='utf-8-sig') as c_csv:
 
-                pd_reader = pd.read_csv(m_csv, header=0)
+                pd_reader = pd.read_csv(c_csv, header=0)
                 df = pd.DataFrame(pd_reader)
 
                 update_count = 0
@@ -53,6 +53,8 @@ def update_db(date, tablename):
                 total_count = 0
 
                 for index, row in df.iterrows():
+
+                    os.chdir(rootpath)
 
                     guid = str(row['GUID'])
                     print(str(index) + "    " + guid)
@@ -92,13 +94,14 @@ def update_db(date, tablename):
 
                     else: 
                         nochange_msg = f"No change to {guid} at row index {index}."
-                        logger.error(update_error_msg)
+                        logger.error(nochange_msg)
+                        # print(nochange_msg)
                         pass
                     
                     total_count += 1
 
             update_summary_msg = f"\n\
-                                Update Count:  {update_cout}\n\
+                                Update Count:  {update_count}\n\
                                 Drop Count: {drop_count}\n\
                                 Insert Count: {insert_count}\n\
                                 Mismatch Count: {mismatch_count}\n\
@@ -113,7 +116,11 @@ def update_db(date, tablename):
                             mismatch index: {mismatch_index}\n\
                             "
             logger.info(update_summary_msg)
-            logger.info(update_index_msg)
+            logger.info(index_summary_msg)
+
+            print(update_summary_msg)
+            print("")
+            print(index_summary_msg)
         
             db_update_complete_msg = f"DB UPDATE COMPLETE"
             logger.info(db_update_complete_msg)
