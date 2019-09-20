@@ -34,7 +34,7 @@ def update_db(date, tablename):
             logger.info(update_db_msg)
             print(update_db_msg)
 
-            # cca.crosscheck_assets(tablename)
+            cca.crosscheck_assets(tablename)
             os.chdir(rootpath + "_CSV_Exports/")
 
             with open(clean_csv, mode='r', encoding='utf-8-sig') as c_csv:
