@@ -159,7 +159,7 @@ def csv_clean(date):
                 df.at[index, 'CONTENT_TYPE'] = 'NULL'
                 mediainfo = ['NULL', 'NULL', 'NULL', 'NULL', 'NULL', 'NULL', ]
         
-        df.drop("METAXML", axis=1, inplace=True).
+        df.drop("METAXML", axis=1, inplace=True)
         df.to_csv(clean_csv)
         os.chdir(rootpath)
 
