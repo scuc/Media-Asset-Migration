@@ -11,38 +11,43 @@ import database as db
 import pandas as pd
 import xml.etree.ElementTree as ET
 
-
 logger = logging.getLogger(__name__)
 
+config = cfg.get_config()
+xml_checkin_path = config['paths']['xml_checkin_path']
+proxy_storage_path = config['paths']['proxy_storage_path']
+rootpath = config['paths']['rootpath']
 
-def get_root(xml_fname):
-    tree = ET.parse(fname)
+
+def get_root(xml_doc):
+    """
+    Get the root of an xml document for parsing element tree. 
+    """
+    tree = ET.parse(xml_doc)
     root = tree.getroot()
     return root
 
 
-def get_guid():
-
-        xml_fname = f[103:-5]
-        print(xml_fname)
-        dst_path = rootpath + "_tmp/" + xml_fname
-        xml_doc = shutil.copy2(f, dst_path)
-        root = get_root(xml_doc)
-        guid_elem = root.find('Title/key1')
-        guid = guid_elem.text + '.xml'
-        os.remove(xml_doc)
-        print(guid)
+def get_guid(f, f_path):
+    """
+    Get the guid from an element of athe xml file when the filename for the xml has the wrong guid.
+    """
+    print("FILE:   " + f)
+    xml_fname = f[:-5]
+    print("XML_FNAME:   " + xml_fname)
+    dst_path = rootpath + "_tmp/" + xml_fname
+    xml_doc = shutil.copy2(f_path, dst_path)
+    root = get_root(xml_doc)
+    guid_elem = root.find('Title/key1')
+    guid = guid_elem.text + '.xml_DONE'
+    os.remove(xml_doc)
+    print("GUID: " + guid)
     return guid
 
 def crosscheck_assets(tablename): 
     """
-    check db records against the full directory list of xmls. update the records as needed. 
+    Check db records against the full directory list of xmls. update the records as needed. 
     """
-
-    config = cfg.get_config()
-    xml_checkin_path = config['paths']['xml_checkin_path']
-    proxy_storage_path = config['paths']['proxy_storage_path']
-    rootpath = config['paths']['rootpath']
 
     flist = []
     plist = []
@@ -54,13 +59,15 @@ def crosscheck_assets(tablename):
     try:
         for root, dirs, files in os.walk(xml_checkin_path):
             for f in files:
-                if f.find("test") != -1:
+                f_path = os.path.join(root, f)
+                if (f.find("test") != -1
+                    or f.startswith(".")):
                     pass
                 elif not f.endswith(".xml_DONE"):
                     pass
                 elif (re.search(r"\(\d+\)", f) is not None
-                      and os.file.endswith("_DONE")): 
-                    guid = get_guid(f)
+                      and f.endswith("_DONE")): 
+                    guid = get_guid(f, f_path)
                     flist.append(guid)
                 else:
                     flist.append(f)
