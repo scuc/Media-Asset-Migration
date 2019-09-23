@@ -82,12 +82,12 @@ def main():
     elif (getnew_db == False
           and crosscheck_db == True):
         cca.crosscheck_assets(tablename)
-        final_steps(tablename, xml_total, proxy_total)
+        final_steps(date, tablename, xml_total, proxy_total)
     else: 
-        final_steps(tablename, xml_total, proxy_total)
+        final_steps(date, tablename, xml_total, proxy_total)
 
 
-def final_steps(tablename, xml_total, proxy_total):
+def final_steps(date, tablename, xml_total, proxy_total):
     if int(xml_total) > 0: 
         xml_c.create_xml(xml_total)
 
