@@ -2,34 +2,54 @@
 A script for migrating data from one media asset management (MAM) system to another.
 
 ## Description
-The script calls a set of modules to execute a series of steps that
-perform the data migration: First, query the two separate dbs, then merge
-the query results based on a common field. The merged csv data is then
-parsed for rows that contain certain string patterns. The string patterns
-are specific to the data that needs to migrate. The csv created from the
-parsing is then cleaned - a metaxml field containing mediainfo is split
-out into 7 new columns, and the data from the XML elements is used to
-populate the newly created columns. The bad data from the XML is dropped,
-some incorrect data is fixed, and empty values are marked as NULL. The
-final version of the csv containing the cleaned data is then used to
-create new XMLs records to check into in the Dalet MAM.
+The script takes user input and calls a set of modules to perform a data migration 
+from one MAM system to another(Gorilla to Dalet). An SQLite DB is used to store all 
+of the asset metadata and the migration status for each asset. 
+
+The script follows the a series of steps: 
+
+
+1. Query the two separate dbs, export the data to two seperate CSV files.
+2. Use Pandas to merge the query results based on a common field, and export to a csv.
+3. Parse the merged data for rows that contain certain string patterns. </br>
+	The string patterns are specific to the data that needs to migrate. Export a new csv. 
+4. Clean the parsed data. A metaxml field containing mediainfo is split
+	out into 7 new columns, </br> and the data from the XML elements is used to
+	populate the newly created columns. </br>
+	The bad data from the XML is dropped, some incorrect data is fixed, and empty values are marked as NULL. </br> 
+	If metadata is missing, best-guess is attempted based on filename information. </br> 
+	If that is not possible the field is marked Null. After the info is split out into seperate columns, </br>
+	the original metaxml column is dropped, and the data is moved into a SQL DB. 
+5. There is an optional step to crosscheck all exported data against the information in the DB, </br>
+	to ensure assets are not migrated more than once. 
+6. Based on the user input a number of XMLs, once for each asset, are exported from the DB. 
+7. Optional step to also export the corresponding proxy file along with the XML. </br>
+	Proxies are exported only for assets with the titletype = 'video'. </br>
+	Assets with the titletype = 'archive' assets do not have a proxy to export. 
+ 
+
 
 ## Prerequisites 
 
 * Python 3.6 or higher
 * [pandas](https://pandas.pydata.org) 
 * [cx_Oracle](https://oracle.github.io/python-cx_Oracle/)
+* [SQLite](https://www.sqlite.org/download.html)
 
 ## Files Included
 
 * `main.py`
+* `user_input.py`
 * `config.py`
 * `gorilla_oracle_query.py`
 * `diva_oracle_query.py`
-* `merge_gor_diva_dbs.py`
+* `merge_dbs.py`
 * `csv_parse.py`
 * `csv_clean.py`
+* `crosscheck_assets.py`
+* `update_db.py`
 * `create_xml.py`
+* `get_proxy.py`
 * `logging.yaml `
 
 
