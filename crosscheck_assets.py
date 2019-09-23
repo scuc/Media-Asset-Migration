@@ -141,7 +141,6 @@ def crosscheck_assets(tablename):
         cc_excp_msg = f"\n\
         Exception raised on the asset crosscheck.\n\
         Error Message:  {str(e)} \n"
-
         logger.exception(cc_excp_msg)
 
 
