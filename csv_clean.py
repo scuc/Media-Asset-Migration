@@ -80,6 +80,7 @@ def csv_clean(date):
             video_check_3 = re.search(
                 r'((?<![0-9]|[A-Z])|(?<=(-|_)))(UHD|VM|EM)(?=(-|_|[1-5])?)(?![A-Z])', name_clean)
 
+
             if (video_check_1 is not None
                 and video_check_2 is not None
                 and video_check_3 is not None):
@@ -102,6 +103,7 @@ def csv_clean(date):
 
             archive_check = re.search(r'((?<![0-9]|[A-Z])|(?<=(-|_)))(AVP|PPRO|FCP|PTS|AVP|GRFX|GFX|WAV|WAVS|SPLITS)(?=(-|_)?)(?![0-9]|[A-Z])', name_clean)
             
+
             if archive_check is not None: 
                 if archive_check.group(0) == 'SPLITS':
                     content_type_a = "WAV"
@@ -115,6 +117,8 @@ def csv_clean(date):
                 content_type_a = None
 
             if (video_check_1 is not None
+                or video_check_2 is not None
+                or video_check_3 is not None
                 and archive_check is None):
                 df.at[index, 'TITLETYPE'] = 'video'
                 mediainfo = gmi.get_mediainfo(df_row, metaxml)
@@ -123,30 +127,24 @@ def csv_clean(date):
                 print("MEDIA-INFO:   " + str(mediainfo))
                 print("")
 
-                if mediainfo[4] == 0:
-                    df.at[index, 'TITLETYPE'] = 'archive'
-                    df.at[index, 'CONTENT_TYPE'] = content_type_v
-                    df.at[index, 'FRAMERATE'] = 'NULL'
-                    df.at[index, 'CODEC'] = 'NULL'
-                    df.at[index, 'V_WIDTH'] = 'NULL'
-                    df.at[index, 'V_HEIGHT'] = 'NULL'
-                    df.at[index, 'DURATION_MS'] = 'NULL'
-
-                else:
-                    df.at[index, 'CONTENT_TYPE'] = content_type_v
-                    df.at[index, 'FRAMERATE'] = mediainfo[0]
-                    df.at[index, 'CODEC'] = mediainfo[1]
-                    df.at[index, 'V_WIDTH'] = mediainfo[2]
-                    df.at[index, 'V_HEIGHT'] = mediainfo[3]
-                    df.at[index, 'DURATION_MS'] = mediainfo[4]
+                df.at[index, 'CONTENT_TYPE'] = content_type_v
+                df.at[index, 'FRAMERATE'] = mediainfo[0]
+                df.at[index, 'CODEC'] = mediainfo[1]
+                df.at[index, 'V_WIDTH'] = mediainfo[2]
+                df.at[index, 'V_HEIGHT'] = mediainfo[3]
+                df.at[index, 'DURATION_MS'] = mediainfo[4]
 
             elif (video_check_1 is None
+                  and video_check_2 is None
+                  and video_check_3 is None
                   and archive_check is not None):
                 df.at[index, 'TITLETYPE'] = 'archive'
                 df.at[index, 'CONTENT_TYPE'] = content_type_a
                 mediainfo = ['NULL', 'NULL', 'NULL', 'NULL', 'NULL', 'NULL', ]
 
             elif (video_check_1 is not None
+                  or video_check_2 is not None
+                  or video_check_3 is not None
                   and archive_check is not None):
                 df.at[index, 'TITLETYPE'] = 'archive'
                 df.at[index, 'CONTENT_TYPE'] = content_type_a
@@ -158,19 +156,19 @@ def csv_clean(date):
                 logger.info(clean_2_msg)
                 df.at[index, 'CONTENT_TYPE'] = 'NULL'
                 mediainfo = ['NULL', 'NULL', 'NULL', 'NULL', 'NULL', 'NULL', ]
-        
+
         df.drop("METAXML", axis=1, inplace=True)
         df.to_csv(clean_csv)
         os.chdir(rootpath)
 
-        conn = db.connect()
-        tablename = 'assets'
-        db.create_table('database.db', tablename, df)
+        # conn = db.connect()
+        # tablename = 'assets'
+        # db.create_table('database.db', tablename, df)
 
         clean_3_msg = f"GORILLA-DIVA DB CLEAN COMPLETE, NEW DB TABLE CREATED"
         logger.info(clean_3_msg)
 
-        return clean_csv, tablename
+        # return clean_csv, tablename
 
     except Exception as e:
         db_clean_excp_msg = f"\n\
@@ -246,4 +244,4 @@ def clean_name(name):
 
 
 if __name__ == '__main__':
-    csv_clean('201908271542')
+    csv_clean('201909231014')
