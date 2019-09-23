@@ -30,7 +30,7 @@ def get_root(xml_doc):
 
 def get_guid(f, f_path):
     """
-    Get the guid from an element of athe xml file when the filename for the xml has the wrong guid.
+    Get the guid from an element of the xml file when the filename for the xml has the wrong guid.
     """
     print("FILE:   " + f)
     xml_fname = f[:-5]
@@ -63,18 +63,16 @@ def crosscheck_assets(tablename):
                 if (f.find("test") != -1
                     or f.startswith(".")):
                     pass
-                elif not f.endswith(".xml_DONE"):
+                if not f.endswith(".xml_DONE"):
                     pass
-                elif (re.search(r"\(\d+\)", f) is not None
+                if (re.search(r"\(\d+\)", f) is not None
                       and f.endswith("_DONE")): 
                     guid = get_guid(f, f_path)
                     flist.append(guid)
                 else:
                     flist.append(f)
         xmltocheck = len(flist)
-        print(f"Total number of XML files to crosscheck against DB:  {xmltocheck}")
         logger.info(f"Total number of XML files to crosscheck against DB:  {xmltocheck}")
-
 
         for file in flist: 
             guid = file[:-9]
@@ -83,15 +81,15 @@ def crosscheck_assets(tablename):
                 if xml_status[1] != 1:
                     index = xml_status[0]
                     db.update_column(tablename, 'xml_created', 1, index)
-                    xml_status_msg = f" \
-                                            DB updated on crosscheck - \n\
-                                            rowid: {index}, \n\
-                                            guid: {guid} \n\
-                                            xml_created: 1 \n"
-                    print(xml_status_msg)
+                    xml_status_msg = f" \n\
+                                                DB updated on crosscheck - \n\
+                                                rowid: {index}, \n\
+                                                guid: {guid} \n\
+                                                xml_created: 1 \n"
                     logger.info(xml_status_msg)
                 else:
-                    print(f"{guid} xml_status already = 1 ")
+                    xml_pass_msg = f"{guid} xml_status already = 1 "
+                    logger.debug(xml_pass_msg)
                     pass
             else: 
                 none_msg = f"{guid} was not found in the DB."
@@ -118,15 +116,15 @@ def crosscheck_assets(tablename):
                 if proxy_status[1] != 1:
                     index = proxy_status[0]
                     db.update_column(tablename, 'proxy_copied', 1, index)
-                    proxy_status_msg = f" \
+                    proxy_status_msg = f" \n\
                                             DB updated on crosscheck - \n\
                                             rowid: {index}, \n\
                                             guid: {guid} \n\
                                             proxy_copied: 1 \n"
-                    print(proxy_status_msg)
                     logger.info(proxy_status_msg)
                 else:
-                    print(f"{guid} proxy_status already = 1 ")
+                    proxy_pass_msg = f"{guid} proxy_status already = 1 "
+                    logger.debug(proxy_pass_msg)
                     pass
             else: 
                 none_msg = f"{guid} was not found in the DB."
