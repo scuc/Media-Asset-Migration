@@ -168,7 +168,7 @@ def csv_clean(date):
         clean_3_msg = f"GORILLA-DIVA DB CLEAN COMPLETE, NEW DB TABLE CREATED"
         logger.info(clean_3_msg)
 
-        # return clean_csv, tablename
+        return clean_csv, tablename
 
     except Exception as e:
         db_clean_excp_msg = f"\n\
