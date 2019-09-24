@@ -32,21 +32,19 @@ def get_guid(f, f_path):
     """
     Get the guid from an element of the xml file when the filename for the xml has the wrong guid.
     """
-    print("FILE:   " + f)
     xml_fname = f[:-5]
-    print("XML_FNAME:   " + xml_fname)
     dst_path = rootpath + "_tmp/" + xml_fname
     xml_doc = shutil.copy2(f_path, dst_path)
     root = get_root(xml_doc)
     guid_elem = root.find('Title/key1')
     guid = guid_elem.text + '.xml_DONE'
     os.remove(xml_doc)
-    print("GUID: " + guid)
     return guid
+
 
 def crosscheck_assets(tablename): 
     """
-    Check db records against the full directory list of xmls. update the records as needed. 
+    Check db records against the xmls in the filesystem. Update the DB records as needed. 
     """
 
     flist = []
@@ -72,7 +70,9 @@ def crosscheck_assets(tablename):
                 else:
                     flist.append(f)
         xmltocheck = len(flist)
-        logger.info(f"Total number of XML files to crosscheck against DB:  {xmltocheck}")
+
+        xml_check_msg = f"Total number of XML files to crosscheck against DB:  {xmltocheck}"
+        logger.info(xml_check_msg)
 
         for file in flist: 
             guid = file[:-9]
@@ -93,8 +93,6 @@ def crosscheck_assets(tablename):
                     pass
             else: 
                 none_msg = f"{guid} was not found in the DB."
-                print(xml_status)
-                print(none_msg)
                 logger.error(none_msg)
                 pass
             
@@ -106,8 +104,9 @@ def crosscheck_assets(tablename):
                     pass
 
         proxytocheck = len(plist)
-        print(f"Total number of proxy files to crosscheck against DB:  {proxytocheck}")
-        logger.info(f"Total number of proxy files to crosscheck against DB:  {proxytocheck}")
+
+        proxy_check_msg = f"Total number of proxy files to crosscheck against DB:  {proxytocheck}"
+        logger.info(proxy_check_msg)
 
         for file in plist:
             guid = file[:-4]
@@ -128,7 +127,6 @@ def crosscheck_assets(tablename):
                     pass
             else: 
                 none_msg = f"{guid} was not found in the DB."
-                print(none_msg)
                 logger.error(none_msg)
 
         crosscheck_complete_msg = f"XML AND PROXY CROSSCHECK COMPLETE"
