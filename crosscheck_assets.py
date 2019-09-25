@@ -74,6 +74,8 @@ def crosscheck_assets(tablename):
         xml_check_msg = f"Total number of XML files to crosscheck against DB:  {xmltocheck}"
         logger.info(xml_check_msg)
 
+        xml_update_count = 0
+
         for file in flist: 
             guid = file[:-9]
             xml_status = db.fetchone_xml(guid)
@@ -87,6 +89,7 @@ def crosscheck_assets(tablename):
                                                 guid: {guid} \n\
                                                 xml_created: 1 \n"
                     logger.info(xml_status_msg)
+                    xml_update_count += 1
                 else:
                     xml_pass_msg = f"{guid} xml_status already = 1 "
                     logger.debug(xml_pass_msg)
@@ -95,7 +98,10 @@ def crosscheck_assets(tablename):
                 none_msg = f"{guid} was not found in the DB."
                 logger.error(none_msg)
                 pass
-            
+        
+        xml_count_msg = f"Total Count for the xml status update = {xml_update_count}"
+        logger.info(xml_count_msg)
+    
         for root, dirs, files in os.walk(proxy_storage_path):
             for p in files:
                 if p.endswith(".mov"):
@@ -107,6 +113,8 @@ def crosscheck_assets(tablename):
 
         proxy_check_msg = f"Total number of proxy files to crosscheck against DB:  {proxytocheck}"
         logger.info(proxy_check_msg)
+
+        proxy_update_count = 0
 
         for file in plist:
             guid = file[:-4]
@@ -121,6 +129,7 @@ def crosscheck_assets(tablename):
                                             guid: {guid} \n\
                                             proxy_copied: 1 \n"
                     logger.info(proxy_status_msg)
+                    proxy_update_count += 1
                 else:
                     proxy_pass_msg = f"{guid} proxy_status already = 1 "
                     logger.debug(proxy_pass_msg)
@@ -129,9 +138,11 @@ def crosscheck_assets(tablename):
                 none_msg = f"{guid} was not found in the DB."
                 logger.error(none_msg)
 
+        proxy_update_msg = f"Total number of files with proxy status updated:  {proxy_update_count}"
+        logger.info(proxy_update_msg)
+
         crosscheck_complete_msg = f"XML AND PROXY CROSSCHECK COMPLETE"
         logger.info(crosscheck_complete_msg)
-        print(crosscheck_complete_msg)
         
         return 
 
