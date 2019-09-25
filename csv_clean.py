@@ -74,35 +74,32 @@ def csv_clean(date):
                 df.drop(df.index)
 
             video_check_1 = re.search(
-                r'((?<![0-9]|[A-Z])|(?<=(-|_)))(VM|EM|UHD)(?=(-|_|[1-5])?)(?![A-Z])', name_clean)
+                r'((?<![0-9]|[A-Z])|(?<=(-|_)))(VM)(?=(-|_|[1-5])?)(?![A-Z])', name_clean)
             video_check_2 = re.search(
-                r'((?<![0-9]|[A-Z])|(?<=(-|_)))(VM|EM)(?=(-|_|[1-5])?)(?![A-Z])', name_clean)
+                r'((?<![0-9]|[A-Z])|(?<=(-|_)))(EM)(?=(-|_|[1-5])?)(?![A-Z])', name_clean)
             video_check_3 = re.search(
-                r'((?<![0-9]|[A-Z])|(?<=(-|_)))(UHD|VM|EM)(?=(-|_|[1-5])?)(?![A-Z])', name_clean)
+                r'((?<![0-9]|[A-Z])|(?<=(-|_)))(UHD)(?=(-|_|[1-5])?)(?![A-Z])', name_clean)
 
+            vcheck_list = []
 
-            if (video_check_1 is not None
-                and video_check_2 is not None
-                and video_check_3 is not None):
+            if (video_check_1, video_check_2, video_check_3) != (None, None, None):
+                if video_check_1 is not None:
+                    vcheck1 = video_check_1.group(0)
+                    vcheck_list.append(vcheck1)
 
-                if (video_check_1.group(0) == 'UHD'
-                    and video_check_2.group(0) == "EM"
-                    or video_check_1.group(0) == 'EM'
-                        and video_check_3.group(0) == 'UHD'):
-                    content_type_v = 'UHD,EM'
-                elif (video_check_1.group(0) == 'UHD'
-                        and video_check_2.group(0) == "VM"
-                        or video_check_1.group(0) == 'VM'
-                        and video_check_3.group(0) == 'UHD'):
-                        content_type_v = 'UHD,VM'
-                else:
-                    content_type_v = video_check_1.group(0)
+                if video_check_2 is not None:
+                    vcheck2 = video_check_2.group(0)
+                    vcheck_list.append(vcheck2)
+
+                if video_check_3 is not None:
+                    vcheck3 = video_check_3.group(0)
+                    vcheck_list.append(vcheck3)
+                content_type_v = ",".join(vcheck_list)
+
             else:
-                if video_check_2 is not None: 
-                    content_type_v = video_check_2.group(0)
-
+                content_type_v = None
+                
             archive_check = re.search(r'((?<![0-9]|[A-Z])|(?<=(-|_)))(AVP|PPRO|FCP|PTS|AVP|GRFX|GFX|WAV|WAVS|SPLITS)(?=(-|_)?)(?![0-9]|[A-Z])', name_clean)
-            
 
             if archive_check is not None: 
                 if archive_check.group(0) == 'SPLITS':
@@ -116,9 +113,7 @@ def csv_clean(date):
             else: 
                 content_type_a = None
 
-            if (video_check_1 is not None
-                or video_check_2 is not None
-                or video_check_3 is not None
+            if (content_type_v is not None
                 and archive_check is None):
                 df.at[index, 'TITLETYPE'] = 'video'
                 mediainfo = gmi.get_mediainfo(df_row, metaxml)
@@ -134,17 +129,13 @@ def csv_clean(date):
                 df.at[index, 'V_HEIGHT'] = mediainfo[3]
                 df.at[index, 'DURATION_MS'] = mediainfo[4]
 
-            elif (video_check_1 is None
-                  and video_check_2 is None
-                  and video_check_3 is None
+            elif (content_type_v is None
                   and archive_check is not None):
                 df.at[index, 'TITLETYPE'] = 'archive'
                 df.at[index, 'CONTENT_TYPE'] = content_type_a
                 mediainfo = ['NULL', 'NULL', 'NULL', 'NULL', 'NULL', 'NULL', ]
 
-            elif (video_check_1 is not None
-                  or video_check_2 is not None
-                  or video_check_3 is not None
+            elif (content_type_v is not None
                   and archive_check is not None):
                 df.at[index, 'TITLETYPE'] = 'archive'
                 df.at[index, 'CONTENT_TYPE'] = content_type_a
@@ -161,9 +152,9 @@ def csv_clean(date):
         df.to_csv(clean_csv)
         os.chdir(rootpath)
 
-        # conn = db.connect()
-        # tablename = 'assets'
-        # db.create_table('database.db', tablename, df)
+        conn = db.connect()
+        tablename = 'assets'
+        db.create_table('database.db', tablename, df)
 
         clean_3_msg = f"GORILLA-DIVA DB CLEAN COMPLETE, NEW DB TABLE CREATED"
         logger.info(clean_3_msg)
