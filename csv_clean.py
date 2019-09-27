@@ -61,6 +61,9 @@ def csv_clean(date):
 
             df_row = df.loc[index]
 
+            if row['_merge'] != "both":
+                df.drop(df.index)
+
             if pd.isnull(df_row['METAXML']) is not True:
                 l_metaxml = df_row['METAXML']
                 r_metaxml = r'{}'.format(l_metaxml)
@@ -69,9 +72,6 @@ def csv_clean(date):
             else:
                 df.at[index, 'METAXML'] = 'NULL'
                 metaxml = df.at[index, 'METAXML']
-
-            if row['_merge'] is not "both":
-                df.drop(df.index)
 
             video_check_1 = re.search(
                 r'((?<![0-9]|[A-Z])|(?<=(-|_)))(VM)(?=(-|_|[1-5])?)(?![A-Z])', name_clean)
