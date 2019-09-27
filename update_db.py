@@ -68,8 +68,8 @@ def update_db(date, tablename):
                     db_titletype = db_row[14]
 
                     if (guid == db_row[1]
-                        and db_datatapeid == "Null"
-                        and db_aoid == "Null"):
+                        and db_datatapeid == "NULL"
+                        and db_aoid == "NULL"):
                         db.update_row("assets", index, row)
                         update_count += 1
                         update_index.append(index)
