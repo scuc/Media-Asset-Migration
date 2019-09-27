@@ -1,4 +1,4 @@
-#! /usr/bin/env python3
+ #! /usr/bin/env python3
 
 import logging
 import os
@@ -58,9 +58,11 @@ def create_xml(xml_total):
             PROXY_COPIED = row[22]
             CONTENT_TYPE = row[23]
             METAXML = row[24]
-            OC_COMPONENT_NAME = row[32]
+            OC_COMPONENT_NAME = row[31]
 
-            if int(xml_total) > xml_count:
+            if (int(xml_total) > xml_count
+                and DATATAPEID != 'unallocated'
+                and DATATAPEID != None):
                 guid = GUID
                 name = NAME
                 datatapeid = DATATAPEID
@@ -126,7 +128,9 @@ def create_xml(xml_total):
                 logger.info(xmlcreate_msg)
                 xml_count += 1
             else:
-                break
+                xml_pass_msg = f"XML Creation skipped on {ROWID} for asset {GUID}. DATETAPEID = {DATATAPEID}"
+                logger.info(xml_pass_msg)
+                pass
 
         xml_2_msg = f"GORILLA-DIVA XML CREATION COMPLETED"
         logger.info(xml_2_msg)
