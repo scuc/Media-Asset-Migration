@@ -6,7 +6,6 @@ import re
 
 import config as cfg
 import pandas as pd
-import xml.etree.ElementTree as ET
 
 import database as db
 import get_mediainfo as gmi
@@ -62,6 +61,9 @@ def csv_clean(date):
 
             df_row = df.loc[index]
 
+            if row['_merge'] != "both":
+                df.drop(df.index)
+
             if pd.isnull(df_row['METAXML']) is not True:
                 l_metaxml = df_row['METAXML']
                 r_metaxml = r'{}'.format(l_metaxml)
@@ -71,38 +73,34 @@ def csv_clean(date):
                 df.at[index, 'METAXML'] = 'NULL'
                 metaxml = df.at[index, 'METAXML']
 
-            if row['_merge'] is not "both":
-                df.drop(df.index)
-
             video_check_1 = re.search(
-                r'((?<![0-9]|[A-Z])|(?<=(-|_)))(VM|EM|UHD)(?=(-|_|[1-5])?)(?![A-Z])', name_clean)
+                r'((?<![0-9]|[A-Z])|(?<=(-|_)))(VM)(?=(-|_|[1-5])?)(?![A-Z])', name_clean)
             video_check_2 = re.search(
-                r'((?<![0-9]|[A-Z])|(?<=(-|_)))(VM|EM)(?=(-|_|[1-5])?)(?![A-Z])', name_clean)
+                r'((?<![0-9]|[A-Z])|(?<=(-|_)))(EM)(?=(-|_|[1-5])?)(?![A-Z])', name_clean)
             video_check_3 = re.search(
-                r'((?<![0-9]|[A-Z])|(?<=(-|_)))(UHD|VM|EM)(?=(-|_|[1-5])?)(?![A-Z])', name_clean)
+                r'((?<![0-9]|[A-Z])|(?<=(-|_)))(UHD)(?=(-|_|[1-5])?)(?![A-Z])', name_clean)
 
-            if (video_check_1 is not None
-                and video_check_2 is not None
-                and video_check_3 is not None):
+            vcheck_list = []
 
-                if (video_check_1.group(0) == 'UHD'
-                    and video_check_2.group(0) == "EM"
-                    or video_check_1.group(0) == 'EM'
-                        and video_check_3.group(0) == 'UHD'):
-                    content_type_v = 'UHD,EM'
-                elif (video_check_1.group(0) == 'UHD'
-                        and video_check_2.group(0) == "VM"
-                        or video_check_1.group(0) == 'VM'
-                        and video_check_3.group(0) == 'UHD'):
-                        content_type_v = 'UHD,VM'
-                else:
-                    content_type_v = video_check_1.group(0)
+            if (video_check_1, video_check_2, video_check_3) != (None, None, None):
+                if video_check_1 is not None:
+                    vcheck1 = video_check_1.group(0)
+                    vcheck_list.append(vcheck1)
+
+                if video_check_2 is not None:
+                    vcheck2 = video_check_2.group(0)
+                    vcheck_list.append(vcheck2)
+
+                if video_check_3 is not None:
+                    vcheck3 = video_check_3.group(0)
+                    vcheck_list.append(vcheck3)
+                content_type_v = ",".join(vcheck_list)
+
             else:
-                if video_check_2 is not None: 
-                    content_type_v = video_check_2.group(0)
-
+                content_type_v = None
+                
             archive_check = re.search(r'((?<![0-9]|[A-Z])|(?<=(-|_)))(AVP|PPRO|FCP|PTS|AVP|GRFX|GFX|WAV|WAVS|SPLITS)(?=(-|_)?)(?![0-9]|[A-Z])', name_clean)
-            
+
             if archive_check is not None: 
                 if archive_check.group(0) == 'SPLITS':
                     content_type_a = "WAV"
@@ -115,7 +113,7 @@ def csv_clean(date):
             else: 
                 content_type_a = None
 
-            if (video_check_1 is not None
+            if (content_type_v is not None
                 and archive_check is None):
                 df.at[index, 'TITLETYPE'] = 'video'
                 mediainfo = gmi.get_mediainfo(df_row, metaxml)
@@ -124,30 +122,20 @@ def csv_clean(date):
                 print("MEDIA-INFO:   " + str(mediainfo))
                 print("")
 
-                if mediainfo[4] == 0:
-                    df.at[index, 'TITLETYPE'] = 'archive'
-                    df.at[index, 'CONTENT_TYPE'] = content_type_v
-                    df.at[index, 'FRAMERATE'] = 'NULL'
-                    df.at[index, 'CODEC'] = 'NULL'
-                    df.at[index, 'V_WIDTH'] = 'NULL'
-                    df.at[index, 'V_HEIGHT'] = 'NULL'
-                    df.at[index, 'DURATION_MS'] = 'NULL'
+                df.at[index, 'CONTENT_TYPE'] = content_type_v
+                df.at[index, 'FRAMERATE'] = mediainfo[0]
+                df.at[index, 'CODEC'] = mediainfo[1]
+                df.at[index, 'V_WIDTH'] = mediainfo[2]
+                df.at[index, 'V_HEIGHT'] = mediainfo[3]
+                df.at[index, 'DURATION_MS'] = mediainfo[4]
 
-                else:
-                    df.at[index, 'CONTENT_TYPE'] = content_type_v
-                    df.at[index, 'FRAMERATE'] = mediainfo[0]
-                    df.at[index, 'CODEC'] = mediainfo[1]
-                    df.at[index, 'V_WIDTH'] = mediainfo[2]
-                    df.at[index, 'V_HEIGHT'] = mediainfo[3]
-                    df.at[index, 'DURATION_MS'] = mediainfo[4]
-
-            elif (video_check_1 is None
+            elif (content_type_v is None
                   and archive_check is not None):
                 df.at[index, 'TITLETYPE'] = 'archive'
                 df.at[index, 'CONTENT_TYPE'] = content_type_a
                 mediainfo = ['NULL', 'NULL', 'NULL', 'NULL', 'NULL', 'NULL', ]
 
-            elif (video_check_1 is not None
+            elif (content_type_v is not None
                   and archive_check is not None):
                 df.at[index, 'TITLETYPE'] = 'archive'
                 df.at[index, 'CONTENT_TYPE'] = content_type_a
@@ -160,6 +148,7 @@ def csv_clean(date):
                 df.at[index, 'CONTENT_TYPE'] = 'NULL'
                 mediainfo = ['NULL', 'NULL', 'NULL', 'NULL', 'NULL', 'NULL', ]
 
+        df.drop("METAXML", axis=1, inplace=True)
         df.to_csv(clean_csv)
         os.chdir(rootpath)
 
@@ -246,4 +235,4 @@ def clean_name(name):
 
 
 if __name__ == '__main__':
-    csv_clean('201908271542')
+    csv_clean('201909231014')

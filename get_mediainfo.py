@@ -60,8 +60,8 @@ def get_mediainfo(df_row, metaxml):
     else:
         try:
             framerate = get_framerate(df_row)
-            codec = get_codec(df_row)
-            v_width, v_height = est_resolution(df_row, codec)
+            codec, codec_value = get_codec(df_row)
+            v_width, v_height = est_resolution(df_row, codec_value)
 
             duration_match = int(df_row['CONTENTLENGTH']) * 1000
 
@@ -96,31 +96,25 @@ def get_codec(df_row):
         codec_value = codec_match.group(0)
         if str(codec_value) == "XDCAM":
             codec = "MPEG Video"
-            v_width = '1920'
-            v_height = '1080'
-        elif str(codec_value) == "DNXHD":
-            codec = "VC-3"
-            v_width = '1920'
-            v_height = '1080'
-        elif str(codec_value) == "UHD":
-            codec = "AVdh"
-            v_width = '3840'
-            v_height = '2160'
         elif str(codec_value) == "PRORES":
             codec = "PRORES"
-            v_width, v_height = est_resolution(df_row, codec_match)
+        elif str(codec_value) == "DNXHD":
+            codec = "VC-3"
+        elif str(codec_value) == "UHD":
+            codec = "XAVC"
+        elif str(codec_value) == "XAVC":
+            codec = "XAVC"
         else:
             codec = codec_value
-            v_width, v_height = est_resolution(df_row, codec_match)
 
     else:
         codec = 'NULL'
-        v_width, v_height = est_resolution(df_row, codec_match)
+        codec_value = 'NULL'
 
-    est_msg = f'{df_row["GUID"]} - {df_row["NAME"]} - filesize: {df_row["FILESIZE"]} - Estimating file is HD: {v_width}x{v_height},  Codec: {codec}'
+    est_msg = f'{df_row["GUID"]} - {df_row["NAME"]} - Estimating Codec based on filename: {codec}'
     logger.info(est_msg)
 
-    return codec 
+    return codec, codec_value
 
 
 def get_framerate(df_row):
@@ -153,23 +147,24 @@ def get_framerate(df_row):
 
     return framerate
 
-def est_resolution(df_row, codec):
+
+def est_resolution(df_row, codec_value):
     """
     Estimate the resolution based on filesize and codec.
     """
 
     if (int(df_row['FILESIZE']) > 18000000000 and
         int(df_row['FILESIZE']) < 200000000000
-        and codec !='XAVC' 
-        and codec != 'UHD'
+        and codec_value !='XAVC' 
+        and codec_value != 'UHD'
         and df_row['CONTENTLENGTH'] != 0):
         v_width='1920'
         v_height='1080'
         est_msg=f"{df_row['GUID']} - {df_row['NAME']} - filesize: {df_row['FILESIZE']} - Estimating file is HD - 1920x1080."
         logger.info(est_msg)
-    elif (codec is 'XAVC' or codec is 'UHD'
-        and int(df_row['FILESIZE']) > 100000000000
-        and df_row['CONTENTLENGTH'] != 0):
+    elif (codec_value == 'XAVC' 
+         or codec_value == 'UHD'
+         and int(df_row['FILESIZE']) > 18000000000):
         v_width='3840'
         v_height='2160'
         est_msg = f"{df_row['GUID']} - {df_row['NAME']} - filesize: {df_row['FILESIZE']} - Estimating file is UHD:3840x2160."
