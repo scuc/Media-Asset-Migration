@@ -1,4 +1,4 @@
-#! /usr/bin/env python3
+250#! /usr/bin/env python3
 
 import config as cfg
 import crosscheck_assets as cca
@@ -54,6 +54,7 @@ def main():
     """
 
     date = str(strftime("%Y%m%d%H%M", localtime()))
+    date_frmt = str(strftime('%A, %d. %B %Y %I:%M%p', localtime()))
     tablename = 'assets'
  
     cfg.ensure_dirs()
@@ -62,7 +63,7 @@ def main():
     ================================================================\n \
                 Gorilla-Diva Asset Migration Script\n\
                 Version: 0.0.3\n\
-                Date: Sept 20 2019\n\
+                Date: {date_frmt}\n\
     ================================================================\n\
     \n"
    
