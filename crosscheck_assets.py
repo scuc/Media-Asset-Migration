@@ -53,12 +53,16 @@ def crosscheck_db(tablename):
     try: 
         xml_checkedin_list = []
         for file in os.listdir(xml_checkin_path):
-            if not file.startswith("."):
+            if file.startswith("."):
+                pass
+            else:
                 xml_checkedin_list.append(file)
         
         proxy_checkedin_list = []
         for file in os.listdir(proxy_storage_path):
-            if not file.startswith("."):
+            if file.startswith("."):
+                pass
+            else:
                 proxy_checkedin_list.append(file)
 
         rows = db.fetchall(tablename)
