@@ -1,4 +1,4 @@
-#! /usr/bin/env python3
+250#! /usr/bin/env python3
 
 import config as cfg
 import crosscheck_assets as cca
@@ -7,6 +7,7 @@ import csv_clean as csv_c
 import create_xml as xml_c
 import get_proxy as gp
 import user_input as ui
+import update_db as udb
 
 import diva_oracle_query as d_query
 import gorilla_oracle_query as g_query
@@ -53,6 +54,7 @@ def main():
     """
 
     date = str(strftime("%Y%m%d%H%M", localtime()))
+    date_frmt = str(strftime('%A, %d. %B %Y %I:%M%p', localtime()))
     tablename = 'assets'
  
     cfg.ensure_dirs()
@@ -60,15 +62,15 @@ def main():
     start_msg = f"\n\
     ================================================================\n \
                 Gorilla-Diva Asset Migration Script\n\
-                Version: 0.0.2\n\
-                Date: August 29 2019\n\
+                Version: 0.0.3\n\
+                Date: {date_frmt}\n\
     ================================================================\n\
     \n"
    
     logger.info(start_msg)
     logger.error(start_msg)
 
-    xml_total, getnew_db, crosscheck_db = ui.get_user_input()
+    xml_total, proxy_total, getnew_db, crosscheck_db = ui.get_user_input()
 
     if getnew_db == True: 
         gor_csv = g_query.buildcsv(date)
@@ -76,20 +78,22 @@ def main():
         merged_csv = mdb.pandas_merge(date, diva_csv, gor_csv)
         parsed_csv = csv_p.db_parse(date, merged_csv)
         cleaned_csv, tablename = csv_c.csv_clean(date)
-        cca.crosscheck_assets(tablename)
-        final_steps(date, tablename, xml_total)
+        udb.update_db(date, tablename)
+        final_steps(date, tablename, xml_total, proxy_total)
     elif (getnew_db == False
           and crosscheck_db == True):
         cca.crosscheck_assets(tablename)
-        final_steps(tablename, xml_total)
+        final_steps(date, tablename, xml_total, proxy_total)
     else: 
-        final_steps(tablename, xml_total)
+        final_steps(date, tablename, xml_total, proxy_total)
 
 
-def final_steps(tablename, xml_total):
-    # cca.crosscheck_assets(tablename)
-    xml_c.create_xml(xml_total)
-    gp.get_proxy()
+def final_steps(date, tablename, xml_total, proxy_total):
+    if int(xml_total) > 0: 
+        xml_c.create_xml(xml_total)
+
+    if int(proxy_total) > 0: 
+        gp.get_proxy()
 
     complete_msg = f"{'='*25}  SCRIPT COMPLETE  {'='*25}"
     logger.info(complete_msg)

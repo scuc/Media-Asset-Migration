@@ -15,7 +15,8 @@ logger = logging.getLogger(__name__)
 
 def db_parse(date, merged_csv):
     """
-    Loop through the gor-diva merged csv and parse out rows for specific file types. write out the rows to a pandas df, then save to a new csv.
+    Loop through the gor-diva merged csv and parse out rows for specific file types. 
+    write out the rows to a pandas df, then save to a new csv.
     """
 
     config = cfg.get_config()
@@ -36,7 +37,6 @@ def db_parse(date, merged_csv):
             logger.info(parse_1_msg)
             print(parse_1_msg)
 
-
             pd_reader = pd.read_csv(m_csv, header=0)
             df = pd.DataFrame(pd_reader)
 
@@ -45,7 +45,7 @@ def db_parse(date, merged_csv):
                 name = str(row['NAME']).upper()
                 print(str(index_count) + "    " + name)
 
-                if index_count <= 180000:
+                if index_count <= 200000:
 
                     em_check = re.search(
                         r'((?<![0-9]|[A-Z])|(?<=(-|_)))(VM|EM|AVP|PPRO|FCP|PTS|AVP|GRFX|GFX|UHD)(?=(-|_|[1-5])?)(?![A-Z])', name)
