@@ -42,15 +42,65 @@ def get_guid(f, f_path):
     return guid
 
 
+def crosscheck_db(tablename):
+    """
+    Check db rows against the xmls and proxies in the filesystem. Update the DB records as needed. 
+    """
+    crosscheck_db_msg = f"BEGIN XML AND PROXY DB-CROSSCHECK"
+    logger.info(crosscheck_db_msg)
+    print(crosscheck_db_msg)
+
+    try: 
+        xml_checkedin_list = []
+        for file in os.listdir(xml_checkin_path):
+            if not file.startswith("."):
+                xml_checkedin_list.append(file)
+        
+        proxy_checkedin_list = []
+        for file in os.listdir(proxy_storage_path):
+            if not file.startswith("."):
+                proxy_checkedin_list.append(file)
+
+        rows = db.fetchall(tablename)
+        for row in rows: 
+            xmlname = row[1] + ".xml_DONE"
+            if row[4] == "NULL":
+                pass
+            elif xmlname in xml_checkedin_list: 
+                db.update_column(tablename, 'XML_CREATED', 1, row[0])
+                xml_update_msg = row[1] + "  xml status updated in the db."
+                logger.info(xml_update_msg)
+            else:
+                db.update_column(tablename, 'XML_CREATED', 0, row[0])
+            xml_update_msg = row[1] + "  xml status updated in the db."
+
+            proxyname = row[1] + ".mov"
+            if proxyname in proxy_checkedin_list:
+                db.update_column(tablename, 'PROXY_COPIED', 1, row[0])
+                proxy_update_msg = row[1] + "  proxy status updated in the db."
+                logger.info(proxy_update_msg)
+            else:
+                db.update_column(tablename, 'PROXY_COPIED', 0, row[0])
+
+            print(row[1] + "  proxy status updated")
+
+        print("XML AND PROXY DB-CROSSCHECK COMPLETE")
+    except Exception as e:
+        cc_excp_msg = f"\n\
+        Exception raised on the asset db-crosscheck.\n\
+        Error Message:  {str(e)} \n"
+        logger.exception(cc_excp_msg)
+
+
 def crosscheck_assets(tablename): 
     """
-    Check db records against the xmls in the filesystem. Update the DB records as needed. 
+    Check files in the filesystem against DB rows. Update the DB records as needed. 
     """
 
     flist = []
     plist = []
 
-    crosscheck_db_msg = f"BEGIN XML AND PROXY CROSSCHECK"
+    crosscheck_db_msg = f"BEGIN XML AND PROXY FS-CROSSCHECK"
     logger.info(crosscheck_db_msg)
     print(crosscheck_db_msg)
 
@@ -141,17 +191,17 @@ def crosscheck_assets(tablename):
         proxy_update_msg = f"Total number of files with proxy status updated:  {proxy_update_count}"
         logger.info(proxy_update_msg)
 
-        crosscheck_complete_msg = f"XML AND PROXY CROSSCHECK COMPLETE"
+        crosscheck_complete_msg = f"XML AND PROXY FS-CROSSCHECK COMPLETE"
         logger.info(crosscheck_complete_msg)
         
         return 
 
     except Exception as e:
         cc_excp_msg = f"\n\
-        Exception raised on the asset crosscheck.\n\
+        Exception raised on the asset fs-crosscheck.\n\
         Error Message:  {str(e)} \n"
         logger.exception(cc_excp_msg)
 
 
 if __name__ == '__main__':
-    crosscheck_assets('assets')
+    crosscheck_db('assets')
