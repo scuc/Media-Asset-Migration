@@ -60,7 +60,7 @@ def get_user_input():
 
 
     while True:
-        response2 = str(input(f"Export a new copy of the Gor DB? [Y/N]  "))
+        response2 = str(input(f"Export a new copies of the Gor/Oracle DBs? [Y/N]  "))
 
         try:
             response2 = yesno_rsp(response2)
@@ -82,7 +82,7 @@ def get_user_input():
 
     while True:
         response3 = str(
-            input(f"Crosscheck assets in the existing DB? [Y/N]  "))
+            input(f"Crosscheck rows in the existing DB? [Y/N]  "))
 
         try:
             response3 = yesno_rsp(response3)
@@ -102,12 +102,35 @@ def get_user_input():
             logger.exception(croscheck_db_excp_msg)
             continue
 
+    while True:
+        response4 = str(
+            input(f"Crosscheck assets existing in the FileSystem? [Y/N]  "))
+
+        try:
+            response4 = yesno_rsp(response4)
+            if response4 not in [True, False]:
+                continue
+            else:
+                crosscheck_assets = response4
+                ccassts_info_msg = (f"Crosscheck Assets: {getnew_db}")
+                break
+
+        except ValueError as e:
+            crosscheck_assets_excp_msg = f"\n\
+            ValueError raised for the crosscheck_assets value: {response4}.\n\
+            Error Message:  {str(e)} \n\
+            "
+            print(f"{str(get_db)} is not a valid response, it must be Yes or No.")
+            logger.exception(croscheck_db_excp_msg)
+            continue
+
     logger.info(xml_info_msg)
     logger.info(getdb_info_msg)
     logger.info(ccdb_info_msg)
+    logger.info(ccassts_info_msg)
 
-    print(xml_total, proxy_total, getnew_db, crosscheck_db)
-    return xml_total, proxy_total, getnew_db, crosscheck_db
+    print(xml_total, proxy_total, getnew_db, crosscheck_db, crosscheck_assets)
+    return xml_total, proxy_total, getnew_db, crosscheck_db, crosscheck_assets
 
 
 def yesno_rsp(response): 
