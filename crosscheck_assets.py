@@ -70,21 +70,23 @@ def crosscheck_db(tablename):
             xmlname = row[1] + ".xml_DONE"
             if row[4] == "NULL":
                 pass
-            elif xmlname in xml_checkedin_list: 
+            elif (xmlname in xml_checkedin_list
+                    and row[21] == 0): 
                 db.update_column(tablename, 'XML_CREATED', 1, row[0])
-                xml_update_msg = row[1] + "  xml status updated in the db."
+                xml_update_msg = row[1] + "  xml status updated in the db. XML_CREATED = 1"
                 logger.info(xml_update_msg)
             else:
                 db.update_column(tablename, 'XML_CREATED', 0, row[0])
-            xml_update_msg = row[1] + "  xml status updated in the db."
+                xml_update_msg = row[1] + "  xml status updated in the db. XML_CREATED = 0"
 
             proxyname = row[1] + ".mov"
             if proxyname in proxy_checkedin_list:
                 db.update_column(tablename, 'PROXY_COPIED', 1, row[0])
-                proxy_update_msg = row[1] + "  proxy status updated in the db."
+                proxy_update_msg = row[1] + "  proxy status updated in the db. PROXY_COPIED = 1"
                 logger.info(proxy_update_msg)
             else:
                 db.update_column(tablename, 'PROXY_COPIED', 0, row[0])
+                proxy_update_msg = row[1] + "  proxy status updated in the db. PROXY_COPIED = 0"
 
             print(row[1] + "  proxy status updated")
 
@@ -92,6 +94,7 @@ def crosscheck_db(tablename):
     except Exception as e:
         cc_excp_msg = f"\n\
         Exception raised on the asset db-crosscheck.\n\
+        Index:  {row['ROWID']}\n\
         Error Message:  {str(e)} \n"
         logger.exception(cc_excp_msg)
 
@@ -99,6 +102,7 @@ def crosscheck_db(tablename):
 def crosscheck_assets(tablename): 
     """
     Check files in the filesystem against DB rows. Update the DB records as needed. 
+    Performs the same check as crosscheck_db(), but from the reverse direction (filesystem to db). 
     """
 
     flist = []
@@ -136,7 +140,7 @@ def crosscheck_assets(tablename):
             if xml_status != None: 
                 if xml_status[1] != 1:
                     index = xml_status[0]
-                    db.update_column(tablename, 'xml_created', 1, index)
+                    db.update_column(tablename, 'XML_CREATED', 1, index)
                     xml_status_msg = f" \n\
                                                 DB updated on crosscheck - \n\
                                                 rowid: {index}, \n\
@@ -176,7 +180,7 @@ def crosscheck_assets(tablename):
             if proxy_status != None: 
                 if proxy_status[1] != 1:
                     index = proxy_status[0]
-                    db.update_column(tablename, 'proxy_copied', 1, index)
+                    db.update_column(tablename, 'PROXY_COPIED', 1, index)
                     proxy_status_msg = f" \n\
                                             DB updated on crosscheck - \n\
                                             rowid: {index}, \n\
