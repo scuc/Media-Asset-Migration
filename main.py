@@ -70,7 +70,7 @@ def main():
     logger.info(start_msg)
     logger.error(start_msg)
 
-    xml_total, proxy_total, getnew_db, crosscheck_db = ui.get_user_input()
+    xml_total, proxy_total, getnew_db, crosscheck_db, crosscheck_assets = ui.get_user_input()
 
     if getnew_db == True: 
         gor_csv = g_query.buildcsv(date)
@@ -82,6 +82,10 @@ def main():
         final_steps(date, tablename, xml_total, proxy_total)
     elif (getnew_db == False
           and crosscheck_db == True):
+        cca.crosscheck_db(tablename)
+        final_steps(date, tablename, xml_total, proxy_total)
+    elif (getnew_db == False
+            and crosscheck_assets == True):
         cca.crosscheck_assets(tablename)
         final_steps(date, tablename, xml_total, proxy_total)
     else: 
