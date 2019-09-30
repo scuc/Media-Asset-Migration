@@ -62,12 +62,13 @@ def create_xml(xml_total):
 
             if (int(xml_total) > xml_count
                 and DATATAPEID != 'unallocated'
-                and DATATAPEID != None):
+                and DATATAPEID != 'NULL'
+                and OC_COMPONENT_NAME != 'NULL'):
                 guid = GUID
                 name = NAME
                 datatapeid = DATATAPEID
                 timecodein = TIMECODEIN
-                folderpath = "T://DaletStorage/Video_Watch_Folder" + OC_COMPONENT_NAME
+                folderpath = "T://DaletStorage/Video_Watch_Folder" + str(OC_COMPONENT_NAME)
                 traffic_code = str(TRAFFIC_CODE).strip("=\"")
                 title_type = TITLETYPE
                 framerate = FRAMERATE
@@ -138,6 +139,7 @@ def create_xml(xml_total):
     except Exception as e:
         xml_excp_msg = f"\n\
         Exception raised on the XML Creation.\n\
+        ROWID = {ROWID}\n\
         Error Message:  {str(e)} \n\
         XML Count: {xml_count}\n\
         "
