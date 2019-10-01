@@ -200,7 +200,6 @@ def fetchone_xml(guid):
         params = (guid,)
         xml_status = cur.execute(sql, params).fetchone()
         conn.close()
-        print(xml_status)
         return xml_status
     except Exception as e:
         fetchxml_err_msg = f"Error on fetching xml status from db for guid: {guid}"
@@ -215,7 +214,6 @@ def fetchone_proxy(guid):
         params = (guid,)
         proxy_status = cur.execute(sql, params).fetchone()
         conn.close()
-        print(proxy_status)
         return proxy_status
     except Exception as e:
         fetchprxy_err_msg = f"Error on fetching proxy status from db for guid: {guid}"
