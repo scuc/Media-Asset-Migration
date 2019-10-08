@@ -33,19 +33,14 @@ def get_proxy(proxy_total):
 
         while proxy_count < proxy_total:
             guid = str(row[1])
-            print(guid)
             guid_x = guid.replace("-", "")
             guid_r = guid_x[24:]
             proxy_fn = guid + '.mov'
 
             n = 2
             glist = [guid_r[i:i+n] for i in range(0, len(guid_r), n)]
-            print(glist)
-            # print(glist[2])
-            # print(glist[3])
 
             proxy_fpath = os.path.join(proxypath, glist[2], glist[3], guid, proxy_fn)
-            print(proxy_fpath)
 
             if os.path.exists(proxy_fpath) is not True:
                 proxy_err_msg = f"Proxy path does not exist. \
@@ -59,7 +54,6 @@ def get_proxy(proxy_total):
                     if len(pcopy) == 0: 
                         row = db.fetchone_proxy(guid)
                         rowid = row[0]
-                        print("ROW ID: " + str(rowid))
                         db.update_column('assets', 'proxy_copied', 1, rowid)
                         proxy_cp_msg = f"{proxy_fn} was copied to the dalet tmp."
                         logger.info(proxy_cp_msg)
@@ -99,7 +93,6 @@ def file_copy(source, destination):
             logger.error(stderr)
             return stderr
         else: 
-            print("STDERR: " + stderr)
             return stderr
 
     except Exception as e:
@@ -113,93 +106,3 @@ def file_copy(source, destination):
 
 if __name__ == '__main__':
     get_proxy(1)
-
-
-
-
-
-
-
-
-
-       # file_list = [name for name in os.listdir(
-       #     xmlpath) if name.startswith(".") != True]
-
-    # xml_count = 0
-    # proxy_count = 0
-
-    # for xml in file_list:
-
-    #     if xml[-4:] != ".xml":
-    #         pass
-    #     else:
-    #         xml_fpath = os.path.join(xmlpath, xml)
-
-    #         tree = ET.parse(xml_fpath)
-    #         root = tree.getroot()
-
-    #         titletype = root[0][8].text
-
-    #         if titletype == "archive":
-    #             tt_info_msg = f"{xml} titletype is not 'video', skipping get_proxy."
-    #             logger.info(tt_info_msg)
-    #             file_copy(xml_fpath, tmp_checkin)
-    #             xml_count += 1
-
-    # elif titletype == "video":
-    #     guid_x = xml.replace("-", "")
-    #     guid_r = guid_x[24:-4]
-    #     proxy_fn = xml[:-4] + '.mov'
-    #     guid = xml[:-4]
-
-    # n = 2
-    # glist = [guid_r[i:i+n] for i in range(0, len(guid_r), n)]
-
-    # proxy_fpath = os.path.join(proxypath, glist[2], glist[3], guid, proxy_fn)
-
-    # if os.path.exists(proxy_fpath) is not True:
-    #     proxy_err_msg = f"Proxy path does not exist. \
-    #     {proxy_fpath}"
-    #     logger.error(proxy_err_msg)
-
-    #         else:
-    #             try:
-    #                 print("")
-    #                 pcopy = file_copy(proxy_fpath, tmp_checkin)
-
-    #                 if len(pcopy) == 0:
-    #                     row = db.fetchone_proxy(guid)
-    #                     rowid = row[0]
-    #                     db.update_column('assets', 'proxy_copied', 1, rowid)
-    #                     proxy_cp_msg = f"{proxy_fn} was copied to the dalet tmp."
-    #                     logger.info(proxy_cp_msg)
-    #                     proxy_count += 1
-    #                 else:
-    #                     pass
-    #                     proxy_err_cp_msg = f"{proxy_fn} encountered an error on the copy to the dalet tmp."
-    #                     logger.info(proxy_err_cp_msg)
-
-    #                 xcopy = file_copy(xml_fpath, tmp_checkin)
-
-    #                 if len(xcopy) == 0:
-    #                     os.remove(xml_fpath)
-    #                     xml_mv_msg = f"{xml} was moved to the dalet tmp."
-    #                     logger.info(xml_mv_msg)
-    #                     xml_count += 1
-    #                 else:
-    #                     xml_cp_err_msg = f"{xml} encountered an error on the copy to the dalet tmp."
-    #                     logger.error(xml_cp_err_msg)
-
-    #             except Exception as e:
-    #                 proxy_excp_msg = f"\n\
-    #                 Exception raised on the Proxy copy.\n\
-    #                 Error Message:  {str(e)} \n\
-    #                 "
-    #                 logger.exception(proxy_excp_msg)
-    #     else:
-    #         notitletype_msg = f"TitleType not determined for: {xml}"
-    #         logger.info(notitletype_msg)
-
-    # proxy_complete_msg = f"PROXY COPY AND XML MOVE COMPLETE. \n\
-    #                         {proxy_count} proxies copied \n\
-    #                         {xml_count} xmls copied \n"
