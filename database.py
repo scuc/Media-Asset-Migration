@@ -178,6 +178,20 @@ def fetchall(tablename):
         logger.exception(fetchall_err_msg)
 
 
+def fetchall_proxy(tablename):
+    try:
+        conn = connect()
+        cur = conn.cursor()
+        sql = f'''SELECT * FROM {tablename} WHERE (TITLETYPE is 'video' AND PROXY_COPIED = 0)'''
+        params = (tablename,)
+        rows = cur.execute(sql).fetchall()
+        conn.close()
+        return rows
+    except Exception as e:
+        fetchall_err_msg = f"Error on fetching rows for db table: {tablename}"
+        logger.exception(fetchall_err_msg)
+
+
 def fetchone_guid(guid):
     try:
         conn = connect()
