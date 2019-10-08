@@ -79,25 +79,25 @@ def main():
         parsed_csv = csv_p.db_parse(date, merged_csv)
         cleaned_csv, tablename = csv_c.csv_clean(date)
         udb.update_db(date, tablename)
-        final_steps(date, tablename, xml_total, proxy_total)
+        final_steps(xml_total, proxy_total)
     elif (getnew_db == False
           and crosscheck_db == True):
         cca.crosscheck_db(tablename)
-        final_steps(date, tablename, xml_total, proxy_total)
+        final_steps(xml_total, proxy_total)
     elif (getnew_db == False
             and crosscheck_assets == True):
         cca.crosscheck_assets(tablename)
-        final_steps(date, tablename, xml_total, proxy_total)
+        final_steps(xml_total, proxy_total)
     else: 
-        final_steps(date, tablename, xml_total, proxy_total)
+        final_steps(xml_total, proxy_total)
 
 
-def final_steps(date, tablename, xml_total, proxy_total):
+def final_steps(xml_total, proxy_total):
     if int(xml_total) > 0: 
         xml_c.create_xml(xml_total)
 
     if int(proxy_total) > 0: 
-        gp.get_proxy()
+        gp.get_proxy(xml_total, proxy_total)
 
     complete_msg = f"{'='*25}  SCRIPT COMPLETE  {'='*25}"
     logger.info(complete_msg)
