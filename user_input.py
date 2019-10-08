@@ -125,6 +125,7 @@ def get_user_input():
             continue
 
     logger.info(xml_info_msg)
+    logger.info(proxy_info_msg)
     logger.info(getdb_info_msg)
     logger.info(ccdb_info_msg)
     logger.info(ccassts_info_msg)
