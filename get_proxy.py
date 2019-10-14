@@ -31,7 +31,7 @@ def get_proxy(proxy_total):
 
     for row in rows:
 
-        while proxy_count < proxy_total:
+        while proxy_count < int(proxy_total):
             guid = str(row[1])
             guid_x = guid.replace("-", "")
             guid_r = guid_x[24:]
