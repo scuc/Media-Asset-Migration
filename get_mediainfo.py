@@ -26,10 +26,18 @@ def get_mediainfo(df_row, metaxml):
             v_width = root.find('VideoTrack/Video/Width').text
             v_height = root.find('VideoTrack/Video/Height').text
             duration = root.find('DurationInMs').text
+            filename = root.find('FileName').text
                 
             if v_height == '1062' and v_width == '1888':
                 v_width = '1920'
                 v_height = '1080'
+
+            if (v_height == '360' 
+                and v_width == '640'
+                and codec == 'AVC'): 
+                v_width = '1920'
+                v_height = '1080'
+                codec = 'ProRes'
 
             if framerate not in ['23.98', '25', '29.97', '59.94']:
                 framerate = framerate[0:2]
@@ -44,7 +52,7 @@ def get_mediainfo(df_row, metaxml):
                 else:
                     framerate = get_framerate(df_row)
 
-            mediainfo = [framerate, codec, v_width, v_height, duration]
+            mediainfo = [framerate, codec, v_width, v_height, duration, filename]
 
         except Exception as e:
             mediainfo_err_msg = f"\
@@ -70,7 +78,9 @@ def get_mediainfo(df_row, metaxml):
             else:
                 duration=0
 
-            mediainfo = [framerate, codec, v_width, v_height, duration]
+            filename = df_row['NAME'])
+
+            mediainfo = [framerate, codec, v_width, v_height, duration, filename]
             
         except Exception as e:
             mediainfo_err_msg=f"\
@@ -160,7 +170,7 @@ def est_resolution(df_row, codec_value):
         and df_row['CONTENTLENGTH'] != 0):
         v_width='1920'
         v_height='1080'
-        est_msg=f"{df_row['GUID']} - {df_row['NAME']} - filesize: {df_row['FILESIZE']} - Estimating file is HD - 1920x1080."
+        est_msg=f"{df_row['GUID']} - {df_row['NAME']} - filesize: {df_row['FILESIZE']} - Estimating file is HD: 1920x1080."
         logger.info(est_msg)
     elif (codec_value == 'XAVC' 
          or codec_value == 'UHD'
@@ -168,6 +178,13 @@ def est_resolution(df_row, codec_value):
         v_width='3840'
         v_height='2160'
         est_msg = f"{df_row['GUID']} - {df_row['NAME']} - filesize: {df_row['FILESIZE']} - Estimating file is UHD:3840x2160."
+        logger.info(est_msg)
+    elif (v_height == '360' 
+         and v_width == '640'
+         and codec == 'ProRes'): 
+        v_width = '1920'
+        v_height='1080'
+        est_msg = f"{df_row['GUID']} - {df_row['NAME']} - filesize: {df_row['FILESIZE']} - Estimating file is HD:1920x1080."
         logger.info(est_msg)
     else:
         v_width="NULL"
