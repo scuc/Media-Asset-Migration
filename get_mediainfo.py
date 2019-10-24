@@ -78,7 +78,7 @@ def get_mediainfo(df_row, metaxml):
             else:
                 duration=0
 
-            filename = df_row['NAME'])
+            filename = df_row['NAME']
 
             mediainfo = [framerate, codec, v_width, v_height, duration, filename]
             
