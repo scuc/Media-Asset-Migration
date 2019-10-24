@@ -46,6 +46,7 @@ def csv_clean(date):
         df.insert(20, "XML_CREATED", 0, allow_duplicates=True)
         df.insert(21, "PROXY_COPIED", 0, allow_duplicates=True)
         df.insert(22, "CONTENT_TYPE", 'NULL', allow_duplicates=True)
+        df.insert(23, "FILENAME", 'NULL', allow_duplicates=True)
 
         df.to_csv(clean_csv)
 
@@ -148,6 +149,7 @@ def csv_clean(date):
                 df.at[index, 'CONTENT_TYPE'] = 'NULL'
                 mediainfo = ['NULL', 'NULL', 'NULL', 'NULL', 'NULL', 'NULL', ]
 
+        df.at[index, 'FILENAME'] = mediainfo[5]
         df.drop("METAXML", axis=1, inplace=True)
         df.to_csv(clean_csv)
         os.chdir(rootpath)
