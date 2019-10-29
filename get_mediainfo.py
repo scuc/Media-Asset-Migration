@@ -27,6 +27,11 @@ def get_mediainfo(df_row, metaxml):
             v_height = root.find('VideoTrack/Video/Height').text
             duration = root.find('DurationInMs').text
             filename = root.find('FileName').text
+            
+            if filename.startswith('NLE.'):
+                filename = filename[4:]
+            else: 
+                filename = filename[7:]
                 
             if v_height == '1062' and v_width == '1888':
                 v_width = '1920'
@@ -67,9 +72,21 @@ def get_mediainfo(df_row, metaxml):
    
     else:
         try:
-            framerate = get_framerate(df_row)
             codec, codec_value = get_codec(df_row)
             v_width, v_height = est_resolution(df_row, codec_value)
+            framerate = get_framerate(df_row)
+
+            if (v_height == '360'
+                and v_width == '640'
+                and codec == 'ProRes'):
+                v_width = '1920'
+                v_height = '1080'
+                est_msg = f"{df_row['GUID']} - {df_row['NAME']} - filesize: {df_row['FILESIZE']} - Estimating file is HD:1920x1080."
+                logger.info(est_msg)
+            else: 
+                pass
+
+
 
             duration_match = int(df_row['CONTENTLENGTH']) * 1000
 
@@ -178,13 +195,6 @@ def est_resolution(df_row, codec_value):
         v_width='3840'
         v_height='2160'
         est_msg = f"{df_row['GUID']} - {df_row['NAME']} - filesize: {df_row['FILESIZE']} - Estimating file is UHD:3840x2160."
-        logger.info(est_msg)
-    elif (v_height == '360' 
-         and v_width == '640'
-         and codec == 'ProRes'): 
-        v_width = '1920'
-        v_height='1080'
-        est_msg = f"{df_row['GUID']} - {df_row['NAME']} - filesize: {df_row['FILESIZE']} - Estimating file is HD:1920x1080."
         logger.info(est_msg)
     else:
         v_width="NULL"
