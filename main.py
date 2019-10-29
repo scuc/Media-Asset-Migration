@@ -1,4 +1,4 @@
-250#! /usr/bin/env python3
+#!/usr/bin/python
 
 import config as cfg
 import crosscheck_assets as cca
@@ -60,12 +60,12 @@ def main():
     cfg.ensure_dirs()
 
     start_msg = f"\n\
-    ================================================================\n \
-                Gorilla-Diva Asset Migration Script\n\
-                Version: 0.0.3\n\
-                Date: {date_frmt}\n\
     ================================================================\n\
-    \n"
+                Gorilla-Diva Asset Migration Script\n\
+                Version: 0.0.4\n\
+                Date: October 24 2019\n\
+    ================================================================\n\
+    "
    
     logger.info(start_msg)
     logger.error(start_msg)
