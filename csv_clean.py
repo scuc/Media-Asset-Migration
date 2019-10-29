@@ -129,6 +129,7 @@ def csv_clean(date):
                 df.at[index, 'V_WIDTH'] = mediainfo[2]
                 df.at[index, 'V_HEIGHT'] = mediainfo[3]
                 df.at[index, 'DURATION_MS'] = mediainfo[4]
+                df.at[index, 'FILENAME'] = mediainfo[5]
 
             elif (content_type_v is None
                   and archive_check is not None):
@@ -237,4 +238,4 @@ def clean_name(name):
 
 
 if __name__ == '__main__':
-    csv_clean('201909231014')
+    csv_clean('201910241654')
