@@ -16,6 +16,11 @@ def get_proxy(proxy_total):
     """
     Get a set of files where titletype = video and proxy copy status is 0,
     Copy the proxies a tmp location for checkin staging.
+    PROXY_COPIED values: 
+    0 = proxy not copied
+    1 = proxy copied
+    2 = proxy path does not exist 
+    3 = no proxy, content type is archive 
     """
 
     config = cfg.get_config()
@@ -30,47 +35,51 @@ def get_proxy(proxy_total):
     proxy_count = 0
 
     for row in rows:
+        rowid = row[0]
+        guid = str(row[1])
+        proxy_copied = row[22]
+        guid_x = guid.replace("-", "")
+        guid_r = guid_x[24:]
+        proxy_fn = guid + '.mov'
 
-        while proxy_count < int(proxy_total):
-            guid = str(row[1])
-            guid_x = guid.replace("-", "")
-            guid_r = guid_x[24:]
-            proxy_fn = guid + '.mov'
+        n = 2
+        glist = [guid_r[i:i+n] for i in range(0, len(guid_r), n)]
 
-            n = 2
-            glist = [guid_r[i:i+n] for i in range(0, len(guid_r), n)]
-
-            proxy_fpath = os.path.join(proxypath, glist[2], glist[3], guid, proxy_fn)
-
+        proxy_fpath = os.path.join(
+            proxypath, glist[2], glist[3], guid, proxy_fn)
+        
+        if (proxy_count < int(proxy_total)
+            and proxy_copied == 0 
+            and os.path.exists(proxy_fpath) is True):
+            
+            try:
+                pcopy = file_copy(proxy_fpath, tmp_checkin)
+                
+                if len(pcopy) == 0: 
+                    row = db.fetchone_proxy(guid)
+                    db.update_column('assets', 'proxy_copied', 1, rowid)
+                    proxy_cp_msg = f"{proxy_fn} was copied to the dalet tmp."
+                    logger.info(proxy_cp_msg)
+                    proxy_count += 1
+                else: 
+                    pass
+                    proxy_err_cp_msg = f"{proxy_fn} encountered an error on the copy to the dalet tmp."
+                    logger.info(proxy_err_cp_msg)
+                    
+            except Exception as e:
+                proxy_excp_msg = f"\n\
+                Exception raised on the Proxy copy.\n\
+                Error Message:  {str(e)} \n\
+                "
+                logger.exception(proxy_excp_msg)
+                break
+        else:
             if os.path.exists(proxy_fpath) is not True:
                 proxy_err_msg = f"Proxy path does not exist. \
                 {proxy_fpath}"
                 logger.error(proxy_err_msg)
-            
-            else:
-                try:
-                    pcopy = file_copy(proxy_fpath, tmp_checkin)
-                    
-                    if len(pcopy) == 0: 
-                        row = db.fetchone_proxy(guid)
-                        rowid = row[0]
-                        db.update_column('assets', 'proxy_copied', 1, rowid)
-                        proxy_cp_msg = f"{proxy_fn} was copied to the dalet tmp."
-                        logger.info(proxy_cp_msg)
-                        proxy_count += 1
-                    else: 
-                        pass
-                        proxy_err_cp_msg = f"{proxy_fn} encountered an error on the copy to the dalet tmp."
-                        logger.info(proxy_err_cp_msg)
-                        
-                except Exception as e:
-                    proxy_excp_msg = f"\n\
-                    Exception raised on the Proxy copy.\n\
-                    Error Message:  {str(e)} \n\
-                    "
-                    logger.exception(proxy_excp_msg)
-                
-                break
+                db.update_column('assets', 'proxy_copied', 2, rowid)
+                continue
 
     proxy_complete_msg = f"PROXY COPY COMPLETE. \n\
                         {proxy_count} proxies copied \n"
