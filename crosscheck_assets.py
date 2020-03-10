@@ -30,7 +30,7 @@ def get_root(xml_doc):
 
 def get_guid(f, f_path):
     """
-    Get the guid from an element of the xml xml when the filename for the xml has the wrong guid.
+    Get the guid from an element of the xml when the filename for the xml has the wrong guid.
     """
     xml_fname = f[:-5]
     dst_path = rootpath + "_tmp/" + xml_fname
@@ -93,8 +93,8 @@ def crosscheck_db(tablename):
             else:
                 pass
                 # db.update_column(tablename, 'XML_CREATED', 0, row[0])
-                xml_update_msg = row[1] + "  xml status updated in the db. XML_CREATED = 0"
-                logger.debug(xml_update_msg)
+                # xml_update_msg = row[1] + "  xml status updated in the db. XML_CREATED = 0"
+                # logger.debug(xml_update_msg)
             
             proxyname = row[1] + ".mov"
             if (proxyname in proxy_list
@@ -105,8 +105,8 @@ def crosscheck_db(tablename):
             else:
                 pass
                 # db.update_column(tablename, 'PROXY_COPIED', 0, row[0])
-                proxy_update_msg = row[1] + "  proxy status updated in the db. PROXY_COPIED = 0"
-                logger.debug(proxy_update_msg)
+                # proxy_update_msg = row[1] + "  proxy status updated in the db. PROXY_COPIED = 0"
+                # logger.debug(proxy_update_msg)
 
         print("XML AND PROXY DB-CROSSCHECK COMPLETE")
     except Exception as e:

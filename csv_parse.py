@@ -22,8 +22,9 @@ def db_parse(date, merged_csv):
     config = cfg.get_config()
 
     rootpath = config['paths']['rootpath']
+    csvpath = config['paths']['csvpath']
 
-    os.chdir(rootpath + "_CSV_Exports")
+    os.chdir(csvpath)
 
     parsed_csv = (date + "_" + "gor_diva_merged_parsed.csv")
 
@@ -45,10 +46,10 @@ def db_parse(date, merged_csv):
                 name = str(row['NAME']).upper()
                 print(str(index_count) + "    " + name)
 
-                if index_count <= 200000:
+                if index_count <= 150000:
 
                     em_check = re.search(
-                        r'((?<![0-9]|[A-Z])|(?<=(-|_)))(VM|EM|AVP|PPRO|FCP|PTS|AVP|GRFX|GFX|UHD)(?=(-|_|[1-5])?)(?![A-Z])', name)
+                        r'((?<![0-9]|[A-Z])|(?<=(-|_)))(VM|EM|AVP|PPRO|FCP|PTS|AVP|GRFX|GFX|UHD|XDCAM|XDCAMHD)(?=(-|_|[1-5])?)(?![A-Z])', name)
                     qc_check = re.search(r'(?<=-|_)OUTGOING(?=[QC]?|-|_)', name)
 
                     if (em_check is not None 
@@ -90,5 +91,5 @@ def db_parse(date, merged_csv):
         print(db_parse_excp_msg)
 
 
-# if __name__ == '__main__':
-#     db_parse()
+if __name__ == '__main__':
+    db_parse()
