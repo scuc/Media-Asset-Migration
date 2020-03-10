@@ -102,7 +102,7 @@ def csv_clean(date):
 
                 if video_check_4 is not None:
                     vcheck3 = video_check_4.group(0)
-                    vcheck_list.append(vcheck4)
+                    vcheck_list.append(vcheck_4)
                 content_type_v = ",".join(vcheck_list)
 
             else:
