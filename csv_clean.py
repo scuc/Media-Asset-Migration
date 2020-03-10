@@ -21,8 +21,10 @@ def csv_clean(date):
     config = cfg.get_config()
 
     rootpath = config['paths']['rootpath']
+    dbpath = config['paths']['dbpath']
+    csvpath = config['paths']['csvpath']
 
-    os.chdir(rootpath + "_CSV_Exports/")
+    os.chdir(csvpath)
 
     parsed_csv = date + "_" + "gor_diva_merged_parsed.csv"
     clean_csv = date + "_" + "gor_diva_merged_cleaned.csv"
@@ -80,10 +82,12 @@ def csv_clean(date):
                 r'((?<![0-9]|[A-Z])|(?<=(-|_)))(EM)(?=(-|_|[1-5])?)(?![A-Z])', name_clean)
             video_check_3 = re.search(
                 r'((?<![0-9]|[A-Z])|(?<=(-|_)))(UHD)(?=(-|_|[1-5])?)(?![A-Z])', name_clean)
+            video_check_4 = re.search(
+                r'((?<![0-9]|[A-Z])|(?<=(-|_)))(XDCAM)(?=(-|_|[1-5]|HD)?)', name_clean)
 
             vcheck_list = []
 
-            if (video_check_1, video_check_2, video_check_3) != (None, None, None):
+            if (video_check_1, video_check_2, video_check_3, video_check_4) != (None, None, None, None):
                 if video_check_1 is not None:
                     vcheck1 = video_check_1.group(0)
                     vcheck_list.append(vcheck1)
@@ -95,6 +99,10 @@ def csv_clean(date):
                 if video_check_3 is not None:
                     vcheck3 = video_check_3.group(0)
                     vcheck_list.append(vcheck3)
+
+                if video_check_4 is not None:
+                    vcheck3 = video_check_4.group(0)
+                    vcheck_list.append(vcheck4)
                 content_type_v = ",".join(vcheck_list)
 
             else:
@@ -153,7 +161,7 @@ def csv_clean(date):
         df.at[index, 'FILENAME'] = mediainfo[5]
         df.drop("METAXML", axis=1, inplace=True)
         df.to_csv(clean_csv)
-        os.chdir(rootpath)
+        os.chdir(dbpath)
 
         conn = db.connect()
         tablename = 'assets'
@@ -162,6 +170,7 @@ def csv_clean(date):
         clean_3_msg = f"GORILLA-DIVA DB CLEAN COMPLETE, NEW DB TABLE CREATED"
         logger.info(clean_3_msg)
 
+        os.chdir(rootpath)
         return clean_csv, tablename
 
     except Exception as e:

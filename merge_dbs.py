@@ -19,9 +19,10 @@ def pandas_merge(date, diva_csv, gor_csv):
     config = cfg.get_config()
 
     rootpath = config['paths']['rootpath']
+    csvpath = config['paths']['csvpath']
 
     try:
-        os.chdir(rootpath + "_CSV_Exports/")
+        os.chdir(csvpath)
 
         gor_source = str(gor_csv)
         div_source = str(diva_csv)

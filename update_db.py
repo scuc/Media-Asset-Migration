@@ -21,6 +21,7 @@ def update_db(date, tablename):
 
     config = cfg.get_config()
     rootpath = config['paths']['rootpath']
+    csvpath = config['paths']['csvpath']
     clean_csv = date + "_" + "gor_diva_merged_cleaned.csv"
 
     if os.path.isfile(os.path.join(rootpath, 'database.db')) is not True: 
@@ -35,7 +36,7 @@ def update_db(date, tablename):
             print(update_db_msg)
 
             cca.crosscheck_assets(tablename)
-            os.chdir(rootpath + "_CSV_Exports/")
+            os.chdir(csvpath)
 
             with open(clean_csv, mode='r', encoding='utf-8-sig') as c_csv:
 

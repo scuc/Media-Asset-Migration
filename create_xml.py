@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 
 def create_xml(xml_total):
     """
-    Use the merged, parsed, cleaned, DB data to generate an XML used for file check in on the MAM.
+    Use the merged, parsed, cleaned, DB data to generate an XML used for file check in on the Dalet MAM.
     """
 
     config = cfg.get_config()

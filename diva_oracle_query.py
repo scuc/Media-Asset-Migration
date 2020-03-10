@@ -55,11 +55,13 @@ def buildcsv(date):
     config = cfg.get_config()
 
     rootpath = config['paths']['rootpath']
+    csvpath = config['paths']['csvpath']
+
     db_user = config['oracle-db-diva']['user']
     db_pass = config['oracle-db-diva']['pass']
     db_url = config['oracle-db-diva']['url']
 
-    os.chdir(rootpath + "_CSV_Exports/")
+    os.chdir(csvpath)
 
     try:
         row_count = 0

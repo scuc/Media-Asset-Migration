@@ -62,7 +62,7 @@ def main():
     start_msg = f"\n\
     ================================================================\n \
                 Gorilla-Diva Asset Migration Script\n\
-                Version: 0.0.3\n\
+                Version: 0.0.4\n\
                 Date: {date_frmt}\n\
     ================================================================\n\
     \n"
@@ -85,7 +85,7 @@ def main():
         cca.crosscheck_db(tablename)
         final_steps(xml_total, proxy_total)
     elif (getnew_db == False
-            and crosscheck_assets == True):
+          and crosscheck_assets == True):
         cca.crosscheck_assets(tablename)
         final_steps(xml_total, proxy_total)
     else: 

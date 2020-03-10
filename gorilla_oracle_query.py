@@ -50,11 +50,13 @@ def buildcsv(date):
     config = cfg.get_config()
 
     rootpath = config['paths']['rootpath']
+    csvpath = config['paths']['csvpath']
+
     db_user = config['oracle-db-gor']['user']
     db_pass = config['oracle-db-gor']['pass']
     db_url = config['oracle-db-gor']['url']
 
-    os.chdir(rootpath + "_CSV_Exports/")
+    os.chdir(csvpath)
 
     try:
         row_count = 0
