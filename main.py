@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#! /usr/bin/env python3
 
 import config as cfg
 import crosscheck_assets as cca
@@ -38,7 +38,7 @@ def set_logger():
 
 def main():
     """
-    This Script is specifically for migrating data from one media asset
+    This script is specifically for migrating data from one media asset
     management system (MAM) to another (Gorilla to Dalet).
     The script calls a set of modules to execute a series of steps that
     perform the data migration: First, query the two separate dbs, then merge
@@ -60,12 +60,12 @@ def main():
     cfg.ensure_dirs()
 
     start_msg = f"\n\
-    ================================================================\n\
+    ================================================================\n \
                 Gorilla-Diva Asset Migration Script\n\
-                Version: 0.0.4\n\
-                Date: October 24 2019\n\
+                Version: 0.0.3\n\
+                Date: {date_frmt}\n\
     ================================================================\n\
-    "
+    \n"
    
     logger.info(start_msg)
     logger.error(start_msg)
