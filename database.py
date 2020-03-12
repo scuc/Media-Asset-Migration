@@ -11,10 +11,13 @@ import pandas as pd
 logger = logging.getLogger(__name__)
 config = cfg.get_config()
 
+dbpath = config['paths']['dbpath']
+
 
 def connect(db_name='database.db'):
     """ Create a database connection."""
     try:
+        os.chdir(dbpath)
         conn = sqlite3.connect('database.db')
     except Exception as e:
         conn_err_msg = (f"Error on connection to database.db")
