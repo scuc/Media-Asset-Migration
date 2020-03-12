@@ -65,7 +65,10 @@ def csv_clean(date):
             df_row = df.loc[index]
 
             if row['_merge'] != "both":
-                df.drop(df.index)
+                df.drop(index=index, inplace=True)
+                continue
+            else:
+                pass
 
             if pd.isnull(df_row['METAXML']) is not True:
                 l_metaxml = df_row['METAXML']
@@ -101,8 +104,8 @@ def csv_clean(date):
                     vcheck_list.append(vcheck3)
 
                 if video_check_4 is not None:
-                    vcheck3 = video_check_4.group(0)
-                    vcheck_list.append(vcheck_4)
+                    vcheck4 = video_check_4.group(0)
+                    vcheck_list.append(vcheck4)
                 content_type_v = ",".join(vcheck_list)
 
             else:
@@ -247,4 +250,4 @@ def clean_name(name):
 
 
 if __name__ == '__main__':
-    csv_clean('201910241654')
+    csv_clean('202003111354')
