@@ -13,7 +13,8 @@ logger = logging.getLogger(__name__)
 
 def pandas_merge(date, diva_csv, gor_csv):
     """
-    Creates a merged CSV from Oracle DBs of the Gorilla MAM and DivaArchive. The merge is performed by converting the CSVs to pandas dataframes and using a common key.
+    Creates a merged CSV from Oracle DBs of the Gorilla MAM and DivaArchive. 
+    The merge is performed by converting the CSVs to pandas dataframes and using a common key.
     """
 
     config = cfg.get_config()
