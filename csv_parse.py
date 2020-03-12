@@ -46,7 +46,7 @@ def db_parse(date, merged_csv):
                 name = str(row['NAME']).upper()
                 print(str(index_count) + "    " + name)
 
-                if index_count <= 150000:
+                if index_count <= 200000:
 
                     em_check = re.search(
                         r'((?<![0-9]|[A-Z])|(?<=(-|_)))(VM|EM|AVP|PPRO|FCP|PTS|AVP|GRFX|GFX|UHD|XDCAM|XDCAMHD)(?=(-|_|[1-5])?)(?![A-Z])', name)
@@ -65,6 +65,8 @@ def db_parse(date, merged_csv):
                         dft.to_csv(p_csv, mode='a', index=False, header=False)
                         parsed_count += 1
                     else:
+                        parse_2_msg = f"{name} removed from the dataset"
+                        logger.info(parse_2_msg)
                         pass
 
                     index_count +=1
@@ -74,9 +76,9 @@ def db_parse(date, merged_csv):
 
             os.chdir(rootpath)
 
-            parse_2_msg = f"GORILLA-DIVA DB PARSE COMPLETE"
-            logger.info(parse_2_msg)
-            print(parse_2_msg)
+            parse_3_msg = f"GORILLA-DIVA DB PARSE COMPLETE"
+            logger.info(parse_3_msg)
+            print(parse_3_msg)
 
         return parsed_csv
 
