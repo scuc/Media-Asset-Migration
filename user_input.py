@@ -90,12 +90,12 @@ def get_user_input():
                 continue
             else: 
                 crosscheck_db = response3
-                ccdb_info_msg = (f"Crosscheck DB: {getnew_db}")
+                ccdb_info_msg = (f"Crosscheck DB: {crosscheck_db}")
                 break
 
         except ValueError as e:
             crosscheck_db_excp_msg = f"\n\
-            ValueError raised for the crosscheck_db value: {response3}.\n\
+            ValueError raised for the crosscheck_db value: {crosscheck_db}.\n\
             Error Message:  {str(e)} \n\
             "
             print(f"{str(get_db)} is not a valid response, it must be Yes or No.")
@@ -112,12 +112,12 @@ def get_user_input():
                 continue
             else:
                 crosscheck_assets = response4
-                ccassts_info_msg = (f"Crosscheck Assets: {getnew_db}")
+                ccassts_info_msg = (f"Crosscheck Assets: {crosscheck_assets}")
                 break
 
         except ValueError as e:
             crosscheck_assets_excp_msg = f"\n\
-            ValueError raised for the crosscheck_assets value: {response4}.\n\
+            ValueError raised for the crosscheck_assets value: {crosscheck_assets}.\n\
             Error Message:  {str(e)} \n\
             "
             print(f"{str(get_db)} is not a valid response, it must be Yes or No.")
