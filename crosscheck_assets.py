@@ -30,7 +30,7 @@ def get_root(xml_doc):
 
 def get_guid(f, f_path):
     """
-    Get the guid from an element of the xml when the filename for the xml has the wrong guid.
+    When the filename for the xml has the wrong guid, get the guid from an element of the xml 
     """
     xml_fname = f[:-5]
     dst_path = rootpath + "_tmp/" + xml_fname
@@ -137,8 +137,12 @@ def crosscheck_assets(tablename):
         xml_update_count = 0
 
         for xml in xml_list: 
+            xml_name_msg = f"Checking XML: {xml}"
+            logger.info(xml_name_msg)
             guid = xml[:-9]
             xml_status = db.fetchone_xml(guid)
+            xml_status_msg = f"XML Status: {xml}"
+            logger.info(xml_status_msg)
             if  xml_status[1] == 1: 
                 xml_pass_msg = f"{guid} xml_status already = 1 "
                 logger.debug(xml_pass_msg)
