@@ -16,7 +16,10 @@ logger = logging.getLogger(__name__)
 
 def update_db(date, tablename):
     """
-    Compare rows in new CSV export to rows in the existing DB. 
+    Start by creating a backup of the exisiting DB.
+    Then update the DB by comparing rows in new CSV export to rows in the existing DB. 
+    Add new rows from the CSV into the DB, and remove rows from the DB if they do not exist in
+    the new CSV.
     """
 
     config = cfg.get_config()
