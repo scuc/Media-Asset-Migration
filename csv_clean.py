@@ -57,7 +57,9 @@ def csv_clean(date):
             name = str(row['NAME']).upper()
             name_clean = clean_name(name)
             df.at[index, 'NAME'] = name_clean
-            print(str(index) + "    " + name_clean)
+
+            name_clean_msg = f"Index: {str(index)}  cleaned filename: {name_clean}"
+            logger.info(name_clean_msg)
 
             traffic_code = get_traffic_code(name_clean)
             df.at[index, 'TRAFFIC_CODE'] = traffic_code
@@ -144,14 +146,22 @@ def csv_clean(date):
 
             elif (content_type_v is None
                   and archive_check is not None):
+                date = df.at[index, 'SOURCECREATEDT']
+                creation_date = format_creation_date(date)
                 df.at[index, 'TITLETYPE'] = 'archive'
                 df.at[index, 'CONTENT_TYPE'] = content_type_a
+                df.at[index, 'PROXY_COPIED'] = 3
+                df.at[index, 'FILENAME'] = f"{clean_name}_{creation_date}.zip" 
                 mediainfo = ['NULL', 'NULL', 'NULL', 'NULL', 'NULL', 'NULL', ]
 
             elif (content_type_v is not None
                   and archive_check is not None):
+                date = df.at[index, 'SOURCECREATEDT']
+                creation_date = format_creation_date(date)
                 df.at[index, 'TITLETYPE'] = 'archive'
                 df.at[index, 'CONTENT_TYPE'] = content_type_a
+                df.at[index, 'PROXY_COPIED'] = 3
+                df.at[index, 'FILENAME'] = f"{clean_name}_{creation_date}.zip" 
                 mediainfo = ['NULL', 'NULL', 'NULL', 'NULL', 'NULL', 'NULL', ]
 
             else:
@@ -208,6 +218,14 @@ def get_traffic_code(name_clean):
         traffic_code = "=\"" + name[:6] + "\""
 
     return traffic_code
+
+
+def format_creation_date(date):
+    """
+    Remove non-integer characters from the date string.
+    """
+    creation_date = (date.translate({ord(i): None for i in '- :'}))
+    return creation_date
 
 
 def clean_metaxml(r_metaxml, name):
