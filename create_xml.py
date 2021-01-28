@@ -90,7 +90,7 @@ def create_xml(xml_total):
                     with open(xml_doc, mode="w", encoding='utf-8-sig') as xdoc:
 
                         xml_body = f"\
-                        <Titles> \
+                        <Titles>\
                         <Title><!-- title type video -->\
                         <key1>{guid}</key1>\
                         <itemcode>{guid}</itemcode>\
