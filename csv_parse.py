@@ -45,8 +45,13 @@ def db_parse(date, merged_csv):
 
                 name = str(row['NAME']).upper()
                 print(str(index_count) + "    " + name)
-
-                if index_count <= 200000:
+                
+                """
+                index_count value set to 200K, arbitrary number, the value should 
+                be set higher as the DB grows.
+                """
+                
+                if index_count <= 200000: 
 
                     em_check = re.search(
                         r'((?<![0-9]|[A-Z])|(?<=(-|_)))(VM|EM|AVP|PPRO|FCP|PTS|AVP|GRFX|GFX|UHD|XDCAM|XDCAMHD)(?=(-|_|[1-5])?)(?![A-Z])', name)
