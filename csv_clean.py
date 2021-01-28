@@ -253,8 +253,11 @@ def clean_name(name):
     """
 
     name_search = re.search(r".*&.*", name)
+    name_msg = f"Filename for cleanup:  {name}"
+    logger.info(name_msg)
 
-    if name_search is not None:
+    if (name_search is not None and
+        len(name_search) != 0):
 
         bad_name = name_search.group(0)
         good_name = bad_name.replace("&", "and")
@@ -263,6 +266,9 @@ def clean_name(name):
         logger.info(clean_name_msg)
     else:
         name_clean = name
+
+    clean_name_msg = f"Filename after cleanup:  {name_clean}"
+    logger.info(clean_name_msg)
 
     return name_clean
 
