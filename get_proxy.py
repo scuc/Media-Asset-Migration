@@ -42,6 +42,9 @@ def get_proxy(proxy_total):
         guid_r = guid_x[24:]
         proxy_fn = guid + '.mov'
 
+        """
+        Use the parts GUID to generate a list that will be used to build the path to the proxy.
+        """
         n = 2
         glist = [guid_r[i:i+n] for i in range(0, len(guid_r), n)]
 
@@ -75,7 +78,7 @@ def get_proxy(proxy_total):
                 break
         else:
             if os.path.exists(proxy_fpath) is not True:
-                proxy_err_msg = f"Proxy path does not exist. \
+                proxy_err_msg = f"Proxy path does not exist. \n\
                 {proxy_fpath}"
                 logger.error(proxy_err_msg)
                 db.update_column('assets', 'proxy_copied', 2, rowid)
@@ -110,7 +113,7 @@ def file_copy(source, destination):
         File Name: {source} \n\
         Error Message:  {str(e)} \n\
         "
-        logger.exception(proxy_excp_msg)
+        logger.exception(copy_excp_msg)
 
 
 if __name__ == '__main__':
