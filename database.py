@@ -203,6 +203,7 @@ def fetchone_guid(guid):
         params = (guid,)
         guid_status = cur.execute(sql, params).fetchone()
         conn.close()
+        print(guid_status)
         return guid_status
     except Exception as e:
         fetchxml_err_msg = f"Error on fetching xml status from db for guid: {guid}"
@@ -216,6 +217,7 @@ def fetchone_xml(guid):
         sql = '''SELECT rowid, xml_created FROM assets WHERE guid = ?'''
         params = (guid,)
         xml_status = cur.execute(sql, params).fetchone()
+        print(f"============= XML STATUS ON THE DB FUNC = {xml_status}  ==================")
         conn.close()
         return xml_status
     except Exception as e:
@@ -238,7 +240,7 @@ def fetchone_proxy(guid):
 
 
 if __name__ == '__main__':
-    fetchone_xml('00215AD34D20-8000FFFF-FFFF-C2F5-C5E0')
+    fetchone_guid('00215AD34D20-8000FFFF-FFFF-C2F5-C5E0')
     # fetchone_xml('FC15B4F7AB88-80001000-0000-734F-D554')
     # drop_row('assets', 67339,  '40A8F02A4440-8000FFFF-FFFF-8CE6-C2A4')
 #    insert_row(67339,  (67339,'40A8F02A4440-8000FFFF-FFFF-8CE6-C2A4', 'BLAH_BLAH', 1106412688.0, '151479', '051984_RaceOfLife_TheEarlyBirds_VM_SMLS_WAV', 0.0, '2016-03-02 16:40:00', '2016-03-02 16:37:24', '2016-03-03 14:46:42', '00:00:00:00', '00:00:00:00', '051984', '40A8F02A4440-8000FFFF-FFFF-8DA3-AC98', 'archive', 'NULL', 'NULL', 'NULL', 'NULL', '="051984"', 'NULL', 0, 0, 'WAV', 138949.0, 'f3ccc2a3-cfe1-4b68-9b08-177a44519619', '051984_RaceOfLife_TheEarlyBirds_VM_SMLS_WAV', 'TACS-DIVA', '2016-03-03 14:51:25', '2016-03-04 01:26:59', 1080481.0, 'mnt\\lun02\\Gorilla\\RuriStorage\\AC\\98\\40A8F02A4440-8000FFFF-FFFF-8DA3-AC98', 'N', 'TACS-DIVA', 'G_0', '2016-03-04 01:26:59', '2016-03-04 01:26:59', '3136ac9f00ab3bd50b191fbc94d28d3a', '2016-03-03 14:51:25', 'MD5', 'both')
