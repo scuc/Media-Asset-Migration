@@ -17,6 +17,7 @@ config = cfg.get_config()
 xml_checkin_path = config['paths']['xml_checkin_path']
 proxy_storage_path = config['paths']['proxy_storage_path']
 proxy_tmp_path = config['paths']['proxy_tmp_path']
+proxy_failed_path = config['paths']['proxy_failed_path']
 rootpath = config['paths']['rootpath']
 
 
@@ -62,7 +63,7 @@ def get_checkedin_assets():
             xml_list.append(xml)
     
     proxy_list = []
-    combined_proxy = os.listdir(proxy_storage_path) + os.listdir(proxy_tmp_path)
+    combined_proxy = os.listdir(proxy_storage_path) + os.listdir(proxy_tmp_path) + os.listdir(proxy_failed_path)
     for proxy in combined_proxy:
         if proxy.startswith("."):
             pass
@@ -76,7 +77,7 @@ def crosscheck_db(tablename):
     """
     Check db rows against the xmls and proxies in the filesystem. Update the DB records as needed. 
     """
-    crosscheck_db_start_msg = f"BEGIN XML AND PROXY DB-CROSSCHECK"
+    crosscheck_db_start_msg = f"BEGIN DB-CROSSCHECK"
     logger.info(crosscheck_db_start_msg)
 
     try: 
@@ -98,6 +99,7 @@ def crosscheck_db(tablename):
                 # logger.debug(xml_update_msg)
             
             proxyname = row[1] + ".mov"
+
             if (proxyname in proxy_list
                 and row[22] == 0):
                 db.update_column(tablename, 'PROXY_COPIED', 1, row[0])
@@ -114,7 +116,7 @@ def crosscheck_db(tablename):
                 # proxy_update_msg = row[1] + "  proxy status updated in the db. PROXY_COPIED = 0"
                 # logger.debug(proxy_update_msg)
 
-        crosscheck_db_end_msg = f"XML AND PROXY DB-CROSSCHECK COMPLETE"
+        crosscheck_db_end_msg = f"DB-CROSSCHECK COMPLETE"
         logger.info(crosscheck_db_end_msg)
 
     except Exception as e:
@@ -131,7 +133,7 @@ def crosscheck_assets(tablename):
     Performs the same check as crosscheck_db(), but from the reverse direction (filesystem to db). 
     """
 
-    fs_crosscheck_start_msg = f"BEGIN XML AND PROXY FS-CROSSCHECK"
+    fs_crosscheck_start_msg = f"BEGIN FS-CROSSCHECK"
     logger.info(fs_crosscheck_start_msg)
 
     try:
@@ -150,13 +152,23 @@ def crosscheck_assets(tablename):
             logger.info(xml_name_msg)
             guid = xml[:-9]
             xml_status = db.fetchone_xml(guid)
-            xml_status_msg = f"XML Status: {xml}"
+            print(f"XML Status: {str(xml_status)}")
+            xml_status_msg = f"XML Status: {str(xml_status)}"
             logger.info(xml_status_msg)
-            if (not xml_status[1] == None and
+
+            if xml_status is None:
+                none_msg = f"{guid} was not found in the DB.\n\
+                xml_list filename: {xml}"
+                xml_not_found_count += 1
+                logger.info(none_msg)
+                continue
+
+            elif (xml_status is not None and
                 xml_status[1] == 1):
                 xml_pass_msg = f"{guid} xml_status already = 1 "
                 logger.debug(xml_pass_msg)
-            elif (not xml_status[1] == None and
+
+            elif (xml_status is not None and
                 xml_status[1] == 0):
                 index = xml_status[0]
                 db.update_column(tablename, 'XML_CREATED', 1, index)
@@ -167,11 +179,12 @@ def crosscheck_assets(tablename):
                                             xml_created: 1 \n"
                 logger.info(xml_status_msg)
                 xml_update_count += 1
-            else: 
-                none_msg = f"{guid} was not found in the DB.\n\
-                            xml_list filename: {xml}"
-                xml_not_found_count += 1
-                logger.error(none_msg)
+
+            else:
+                pass_msg = f"No conditions satisfied for: {xml}"
+                logger.info(pass_msg)
+                xml_update_count += 1
+                continue
         
         xml_count_msg = f"Total Count for the xml status update = {xml_update_count}"
         xml_not_found_count = f"Total Count for the xml not found in db = {xml_not_found_count}"
@@ -190,11 +203,19 @@ def crosscheck_assets(tablename):
             guid = proxy[:-4]
             proxy_status = db.fetchone_proxy(guid)
             
-            if (not proxy_status[1] == None and
+            if proxy_status is None:
+                none_msg = f"{guid} was not found in the DB.\n\
+                            proxy_list filename: {proxy}"
+                proxy_not_found_count += 1
+                logger.info(none_msg)
+                continue
+
+            elif (proxy_status is not None and
                 proxy_status[1] == 1):
-                proxy_pass_msg = f"{guid} proxy_status already = 1 "
-                logger.debug(proxy_pass_msg) 
-            elif (not proxy_status[1] == None and
+                proxy_pass_msg = f"{guid} proxy_status already = 1"
+                logger.debug(proxy_pass_msg)
+
+            elif (proxy_status is not None and
                 proxy_status[1] == 0):
                 index = proxy_status[0]
                 db.update_column(tablename, 'PROXY_COPIED', 1, index)
@@ -205,21 +226,24 @@ def crosscheck_assets(tablename):
                                         proxy_copied: 1 \n"
                 logger.info(proxy_status_msg)
                 proxy_update_count += 1
-            else: 
-                none_msg = f"{guid} was not found in the DB.\n\
-                            proxy_list filename: {proxy}"
-                proxy_not_found_count += 1
-                logger.error(none_msg)
+
+            else:
+                pass_msg = f"No conditions satisfied for: {xml}"
+                logger.info(pass_msg)
+                xml_update_count += 1
+                continue
+
                 
         proxy_update_msg = f"Total number of files with proxy status updated:  {proxy_update_count}"
         proxy_not_found_count = f"Total Count for the proxies not found in db = {proxy_not_found_count}"
         logger.info(proxy_update_msg)
         logger.info(proxy_not_found_count)
 
-        fs_crosscheck_complete_msg = f"XML AND PROXY FS-CROSSCHECK COMPLETE"
+        fs_crosscheck_complete_msg = f"FS-CROSSCHECK COMPLETE"
         logger.info(fs_crosscheck_complete_msg)
         
         return 
+
 
     except Exception as e:
         cc_excp_msg = f"\n\
@@ -229,4 +253,4 @@ def crosscheck_assets(tablename):
 
 
 if __name__ == '__main__':
-    crosscheck_db('assets')
+    crosscheck_assets('assets')
