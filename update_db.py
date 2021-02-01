@@ -55,18 +55,30 @@ def update_db(date, tablename):
                 mismatch_count = 0
                 mismatch_index = []
                 total_count = 0
+                none_count = 0
 
                 for index, row in df.iterrows():
 
                     os.chdir(rootpath)
 
                     guid = str(row['GUID'])
-                    titletype = row['TITLETYPE']
-                    print(str(index) + "    " + guid)
-
+                    titletype = str(row['TITLETYPE'])
                     datatapeid = str(row['DATATAPEID'])
 
-                    db_row = db.select_row(index)
+                    update_db_msg_01 = f"Updating DB for (Index, GUID): ({index}, {guid})"
+                    logger.info(update_db_msg_01)
+                    print(str(index) + "    " + guid)
+
+                    db_row_id = db.fetchone_guid(guid) #fetch db row based on GUID, row ID may not match db Row ID.
+
+                    if db_row_id is not None: 
+                        db_row = db.select_row(db_row_id[0])
+
+                    else: 
+                        db_row_msg = f"None value(s) found in db row, skipping this row. \n {db_row}"
+                        none_count += 1
+                        continue
+
                     db_datatapeid = db_row[4]
                     db_aoid = db_row[24]
                     db_titletype = db_row[14]
@@ -79,12 +91,12 @@ def update_db(date, tablename):
                         update_index.append(index)
 
                     if (guid != db_row[1]
-                        and db.fetchone_guid(guid) == None):
+                        and db.fetchone_guid(guid) is None):
                         db.drop_row('assets', index, guid)
                         drop_count += 1
                         drop_index.append(index)
 
-                    if (db_row == None
+                    if (db_row is None
                         and row['_merge'] == 'both'): 
                         db.insert_row(index, row)
                         insert_count += 1
@@ -121,6 +133,7 @@ def update_db(date, tablename):
                                     "
 
             index_summary_msg = f"\n\
+                                None Value Count = {none_count}\n\
                                 update index: {update_index}\n\
                                 drop index: {drop_index}\n\
                                 insert index: {insert_index}\n\
