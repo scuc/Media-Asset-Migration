@@ -55,13 +55,13 @@ def csv_clean(date):
         for index, row in df.iterrows():
 
             name = str(row['NAME']).upper()
-            name_clean = clean_name(name)
-            df.at[index, 'NAME'] = name_clean
+            cleaned_name = clean_name(name)
+            df.at[index, 'NAME'] = cleaned_name
 
-            name_clean_msg = f"Index: {str(index)}  cleaned filename: {name_clean}"
+            name_clean_msg = f"Index: {str(index)}  cleaned filename: {cleaned_name}"
             logger.info(name_clean_msg)
 
-            traffic_code = get_traffic_code(name_clean)
+            traffic_code = get_traffic_code(cleaned_name)
             df.at[index, 'TRAFFIC_CODE'] = traffic_code
 
             df_row = df.loc[index]
@@ -75,20 +75,20 @@ def csv_clean(date):
             if pd.isnull(df_row['METAXML']) is not True:
                 l_metaxml = df_row['METAXML']
                 r_metaxml = r'{}'.format(l_metaxml)
-                metaxml = clean_metaxml(r_metaxml, name_clean)
+                metaxml = clean_metaxml(r_metaxml, cleaned_name)
                 df.at[index, 'METAXML'] = metaxml
             else:
                 df.at[index, 'METAXML'] = 'NULL'
                 metaxml = df.at[index, 'METAXML']
 
             video_check_1 = re.search(
-                r'((?<![0-9]|[A-Z])|(?<=(-|_)))(VM)(?=(-|_|[1-5])?)(?![A-Z])', name_clean)
+                r'((?<![0-9]|[A-Z])|(?<=(-|_)))(VM)(?=(-|_|[1-5])?)(?![A-Z])', cleaned_name)
             video_check_2 = re.search(
-                r'((?<![0-9]|[A-Z])|(?<=(-|_)))(EM)(?=(-|_|[1-5])?)(?![A-Z])', name_clean)
+                r'((?<![0-9]|[A-Z])|(?<=(-|_)))(EM)(?=(-|_|[1-5])?)(?![A-Z])', cleaned_name)
             video_check_3 = re.search(
-                r'((?<![0-9]|[A-Z])|(?<=(-|_)))(UHD)(?=(-|_|[1-5])?)(?![A-Z])', name_clean)
+                r'((?<![0-9]|[A-Z])|(?<=(-|_)))(UHD)(?=(-|_|[1-5])?)(?![A-Z])', cleaned_name)
             video_check_4 = re.search(
-                r'((?<![0-9]|[A-Z])|(?<=(-|_)))(XDCAM)(?=(-|_|[1-5]|HD)?)', name_clean)
+                r'((?<![0-9]|[A-Z])|(?<=(-|_)))(XDCAM)(?=(-|_|[1-5]|HD)?)', cleaned_name)
 
             vcheck_list = []
 
@@ -113,7 +113,7 @@ def csv_clean(date):
             else:
                 content_type_v = None
                 
-            archive_check = re.search(r'((?<![0-9]|[A-Z])|(?<=(-|_)))(AVP|PPRO|FCP|PTS|AVP|GRFX|GFX|WAV|WAVS|SPLITS)(?=(-|_)?)(?![0-9]|[A-Z])', name_clean)
+            archive_check = re.search(r'((?<![0-9]|[A-Z])|(?<=(-|_)))(AVP|PPRO|FCP|PTS|AVP|GRFX|GFX|WAV|WAVS|SPLITS)(?=(-|_)?)(?![0-9]|[A-Z])', cleaned_name)
 
             if archive_check is not None: 
                 if archive_check.group(0) == 'SPLITS':
@@ -151,7 +151,7 @@ def csv_clean(date):
                 df.at[index, 'TITLETYPE'] = 'archive'
                 df.at[index, 'CONTENT_TYPE'] = content_type_a
                 df.at[index, 'PROXY_COPIED'] = 3
-                df.at[index, 'FILENAME'] = f"{clean_name}_{creation_date}.zip" 
+                df.at[index, 'FILENAME'] = f"{cleaned_name}_{creation_date}.zip" 
                 mediainfo = ['NULL', 'NULL', 'NULL', 'NULL', 'NULL', 'NULL', ]
 
             elif (content_type_v is not None
@@ -195,12 +195,12 @@ def csv_clean(date):
         logger.exception(db_clean_excp_msg)
 
 
-def get_traffic_code(name_clean):
+def get_traffic_code(cleaned_name):
     """
     Validate the the traffic code begins with a 0, and contains the correct number of characters.
     """
 
-    name = str(name_clean)
+    name = str(cleaned_name)
 
     if name.startswith('0') is not True:
         code_search = re.search(
@@ -257,20 +257,20 @@ def clean_name(name):
     logger.info(name_msg)
 
     if (name_search is not None and
-        len(name_search) != 0):
+        len(name_search.group(0)) != 0):
 
         bad_name = name_search.group(0)
         good_name = bad_name.replace("&", "and")
-        name_clean = good_name
+        cleaned_name = good_name
         clean_name_msg = f"metaxml for {name} was modified to remove '&' characters."
         logger.info(clean_name_msg)
     else:
-        name_clean = name
+        cleaned_name = name
 
-    clean_name_msg = f"Filename after cleanup:  {name_clean}"
+    clean_name_msg = f"Filename after cleanup:  {cleaned_name}"
     logger.info(clean_name_msg)
 
-    return name_clean
+    return cleaned_name
 
 
 if __name__ == '__main__':
