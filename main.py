@@ -72,7 +72,7 @@ def main():
 
     xml_total, proxy_total, getnew_db, crosscheck_db, crosscheck_assets = ui.get_user_input()
 
-    if getnew_db == True: 
+    if getnew_db is True: 
         gor_csv = g_query.buildcsv(date)
         diva_csv = d_query.buildcsv(date)
         merged_csv = mdb.pandas_merge(date, diva_csv, gor_csv)
@@ -80,14 +80,22 @@ def main():
         cleaned_csv, tablename = csv_c.csv_clean(date)
         udb.update_db(date, tablename)
         final_steps(xml_total, proxy_total)
-    elif (getnew_db == False
-          and crosscheck_db == True):
+    elif (getnew_db is False
+          and crosscheck_db is True
+          and crosscheck_assets is True):
         cca.crosscheck_db(tablename)
-        final_steps(xml_total, proxy_total)
-    elif (getnew_db == False
-          and crosscheck_assets == True):
         cca.crosscheck_assets(tablename)
         final_steps(xml_total, proxy_total)
+    elif (getnew_db is False
+          and crosscheck_db is True
+          and crosscheck_assets is False):
+        cca.crosscheck_db(tablename)
+        final_steps(xml_total, proxy_total)
+    elif (getnew_db is False
+            and crosscheck_db is False
+            and crosscheck_assets is True):
+            cca.crosscheck_assets(tablename)
+            final_steps(xml_total, proxy_total)
     else: 
         final_steps(xml_total, proxy_total)
 
