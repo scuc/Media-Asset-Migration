@@ -141,6 +141,7 @@ def create_xml(xml_total):
                     pass
 
 
+        os.chdir(rootpath)
         xml_2_msg = f"GORILLA-DIVA XML CREATION COMPLETED"
         logger.info(xml_2_msg)
 
