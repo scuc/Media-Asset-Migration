@@ -84,6 +84,7 @@ def get_proxy(proxy_total):
                 db.update_column('assets', 'proxy_copied', 2, rowid)
                 continue
 
+    os.chdir(rootpath)
     proxy_complete_msg = f"PROXY COPY COMPLETE. \n\
                         {proxy_count} proxies copied \n"
 
