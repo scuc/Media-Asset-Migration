@@ -38,9 +38,9 @@ def get_user_input():
         proxy_val = str(
             input(f"How many proxies are needed in this batch?  "))
         try:
-            if int(xml_val) > 10000:
+            if int(proxy_val) > 10000:
                 print(
-                    f"{xml_val} is not a valid entry for the starting index, try again.")
+                    f"{proxy_val} is not a valid entry for the starting index, try again.")
                 continue
             else:
                 proxy_total = proxy_val
@@ -54,8 +54,8 @@ def get_user_input():
             Error Message:  {str(e)} \n\
             "
             print(
-                f"{xml_val} is not a valid entry for the starting index, try again.")
-            logger.exception(xml_excp_msg)
+                f"{proxy_val} is not a valid entry for the starting index, try again.")
+            logger.exception(proxy_excp_msg)
             continue
 
 
