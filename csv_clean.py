@@ -161,7 +161,7 @@ def csv_clean(date):
                 df.at[index, 'TITLETYPE'] = 'archive'
                 df.at[index, 'CONTENT_TYPE'] = content_type_a
                 df.at[index, 'PROXY_COPIED'] = 3
-                df.at[index, 'FILENAME'] = f"{clean_name}_{creation_date}.zip" 
+                df.at[index, 'FILENAME'] = f"{cleaned_name}_{creation_date}.zip" 
                 mediainfo = ['NULL', 'NULL', 'NULL', 'NULL', 'NULL', 'NULL', ]
 
             else:
