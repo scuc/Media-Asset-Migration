@@ -29,6 +29,7 @@ def get_proxy(proxy_total):
     xmlpath = config['paths']['xmlpath']
     proxypath = config['paths']['proxypath']
     tmp_checkin = config['paths']['tmp']
+    rootpath = config['paths']['rootpath']
 
     rows = db.fetchall_proxy('assets')
     
@@ -109,7 +110,7 @@ def file_copy(source, destination):
             return stderr
 
     except Exception as e:
-        copy_excp_msg = f"\n\
+        copy_excp_msg = f"\n\ 
         Exception raised on the file copy.\n\
         File Name: {source} \n\
         Error Message:  {str(e)} \n\
