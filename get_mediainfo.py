@@ -14,7 +14,13 @@ def get_mediainfo(df_row, metaxml):
     Extract mediainfo from the metaxml field of the DB.
     """
 
-    if df_row['METAXML'] != 'nan':
+    get_mediainfo_msg = f"Getting mediainfo for {df_row['NAME']}"
+    metaxml_len_msg = f"MetaXML has length = {len(metaxml)}"
+    logger.info(get_mediainfo_msg)
+    logger.info(metaxml_len_msg)
+
+    if (df_row['METAXML'] != 'nan' and
+        len(metaxml) != 0):
 
         try:
             parser = ET.XMLParser(encoding="utf-8")
@@ -86,8 +92,6 @@ def get_mediainfo(df_row, metaxml):
             else: 
                 pass
 
-
-
             duration_match = int(df_row['CONTENTLENGTH']) * 1000
 
             if duration_match != 0:
@@ -95,7 +99,14 @@ def get_mediainfo(df_row, metaxml):
             else:
                 duration=0
 
-            filename = df_row['NAME']
+            # make a guess to the file extension, bias toward .mov files
+            if codec.uppper() == "PRORES":
+                filename = f"{df_row['NAME']}.mov"
+            elif filename.upper().endswith("_MXF"):
+                filename = f"{df_row['NAME']}.mxf"
+            else: 
+                 filename = f"{df_row['NAME']}.mov"
+
 
             mediainfo = [framerate, codec, v_width, v_height, duration, filename]
             
