@@ -15,7 +15,22 @@ logger = logging.getLogger(__name__)
 
 def csv_clean(date):
     """
-    Parse out data from the db, insert into new fields,  and assign values for these fields in each row.
+    Cleaning the merged data follows mulitple steps: 
+        - put the merged CSV into a pandas dataframe
+        - insert new fields into the dataframe (columns 13 to 23)
+        - iterate over all rows in the dataframe
+        - clean each filename to remove illegal character: &
+        - parse the Traffic Code from the cleaned name and validate the value
+        - parse and clean the METAXML field if it is not NULL
+        - perform regex search against the clean filename to determine if the object 
+            video or a ZIP archive 
+        - assign a "content type" based on results of the regex searches
+        - if file has mediainfo - assign values for these new fields based on media info
+        - if the file has NO mediainfo - assign mediainfo values to NULL and create filename based
+            on the cleaned name + the object creation date
+        - drop the METAXML field from the dataframe, export a new CSV,
+            then take cleaned dataframe data and create a DB
+            with tablename "assets"
     """
 
     config = cfg.get_config()
@@ -36,7 +51,7 @@ def csv_clean(date):
         pd_reader = pd.read_csv(parsed_csv, header=0)
         df = pd.DataFrame(pd_reader)
         df.index.name = 'ROWID'
-        df = df.astype({"METAXML": str})
+        df = df.astype({"METAXML": str}) #set the field to type str
 
         df.insert(13, "TITLETYPE", 'NULL', allow_duplicates=True)
         df.insert(14, "FRAMERATE", 'NULL', allow_duplicates=True)
