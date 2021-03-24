@@ -99,13 +99,17 @@ def get_mediainfo(df_row, metaxml):
             else:
                 duration=0
 
+            filename = df_row['NAME']
+            date = df_row['SOURCECREATEDT']
+            creation_date = (date.translate({ord(i): None for i in '- :'}))
+
             # make a guess to the file extension, bias toward .mov files
-            if codec.uppper() == "PRORES":
-                filename = f"{df_row['NAME']}.mov"
+            if codec.upper() == "PRORES":
+                filename = f"{filename}_{creation_date}.mov"
             elif filename.upper().endswith("_MXF"):
-                filename = f"{df_row['NAME']}.mxf"
+                filename = f"{filename}_{creation_date}.mxf"
             else: 
-                 filename = f"{df_row['NAME']}.mov"
+                 filename = f"{filename}_{creation_date}.mov"
 
 
             mediainfo = [framerate, codec, v_width, v_height, duration, filename]
