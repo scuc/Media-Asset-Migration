@@ -110,7 +110,7 @@ def file_copy(source, destination):
             return stderr
 
     except Exception as e:
-        copy_excp_msg = f"\n\ 
+        copy_excp_msg = f"\n\
         Exception raised on the file copy.\n\
         File Name: {source} \n\
         Error Message:  {str(e)} \n\
