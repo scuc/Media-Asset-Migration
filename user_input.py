@@ -33,7 +33,6 @@ def get_user_input():
             logger.exception(xml_excp_msg)
             continue
 
-
     while True:
         proxy_val = str(
             input(f"How many proxies are needed in this batch?  "))
@@ -45,7 +44,7 @@ def get_user_input():
             else:
                 proxy_total = proxy_val
                 proxy_info_msg = (
-                    f"Selected value for xml creation: {proxy_total}")
+                    f"Selected value for proxy creation: {proxy_total}")
                 break
 
         except ValueError as e:
@@ -58,9 +57,9 @@ def get_user_input():
             logger.exception(proxy_excp_msg)
             continue
 
-
     while True:
-        response2 = str(input(f"Export a new copies of the Gor/Oracle DBs? [Y/N]  "))
+        response2 = str(
+            input(f"Export a new copies of the Gor/Oracle DBs? [Y/N]  "))
 
         try:
             response2 = yesno_rsp(response2)
@@ -76,7 +75,7 @@ def get_user_input():
             ValueError raised for the getnew_db value: {response2}.\n\
             Error Message:  {str(e)} \n\
             "
-            print(f"{str(get_db)} is not a valid response, it must be Yes or No.")
+            print(f"{str(getnew_db)} is not a valid response, it must be Yes or No.")
             logger.exception(getnew_db_excp_msg)
             continue
 
@@ -86,9 +85,9 @@ def get_user_input():
 
         try:
             response3 = yesno_rsp(response3)
-            if response3 not in [True, False]: 
+            if response3 not in [True, False]:
                 continue
-            else: 
+            else:
                 crosscheck_db = response3
                 ccdb_info_msg = (f"Crosscheck DB: {crosscheck_db}")
                 break
@@ -98,8 +97,8 @@ def get_user_input():
             ValueError raised for the crosscheck_db value: {crosscheck_db}.\n\
             Error Message:  {str(e)} \n\
             "
-            print(f"{str(get_db)} is not a valid response, it must be Yes or No.")
-            logger.exception(croscheck_db_excp_msg)
+            print(f"{str(getnew_db)} is not a valid response, it must be Yes or No.")
+            logger.exception(crosscheck_db_excp_msg)
             continue
 
     while True:
@@ -120,8 +119,8 @@ def get_user_input():
             ValueError raised for the crosscheck_assets value: {crosscheck_assets}.\n\
             Error Message:  {str(e)} \n\
             "
-            print(f"{str(get_db)} is not a valid response, it must be Yes or No.")
-            logger.exception(croscheck_db_excp_msg)
+            print(f"{str(getnew_db)} is not a valid response, it must be Yes or No.")
+            logger.exception(crosscheck_assets_excp_msg)
             continue
 
     logger.info(xml_info_msg)
@@ -134,7 +133,7 @@ def get_user_input():
     return xml_total, proxy_total, getnew_db, crosscheck_db, crosscheck_assets
 
 
-def yesno_rsp(response): 
+def yesno_rsp(response):
     if str(response.upper()) in ["Y", "YES"]:
         return True
     elif str(response.upper()) in ["N", "NO"]:
