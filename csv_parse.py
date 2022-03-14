@@ -54,7 +54,7 @@ def db_parse(date, merged_csv):
                 if index_count <= 200000: 
 
                     em_check = re.search(
-                        r'((?<![0-9]|[A-Z])|(?<=(-|_)))(VM|EM|AVP|PPRO|FCP|PTS|AVP|GRFX|GFX|UHD|XDCAM|XDCAMHD)(?=(-|_|[1-5])?)(?![A-Z])', name)
+                        r'((?<![0-9]|[A-Z])|(?<=(-|_)))(VM|EM|AVP|PPRO|FCP|PTS|GRFX|GFX|UHD|XDCAM|XDCAMHD)(?=(-|_|[1-5])?)(?![A-Z])', name)
                     qc_check = re.search(r'(?<=-|_)OUTGOING(?=[QC]?|-|_)', name)
 
                     if (em_check is not None 
