@@ -161,9 +161,10 @@ def csv_clean(date):
 
             elif (content_type_v is None
                   and archive_check is not None):
+                title_type = get_title_type(content_type_a)
                 date = df.at[index, 'SOURCECREATEDT']
                 creation_date = format_creation_date(date)
-                df.at[index, 'TITLETYPE'] = 'archive'
+                df.at[index, 'TITLETYPE'] = title_type
                 df.at[index, 'CONTENT_TYPE'] = content_type_a
                 df.at[index, 'PROXY_COPIED'] = 3
                 df.at[index, 'FILENAME'] = f"{cleaned_name}_{creation_date}.zip" 
@@ -171,9 +172,10 @@ def csv_clean(date):
 
             elif (content_type_v is not None
                   and archive_check is not None):
+                title_type = get_title_type(content_type_a)
                 date = df.at[index, 'SOURCECREATEDT']
                 creation_date = format_creation_date(date)
-                df.at[index, 'TITLETYPE'] = 'archive'
+                df.at[index, 'TITLETYPE'] = title_type
                 df.at[index, 'CONTENT_TYPE'] = content_type_a
                 df.at[index, 'PROXY_COPIED'] = 3
                 df.at[index, 'FILENAME'] = f"{cleaned_name}_{creation_date}.zip" 
@@ -208,6 +210,24 @@ def csv_clean(date):
         Index Count: {index}\n\
         "
         logger.exception(db_clean_excp_msg)
+
+
+def get_title_type(content_type_a): 
+    """
+    Check content_type for specific tags, and apply a title_type based on those tags. 
+    """
+    if content_type_a == "WAV":
+        title_type = "audio"
+    if content_type_a == "PTS":
+        title_type = "AdobeAuditionSession"
+    if content_type_a in ("FCP", "AVP", "PPRO"):
+        title_type = "AdobePremiereProject"
+    if content_type_a == "GRFX":
+        title_type = "archive"
+    else: 
+        title_type == "archive"
+    
+    return title_type
 
 
 def get_traffic_code(cleaned_name):
