@@ -63,18 +63,21 @@ def create_xml(xml_total):
                 PROXY_COPIED = row[22]
                 CONTENT_TYPE = row[23]
                 FILENAME = row[24]
-                OC_COMPONENT_NAME = row[31]
+                OC_COMPONENT_NAME = row[32]
 
                 if (DATATAPEID != 'unallocated'
                     and DATATAPEID != 'NULL'
                     and OC_COMPONENT_NAME != 'NULL'):
+
+                    filename = FILENAME.replace(".hr.",".")
+                    gorilla_path = OC_COMPONENT_NAME.replace("\\", r"/")
+                    traffic_code = str(TRAFFIC_CODE).strip("=\"")
+
                     guid = GUID
                     name = NAME
-                    filename = FILENAME
                     datatapeid = DATATAPEID
                     timecodein = TIMECODEIN
-                    folderpath = "T://DaletStorage/Video_Watch_Folder" + str(OC_COMPONENT_NAME)
-                    traffic_code = str(TRAFFIC_CODE).strip("=\"")
+                    folderpath = gorilla_path
                     title_type = TITLETYPE
                     framerate = FRAMERATE
                     codec = CODEC
@@ -157,5 +160,5 @@ def create_xml(xml_total):
 
 
 if __name__ == '__main__':
-    create_xml(10000)
+    create_xml(1)
 
