@@ -107,7 +107,7 @@ def final_steps(xml_total, proxy_total):
     if int(proxy_total) > 0: 
         gp.get_proxy(proxy_total)
 
-    complete_msg = f"{'='*25}  SCRIPT COMPLETE  {'='*25}"
+    complete_msg = f"\n\n{'='*25}  SCRIPT COMPLETE  {'='*25}"
     logger.info(complete_msg)
 
 if __name__ == '__main__':
