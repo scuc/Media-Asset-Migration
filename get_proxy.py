@@ -4,9 +4,9 @@ import logging
 import os
 import subprocess
 
+import config as cfg
 import database as db
 
-import config as cfg
 # import xml.etree.ElementTree as ET
 
 logger = logging.getLogger(__name__)

@@ -1,19 +1,20 @@
 #! /usr/bin/env python3
 
 import os
+from turtle import clear
 import yaml
 
 
 def get_config():
-    """Setup configuration and credentials
     """
-    path = 'config.yaml'
+    Setup configuration and credentials
+    """
+    path = "./config.yaml"
 
     with open(path, 'rt') as f:
         config = yaml.safe_load(f.read())
 
     return config
-
 
 def ensure_dirs():
 

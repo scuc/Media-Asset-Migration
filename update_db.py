@@ -4,9 +4,9 @@ import logging
 import os
 import shutil
 
-import config as cfg
 import pandas as pd
 
+import config as cfg
 import crosscheck_assets as cca
 import database as db
 import get_mediainfo as gmi

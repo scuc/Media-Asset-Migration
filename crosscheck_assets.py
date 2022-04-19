@@ -5,11 +5,12 @@ import logging
 import os
 import re
 import shutil
+import xml.etree.ElementTree as ET
+
+import pandas as pd
 
 import config as cfg
 import database as db
-import pandas as pd
-import xml.etree.ElementTree as ET
 
 logger = logging.getLogger(__name__)
 

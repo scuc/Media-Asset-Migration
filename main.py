@@ -1,25 +1,24 @@
 #! /usr/bin/env python3
 
-import config as cfg
-import crosscheck_assets as cca
-import csv_parse as csv_p
-import csv_clean as csv_c
-import create_xml as xml_c
-import get_proxy as gp
-import user_input as ui
-import update_db as udb
-
-import diva_oracle_query as d_query
-import gorilla_oracle_query as g_query
-import merge_dbs as mdb
-
-from time import localtime, strftime
-from logging.handlers import TimedRotatingFileHandler
-
 import logging
 import logging.config
 import os
+from logging.handlers import TimedRotatingFileHandler
+from time import localtime, strftime
+
 import yaml
+
+import config as cfg
+import create_xml as xml_c
+import crosscheck_assets as cca
+import csv_clean as csv_c
+import csv_parse as csv_p
+import diva_oracle_query as d_query
+import get_proxy as gp
+import gorilla_oracle_query as g_query
+import merge_dbs as mdb
+import update_db as udb
+import user_input as ui
 
 logger = logging.getLogger(__name__)
 

@@ -2,12 +2,10 @@
 
 import logging
 import os
+from xml.dom import minidom
 
 import config as cfg
-
 import database as db
-
-from xml.dom import minidom
 
 logger = logging.getLogger(__name__)
 
