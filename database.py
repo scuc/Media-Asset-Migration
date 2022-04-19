@@ -1,12 +1,12 @@
 #! /usr/bin/env python3
 
-import config as cfg
-
 import logging
 import os
 import sqlite3
 
 import pandas as pd
+
+import config as cfg
 
 logger = logging.getLogger(__name__)
 config = cfg.get_config()

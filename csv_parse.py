@@ -4,11 +4,11 @@ import csv
 import logging
 import os
 import re
+
+import pandas as pd
 import yaml
 
 import config as cfg
-import pandas as pd
-
 
 logger = logging.getLogger(__name__)
 

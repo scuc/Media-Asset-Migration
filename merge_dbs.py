@@ -2,11 +2,11 @@
 
 import logging
 import os
+from time import localtime, strftime
 
-import config as cfg
 import pandas as pd
 
-from time import localtime, strftime
+import config as cfg
 
 logger = logging.getLogger(__name__)
 

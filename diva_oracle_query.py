@@ -1,14 +1,17 @@
 #! /usr/bin/env python3
 
 import csv
-import cx_Oracle
 import logging
 import os
+from time import localtime, strftime
+
+import cx_Oracle
 import yaml
 
 import config as cfg
 
-from time import localtime, strftime
+cx_Oracle.init_oracle_client(
+    lib_dir="/opt/oracle/instantclient_19_8")
 
 sql_query = '''
         SELECT
@@ -109,5 +112,5 @@ def buildcsv(date):
 
         logger.exception(db_export_excp_msg)
 
-# if __name__ == '__main__':
-#     buildcsv()
+if __name__ == '__main__':
+    buildcsv()

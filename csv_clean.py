@@ -4,9 +4,9 @@ import logging
 import os
 import re
 
-import config as cfg
 import pandas as pd
 
+import config as cfg
 import database as db
 import get_mediainfo as gmi
 
