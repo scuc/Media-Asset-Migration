@@ -18,11 +18,11 @@ def pandas_merge(date, diva_csv, gor_csv):
     """
     
     config = cfg.get_config()
-    rootpath = config['paths']['rootpath']
-    csvpath = config['paths']['csvpath']
+    root_path = config['paths']['root_path']
+    csv_path = config['paths']['csv_path']
 
     try:
-        os.chdir(csvpath)
+        os.chdir(csv_path)
 
         gor_source = str(gor_csv)
         div_source = str(diva_csv)
@@ -69,7 +69,7 @@ def pandas_merge(date, diva_csv, gor_csv):
 
         logger.info(merge_2_msg)
 
-        os.chdir(rootpath)
+        os.chdir(root_path)
 
         return merged_csv
 

@@ -10,8 +10,8 @@ import yaml
 
 import config as cfg
 
-cx_Oracle.init_oracle_client(
-    lib_dir="/opt/oracle/instantclient_19_8")
+# cx_Oracle.init_oracle_client(
+#     lib_dir="/opt/oracle/instantclient_19_8")
 
 sql_query = '''
         SELECT
@@ -52,14 +52,14 @@ def buildcsv(date):
 
     config = cfg.get_config()
 
-    rootpath = config['paths']['rootpath']
-    csvpath = config['paths']['csvpath']
+    root_path = config['paths']['root_path']
+    csv_path = config['paths']['csv_path']
 
     db_user = config['oracle-db-gor']['user']
     db_pass = config['oracle-db-gor']['pass']
     db_url = config['oracle-db-gor']['url']
 
-    os.chdir(csvpath)
+    os.chdir(csv_path)
 
     try:
         row_count = 0
@@ -94,7 +94,7 @@ def buildcsv(date):
 
         connection.close()
 
-        os.chdir(rootpath)
+        os.chdir(root_path)
 
         return gor_csv
 

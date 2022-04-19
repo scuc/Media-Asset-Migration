@@ -23,23 +23,23 @@ def update_db(date, tablename):
     """
 
     config = cfg.get_config()
-    rootpath = config['paths']['rootpath']
-    csvpath = config['paths']['csvpath']
+    root_path = config['paths']['root_path']
+    csv_path = config['paths']['csv_path']
     clean_csv = date + "_" + "gor_diva_merged_cleaned.csv"
 
-    if os.path.isfile(os.path.join(rootpath, 'database.db')) is not True: 
+    if os.path.isfile(os.path.join(root_path, 'database.db')) is not True: 
         return
 
     else:
         try: 
-            shutil.copy2(os.path.join(rootpath, 'database.db'), os.path.join(rootpath, 'database_BKP_'+ date + '.db'))
+            shutil.copy2(os.path.join(root_path, 'database.db'), os.path.join(root_path, 'database_BKP_'+ date + '.db'))
             
             update_db_msg = f"BEGIN DB UPDATE"
             logger.info(update_db_msg)
             print(update_db_msg)
 
             cca.crosscheck_assets(tablename)
-            os.chdir(csvpath)
+            os.chdir(csv_path)
 
             with open(clean_csv, mode='r', encoding='utf-8-sig') as c_csv:
 
@@ -59,7 +59,7 @@ def update_db(date, tablename):
 
                 for index, row in df.iterrows():
 
-                    os.chdir(rootpath)
+                    os.chdir(root_path)
 
                     guid = str(row['GUID'])
                     titletype = str(row['TITLETYPE'])

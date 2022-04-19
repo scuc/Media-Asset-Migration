@@ -16,9 +16,9 @@ def create_xml(xml_total):
     """
 
     config = cfg.get_config()
-    rootpath = config['paths']['rootpath']
+    root_path = config['paths']['root_path']
     xml_checkin = config['paths']['xml_checkin_path']
-    os.chdir(rootpath)
+    os.chdir(root_path)
 
     xml_1_msg = f"START GORILLA-DIVA XML CREATION"
     logger.info(xml_1_msg)
@@ -127,7 +127,7 @@ def create_xml(xml_total):
                         xdoc.write(xmlstr)
                         xdoc.close()
 
-                    os.chdir(rootpath)
+                    os.chdir(root_path)
                     update = db.update_column('assets', 'xml_created', 1, ROWID)
                     xmlcreate_msg = (f"\n\
                                     RowID: {str(ROWID)}\n\
@@ -142,7 +142,7 @@ def create_xml(xml_total):
                     pass
 
 
-        os.chdir(rootpath)
+        os.chdir(root_path)
         xml_2_msg = f"GORILLA-DIVA XML CREATION COMPLETED"
         logger.info(xml_2_msg)
 

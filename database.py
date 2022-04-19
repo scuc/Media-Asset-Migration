@@ -11,13 +11,13 @@ import config as cfg
 logger = logging.getLogger(__name__)
 config = cfg.get_config()
 
-dbpath = config['paths']['dbpath']
+db_path = config['paths']['db_path']
 
 
 def connect(db_name='database.db'):
     """ Create a database connection."""
     try:
-        os.chdir(dbpath)
+        os.chdir(db_path)
         conn = sqlite3.connect('database.db')
     except Exception as e:
         conn_err_msg = (f"Error on connection to database.db")
