@@ -1,3 +1,6 @@
 # Specify filepatterns you want git to ignore.
 
 */*
+*.db
+config.yaml
+.DS_Store
