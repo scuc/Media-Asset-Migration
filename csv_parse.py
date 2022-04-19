@@ -21,10 +21,10 @@ def db_parse(date, merged_csv):
 
     config = cfg.get_config()
 
-    rootpath = config['paths']['rootpath']
-    csvpath = config['paths']['csvpath']
+    root_path = config['paths']['root_path']
+    csv_path = config['paths']['csv_path']
 
-    os.chdir(csvpath)
+    os.chdir(csv_path)
 
     parsed_csv = (date + "_" + "gor_diva_merged_parsed.csv")
 
@@ -79,7 +79,7 @@ def db_parse(date, merged_csv):
             m_csv.close()
             p_csv.close()
 
-            os.chdir(rootpath)
+            os.chdir(root_path)
 
             parse_3_msg = f"GORILLA-DIVA DB PARSE COMPLETE"
             logger.info(parse_3_msg)

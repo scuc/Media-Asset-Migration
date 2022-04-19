@@ -62,7 +62,7 @@ The script follows the a series of steps:
 &nbsp;   &nbsp;   &nbsp;   &nbsp;   &nbsp;  
 
 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; paths: &nbsp;   &nbsp;   &nbsp;   &nbsp;   &nbsp;  
-&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; rootpath:&nbsp;   &nbsp;   &nbsp;   &nbsp;   &nbsp;  
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; root_path:&nbsp;   &nbsp;   &nbsp;   &nbsp;   &nbsp;  
 
 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; oracle-db-gor:&nbsp;   &nbsp;   &nbsp;   &nbsp;   &nbsp;  
   &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; user:&nbsp;   &nbsp;   &nbsp;   &nbsp;   &nbsp;  

@@ -26,10 +26,10 @@ def get_proxy(proxy_total):
     config = cfg.get_config()
     conn = db.connect()
 
-    xmlpath = config['paths']['xmlpath']
-    proxypath = config['paths']['proxypath']
+    xml_path = config['paths']['xml_path']
+    proxy_path = config['paths']['proxy_path']
     tmp_checkin = config['paths']['tmp']
-    rootpath = config['paths']['rootpath']
+    root_path = config['paths']['root_path']
 
     rows = db.fetchall_proxy('assets')
     
@@ -50,7 +50,7 @@ def get_proxy(proxy_total):
         glist = [guid_r[i:i+n] for i in range(0, len(guid_r), n)]
 
         proxy_fpath = os.path.join(
-            proxypath, glist[2], glist[3], guid, proxy_fn)
+            proxy_path, glist[2], glist[3], guid, proxy_fn)
         
         if (proxy_count < int(proxy_total)
             and proxy_copied == 0 
@@ -85,7 +85,7 @@ def get_proxy(proxy_total):
                 db.update_column('assets', 'proxy_copied', 2, rowid)
                 continue
 
-    os.chdir(rootpath)
+    os.chdir(root_path)
     proxy_complete_msg = f"PROXY COPY COMPLETE. \n\
                         {proxy_count} proxies copied \n"
 

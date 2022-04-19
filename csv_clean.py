@@ -35,11 +35,11 @@ def csv_clean(date):
 
     config = cfg.get_config()
 
-    rootpath = config['paths']['rootpath']
-    dbpath = config['paths']['dbpath']
-    csvpath = config['paths']['csvpath']
+    root_path = config['paths']['root_path']
+    db_path = config['paths']['db_path']
+    csv_path = config['paths']['csv_path']
 
-    os.chdir(csvpath)
+    os.chdir(csv_path)
 
     parsed_csv = date + "_" + "gor_diva_merged_parsed.csv"
     clean_csv = date + "_" + "gor_diva_merged_cleaned.csv"
@@ -191,7 +191,7 @@ def csv_clean(date):
         df.at[index, 'FILENAME'] = mediainfo[5]
         df.drop("METAXML", axis=1, inplace=True)
         df.to_csv(clean_csv)
-        os.chdir(dbpath)
+        os.chdir(db_path)
 
         conn = db.connect()
         tablename = 'assets'
@@ -200,7 +200,7 @@ def csv_clean(date):
         clean_3_msg = f"GORILLA-DIVA DB CLEAN COMPLETE, NEW DB TABLE CREATED"
         logger.info(clean_3_msg)
 
-        os.chdir(rootpath)
+        os.chdir(root_path)
         return clean_csv, tablename
 
     except Exception as e:

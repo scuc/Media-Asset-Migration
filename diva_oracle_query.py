@@ -57,14 +57,14 @@ def buildcsv(date):
 
     config = cfg.get_config()
 
-    rootpath = config['paths']['rootpath']
-    csvpath = config['paths']['csvpath']
+    root_path = config['paths']['root_path']
+    csv_path = config['paths']['csv_path']
 
     db_user = config['oracle-db-diva']['user']
     db_pass = config['oracle-db-diva']['pass']
     db_url = config['oracle-db-diva']['url']
 
-    os.chdir(csvpath)
+    os.chdir(csv_path)
 
     try:
         row_count = 0
@@ -99,7 +99,7 @@ def buildcsv(date):
 
         logger.info(export_2_msg)
 
-        os.chdir(rootpath)
+        os.chdir(root_path)
 
         return diva_csv
 

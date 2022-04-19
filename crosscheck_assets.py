@@ -19,7 +19,7 @@ xml_checkin_path = config['paths']['xml_checkin_path']
 proxy_storage_path = config['paths']['proxy_storage_path']
 proxy_tmp_path = config['paths']['proxy_tmp_path']
 proxy_failed_path = config['paths']['proxy_failed_path']
-rootpath = config['paths']['rootpath']
+root_path = config['paths']['root_path']
 
 
 def get_root(xml_doc):
@@ -36,7 +36,7 @@ def get_guid(f, f_path):
     When the filename for the xml has the wrong guid, get the guid from an element of the xml 
     """
     xml_fname = f[:-5]
-    dst_path = rootpath + "_tmp/" + xml_fname
+    dst_path = root_path + "_tmp/" + xml_fname
     xml_doc = shutil.copy2(f_path, dst_path)
     root = get_root(xml_doc)
     guid_elem = root.find('Title/key1')
