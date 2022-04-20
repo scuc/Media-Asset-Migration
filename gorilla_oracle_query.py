@@ -13,7 +13,7 @@ import config as cfg
 # cx_Oracle.init_oracle_client(
 #     lib_dir="/opt/oracle/instantclient_19_8")
 
-sql_query = '''
+sql_query = """
         SELECT
             essence.guid,
             essence.name,
@@ -35,12 +35,24 @@ sql_query = '''
         LEFT OUTER JOIN MEDIAINFO ON mediainfo.guid=filemapping.guid
         WHERE ESSENCE.ISGARBAGE=0
        --ROWNUM < 1000
-        '''
+        """
 
-fieldnames = ['GUID', 'NAME', 'FILESIZE', 'DATATAPEID',
-              'OBJECTNM', 'CONTENTLENGTH', 'SOURCECREATEDT',
-              'CREATEDT', 'LASTMDYDT', 'TIMECODEIN',
-              'TIMECODEOUT', 'ONAIRID', 'RURI', 'METAXML']
+fieldnames = [
+    "GUID",
+    "NAME",
+    "FILESIZE",
+    "DATATAPEID",
+    "OBJECTNM",
+    "CONTENTLENGTH",
+    "SOURCECREATEDT",
+    "CREATEDT",
+    "LASTMDYDT",
+    "TIMECODEIN",
+    "TIMECODEOUT",
+    "ONAIRID",
+    "RURI",
+    "METAXML",
+]
 
 logger = logging.getLogger(__name__)
 
@@ -52,12 +64,12 @@ def buildcsv(date):
 
     config = cfg.get_config()
 
-    root_path = config['paths']['root_path']
-    csv_path = config['paths']['csv_path']
+    root_path = config["paths"]["root_path"]
+    csv_path = config["paths"]["csv_path"]
 
-    db_user = config['oracle-db-gor']['user']
-    db_pass = config['oracle-db-gor']['pass']
-    db_url = config['oracle-db-gor']['url']
+    db_user = config["oracle-db-gor"]["user"]
+    db_pass = config["oracle-db-gor"]["pass"]
+    db_url = config["oracle-db-gor"]["url"]
 
     os.chdir(csv_path)
 
@@ -66,9 +78,9 @@ def buildcsv(date):
         connection = cx_Oracle.connect(db_user, db_pass, db_url)
         cursor = connection.cursor()
         results = cursor.execute(sql_query)
-        gor_csv = (date + "_" + "gorilla_db_export.csv")
+        gor_csv = date + "_" + "gorilla_db_export.csv"
 
-        writer = csv.writer(open(gor_csv, 'w', newline=''))
+        writer = csv.writer(open(gor_csv, "w", newline=""))
 
         export_1_msg = f"START GORILLA DB EXPORT"
         logger.info(export_1_msg)
@@ -108,5 +120,6 @@ def buildcsv(date):
 
         logger.exception(db_export_excp_msg)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     buildcsv()

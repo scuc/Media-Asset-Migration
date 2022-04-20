@@ -24,11 +24,10 @@ logger = logging.getLogger(__name__)
 
 
 def set_logger():
-    """Setup logging configuration
-    """
-    path = 'logging.yaml'
+    """Setup logging configuration"""
+    path = "logging.yaml"
 
-    with open(path, 'rt') as f:
+    with open(path, "rt") as f:
         config = yaml.safe_load(f.read())
         logger = logging.config.dictConfig(config)
 
@@ -53,9 +52,9 @@ def main():
     """
 
     date = str(strftime("%Y%m%d%H%M", localtime()))
-    date_frmt = str(strftime('%A, %d. %B %Y %I:%M%p', localtime()))
-    tablename = 'assets'
- 
+    date_frmt = str(strftime("%A, %d. %B %Y %I:%M%p", localtime()))
+    tablename = "assets"
+
     cfg.ensure_dirs()
 
     start_msg = f"\n\
@@ -65,13 +64,19 @@ def main():
                 Date: {date_frmt}\n\
     ================================================================\n\
     \n"
-   
+
     logger.info(start_msg)
     logger.error(start_msg)
 
-    xml_total, proxy_total, getnew_db, crosscheck_db, crosscheck_assets = ui.get_user_input()
+    (
+        xml_total,
+        proxy_total,
+        getnew_db,
+        crosscheck_db,
+        crosscheck_assets,
+    ) = ui.get_user_input()
 
-    if getnew_db is True: 
+    if getnew_db is True:
         gor_csv = g_query.buildcsv(date)
         diva_csv = d_query.buildcsv(date)
         merged_csv = mdb.pandas_merge(date, diva_csv, gor_csv)
@@ -79,36 +84,31 @@ def main():
         cleaned_csv, tablename = csv_c.csv_clean(date)
         udb.update_db(date, tablename)
         final_steps(xml_total, proxy_total)
-    elif (getnew_db is False
-          and crosscheck_db is True
-          and crosscheck_assets is True):
+    elif getnew_db is False and crosscheck_db is True and crosscheck_assets is True:
         cca.crosscheck_db(tablename)
         cca.crosscheck_assets(tablename)
         final_steps(xml_total, proxy_total)
-    elif (getnew_db is False
-          and crosscheck_db is True
-          and crosscheck_assets is False):
+    elif getnew_db is False and crosscheck_db is True and crosscheck_assets is False:
         cca.crosscheck_db(tablename)
         final_steps(xml_total, proxy_total)
-    elif (getnew_db is False
-            and crosscheck_db is False
-            and crosscheck_assets is True):
-            cca.crosscheck_assets(tablename)
-            final_steps(xml_total, proxy_total)
-    else: 
+    elif getnew_db is False and crosscheck_db is False and crosscheck_assets is True:
+        cca.crosscheck_assets(tablename)
+        final_steps(xml_total, proxy_total)
+    else:
         final_steps(xml_total, proxy_total)
 
 
 def final_steps(xml_total, proxy_total):
-    if int(xml_total) > 0: 
+    if int(xml_total) > 0:
         xml_c.create_xml(xml_total)
 
-    if int(proxy_total) > 0: 
+    if int(proxy_total) > 0:
         gp.get_proxy(proxy_total)
 
     complete_msg = f"\n\n{'='*25}  SCRIPT COMPLETE  {'='*25}"
     logger.info(complete_msg)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     set_logger()
     main()

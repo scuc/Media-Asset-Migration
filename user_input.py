@@ -7,20 +7,19 @@ logger = logging.getLogger(__name__)
 
 def get_user_input():
     """
-    Get the user input for to set the parameters of the script. 
+    Get the user input for to set the parameters of the script.
     """
     while True:
-        xml_val = str(
-            input(f"How many xmls are needed in this batch?  "))
+        xml_val = str(input(f"How many xmls are needed in this batch?  "))
         try:
             if int(xml_val) > 10000:
                 print(
-                    f"{xml_val} is not a valid entry for the starting index, try again.")
+                    f"{xml_val} is not a valid entry for the starting index, try again."
+                )
                 continue
             else:
                 xml_total = xml_val
-                xml_info_msg = (
-                    f"Selected value for xml creation: {xml_total}")
+                xml_info_msg = f"Selected value for xml creation: {xml_total}"
                 break
 
         except ValueError as e:
@@ -28,23 +27,21 @@ def get_user_input():
             ValueError raised for xml value: {xml_val}.\n\
             Error Message:  {str(e)} \n\
             "
-            print(
-                f"{xml_val} is not a valid entry for the starting index, try again.")
+            print(f"{xml_val} is not a valid entry for the starting index, try again.")
             logger.exception(xml_excp_msg)
             continue
 
     while True:
-        proxy_val = str(
-            input(f"How many proxies are needed in this batch?  "))
+        proxy_val = str(input(f"How many proxies are needed in this batch?  "))
         try:
             if int(proxy_val) > 10000:
                 print(
-                    f"{proxy_val} is not a valid entry for the starting index, try again.")
+                    f"{proxy_val} is not a valid entry for the starting index, try again."
+                )
                 continue
             else:
                 proxy_total = proxy_val
-                proxy_info_msg = (
-                    f"Selected value for proxy creation: {proxy_total}")
+                proxy_info_msg = f"Selected value for proxy creation: {proxy_total}"
                 break
 
         except ValueError as e:
@@ -53,13 +50,13 @@ def get_user_input():
             Error Message:  {str(e)} \n\
             "
             print(
-                f"{proxy_val} is not a valid entry for the starting index, try again.")
+                f"{proxy_val} is not a valid entry for the starting index, try again."
+            )
             logger.exception(proxy_excp_msg)
             continue
 
     while True:
-        response2 = str(
-            input(f"Export a new copies of the Gor/Oracle DBs? [Y/N]  "))
+        response2 = str(input(f"Export a new copies of the Gor/Oracle DBs? [Y/N]  "))
 
         try:
             response2 = yesno_rsp(response2)
@@ -67,7 +64,7 @@ def get_user_input():
                 continue
             else:
                 getnew_db = response2
-                getdb_info_msg = (f"Export new DB: {getnew_db}")
+                getdb_info_msg = f"Export new DB: {getnew_db}"
                 break
 
         except ValueError as e:
@@ -80,8 +77,7 @@ def get_user_input():
             continue
 
     while True:
-        response3 = str(
-            input(f"Crosscheck rows in the existing DB? [Y/N]  "))
+        response3 = str(input(f"Crosscheck rows in the existing DB? [Y/N]  "))
 
         try:
             response3 = yesno_rsp(response3)
@@ -89,7 +85,7 @@ def get_user_input():
                 continue
             else:
                 crosscheck_db = response3
-                ccdb_info_msg = (f"Crosscheck DB: {crosscheck_db}")
+                ccdb_info_msg = f"Crosscheck DB: {crosscheck_db}"
                 break
 
         except ValueError as e:
@@ -102,8 +98,7 @@ def get_user_input():
             continue
 
     while True:
-        response4 = str(
-            input(f"Crosscheck assets existing in the FileSystem? [Y/N]  "))
+        response4 = str(input(f"Crosscheck assets existing in the FileSystem? [Y/N]  "))
 
         try:
             response4 = yesno_rsp(response4)
@@ -111,7 +106,7 @@ def get_user_input():
                 continue
             else:
                 crosscheck_assets = response4
-                ccassts_info_msg = (f"Crosscheck Assets: {crosscheck_assets}")
+                ccassts_info_msg = f"Crosscheck Assets: {crosscheck_assets}"
                 break
 
         except ValueError as e:
@@ -143,5 +138,5 @@ def yesno_rsp(response):
         return None
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     get_user_input()
