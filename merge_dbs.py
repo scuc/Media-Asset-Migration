@@ -13,13 +13,13 @@ logger = logging.getLogger(__name__)
 
 def pandas_merge(date, diva_csv, gor_csv):
     """
-    Creates a merged CSV from Oracle DBs of the Gorilla MAM and DivaArchive. 
+    Creates a merged CSV from Oracle DBs of the Gorilla MAM and DivaArchive.
     The merge is performed by converting the CSVs to pandas dataframes and using a common key.
     """
-    
+
     config = cfg.get_config()
-    root_path = config['paths']['root_path']
-    csv_path = config['paths']['csv_path']
+    root_path = config["paths"]["root_path"]
+    csv_path = config["paths"]["csv_path"]
 
     try:
         os.chdir(csv_path)
@@ -30,25 +30,35 @@ def pandas_merge(date, diva_csv, gor_csv):
         gor_reader = pd.read_csv(gor_source)
         div_reader = pd.read_csv(div_source)
 
-        merged_csv = (date + "_" + "gor_diva_merged_export.csv")
+        merged_csv = date + "_" + "gor_diva_merged_export.csv"
 
         merge_1_msg = f"START GORILLA-DIVA DB MERGE"
         logger.info(merge_1_msg)
 
-        with open(merged_csv, mode='w+', encoding='utf-8-sig') as m_csv:
+        with open(merged_csv, mode="w+", encoding="utf-8-sig") as m_csv:
 
-            merged_df = gor_reader.merge(div_reader, on='GUID')
+            merged_df = gor_reader.merge(div_reader, on="GUID")
 
-            merged_df = pd.merge(gor_reader, div_reader, left_on=["GUID"], right_on=["GUID"], how='outer',
-                                 indicator=True)
+            merged_df = pd.merge(
+                gor_reader,
+                div_reader,
+                left_on=["GUID"],
+                right_on=["GUID"],
+                how="outer",
+                indicator=True,
+            )
 
-            left_count = merged_df.loc[merged_df._merge == 'left_only', '_merge'].count()
+            left_count = merged_df.loc[
+                merged_df._merge == "left_only", "_merge"
+            ].count()
 
-            right_count = merged_df.loc[merged_df._merge == 'right_only', '_merge'].count()
+            right_count = merged_df.loc[
+                merged_df._merge == "right_only", "_merge"
+            ].count()
 
-            both_count = merged_df.loc[merged_df._merge == 'both', '_merge'].count()
+            both_count = merged_df.loc[merged_df._merge == "both", "_merge"].count()
 
-            merged_df.to_csv(m_csv, mode='a', index=False, header=True)
+            merged_df.to_csv(m_csv, mode="a", index=False, header=True)
 
             # m_count = merged_df.shape[0]
             # merged_dd = merged.drop_duplicates(subset="GUID", inplace=True)
@@ -82,6 +92,7 @@ def pandas_merge(date, diva_csv, gor_csv):
         logger.exception(db_merge_excp_msg)
 
         print(db_merge_excp_msg)
+
 
 # if __name__ == '__main__':
 #     pandas_merge()

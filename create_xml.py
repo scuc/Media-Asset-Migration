@@ -1,4 +1,4 @@
- #! /usr/bin/env python3
+#! /usr/bin/env python3
 
 import logging
 import os
@@ -16,8 +16,8 @@ def create_xml(xml_total):
     """
 
     config = cfg.get_config()
-    root_path = config['paths']['root_path']
-    xml_checkin = config['paths']['xml_checkin_path']
+    root_path = config["paths"]["root_path"]
+    xml_checkin = config["paths"]["xml_checkin_path"]
     os.chdir(root_path)
 
     xml_1_msg = f"START GORILLA-DIVA XML CREATION"
@@ -26,12 +26,12 @@ def create_xml(xml_total):
     try:
         conn = db.connect()
         cur = conn.cursor()
-        sql = '''SELECT * FROM assets WHERE xml_created = 0'''
+        sql = """SELECT * FROM assets WHERE xml_created = 0"""
 
         xml_count = 0
 
         for row in cur.execute(sql).fetchall():
-           
+
             if xml_count >= int(xml_total):
                 break
 
@@ -63,13 +63,15 @@ def create_xml(xml_total):
                 FILENAME = row[24]
                 OC_COMPONENT_NAME = row[32]
 
-                if (DATATAPEID != 'unallocated'
-                    and DATATAPEID != 'NULL'
-                    and OC_COMPONENT_NAME != 'NULL'):
+                if (
+                    DATATAPEID != "unallocated"
+                    and DATATAPEID != "NULL"
+                    and OC_COMPONENT_NAME != "NULL"
+                ):
 
-                    filename = FILENAME.replace(".hr.",".")
+                    filename = FILENAME.replace(".hr.", ".")
                     gorilla_path = OC_COMPONENT_NAME.replace("\\", r"/")
-                    traffic_code = str(TRAFFIC_CODE).strip("=\"")
+                    traffic_code = str(TRAFFIC_CODE).strip('="')
 
                     guid = GUID
                     name = NAME
@@ -86,9 +88,9 @@ def create_xml(xml_total):
 
                     conn.close()
                     os.chdir(xml_checkin)
-                    xml_doc = str(guid) + '.xml'
+                    xml_doc = str(guid) + ".xml"
 
-                    with open(xml_doc, mode="w", encoding='utf-8-sig') as xdoc:
+                    with open(xml_doc, mode="w", encoding="utf-8-sig") as xdoc:
 
                         xml_body = f"\
                         <Titles>\
@@ -128,11 +130,11 @@ def create_xml(xml_total):
                         xdoc.close()
 
                     os.chdir(root_path)
-                    update = db.update_column('assets', 'xml_created', 1, ROWID)
-                    xmlcreate_msg = (f"\n\
+                    update = db.update_column("assets", "xml_created", 1, ROWID)
+                    xmlcreate_msg = f"\n\
                                     RowID: {str(ROWID)}\n\
                                     xml_count: {xml_count}\n\
-                                    xml_doc:  {str(xml_doc)}\n")
+                                    xml_doc:  {str(xml_doc)}\n"
                     logger.info(xmlcreate_msg)
                     xml_count += 1
 
@@ -140,7 +142,6 @@ def create_xml(xml_total):
                     xml_pass_msg = f"XML Creation skipped on {ROWID} for asset {GUID}. DATETAPEID = {DATATAPEID}"
                     logger.debug(xml_pass_msg)
                     pass
-
 
         os.chdir(root_path)
         xml_2_msg = f"GORILLA-DIVA XML CREATION COMPLETED"
@@ -157,6 +158,5 @@ def create_xml(xml_total):
         logger.exception(xml_excp_msg)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     create_xml(1)
-

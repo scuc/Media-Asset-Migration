@@ -16,23 +16,23 @@ def get_proxy(proxy_total):
     """
     Get a set of files where titletype = video and proxy copy status is 0,
     Copy the proxies a tmp location for checkin staging.
-    PROXY_COPIED values: 
+    PROXY_COPIED values:
     0 = proxy not copied
     1 = proxy copied
-    2 = proxy path does not exist 
-    3 = no proxy, content type is archive 
+    2 = proxy path does not exist
+    3 = no proxy, content type is archive
     """
 
     config = cfg.get_config()
     conn = db.connect()
 
-    xml_path = config['paths']['xml_path']
-    proxy_path = config['paths']['proxy_path']
-    tmp_checkin = config['paths']['tmp']
-    root_path = config['paths']['root_path']
+    xml_path = config["paths"]["xml_path"]
+    proxy_path = config["paths"]["proxy_path"]
+    tmp_checkin = config["paths"]["tmp"]
+    root_path = config["paths"]["root_path"]
 
-    rows = db.fetchall_proxy('assets')
-    
+    rows = db.fetchall_proxy("assets")
+
     proxy_count = 0
 
     for row in rows:
@@ -41,35 +41,38 @@ def get_proxy(proxy_total):
         proxy_copied = row[22]
         guid_x = guid.replace("-", "")
         guid_r = guid_x[24:]
-        proxy_fn = guid + '.mov'
+        proxy_fn = guid + ".mov"
 
         """
         Use the parts GUID to generate a list that will be used to build the path to the proxy.
         """
         n = 2
-        glist = [guid_r[i:i+n] for i in range(0, len(guid_r), n)]
+        glist = [guid_r[i : i + n] for i in range(0, len(guid_r), n)]
 
-        proxy_fpath = os.path.join(
-            proxy_path, glist[2], glist[3], guid, proxy_fn)
-        
-        if (proxy_count < int(proxy_total)
-            and proxy_copied == 0 
-            and os.path.exists(proxy_fpath) is True):
-            
+        proxy_fpath = os.path.join(proxy_path, glist[2], glist[3], guid, proxy_fn)
+
+        if (
+            proxy_count < int(proxy_total)
+            and proxy_copied == 0
+            and os.path.exists(proxy_fpath) is True
+        ):
+
             try:
                 pcopy = file_copy(proxy_fpath, tmp_checkin)
-                
-                if len(pcopy) == 0: 
+
+                if len(pcopy) == 0:
                     row = db.fetchone_proxy(guid)
-                    db.update_column('assets', 'proxy_copied', 1, rowid)
+                    db.update_column("assets", "proxy_copied", 1, rowid)
                     proxy_cp_msg = f"{proxy_fn} was copied to the dalet tmp."
                     logger.info(proxy_cp_msg)
                     proxy_count += 1
-                else: 
+                else:
                     pass
-                    proxy_err_cp_msg = f"{proxy_fn} encountered an error on the copy to the dalet tmp."
+                    proxy_err_cp_msg = (
+                        f"{proxy_fn} encountered an error on the copy to the dalet tmp."
+                    )
                     logger.info(proxy_err_cp_msg)
-                    
+
             except Exception as e:
                 proxy_excp_msg = f"\n\
                 Exception raised on the Proxy copy.\n\
@@ -82,7 +85,7 @@ def get_proxy(proxy_total):
                 proxy_err_msg = f"Proxy path does not exist. \n\
                 {proxy_fpath}"
                 logger.error(proxy_err_msg)
-                db.update_column('assets', 'proxy_copied', 2, rowid)
+                db.update_column("assets", "proxy_copied", 2, rowid)
                 continue
 
     os.chdir(root_path)
@@ -94,19 +97,23 @@ def get_proxy(proxy_total):
     return
 
 
-def file_copy(source, destination): 
+def file_copy(source, destination):
     """
-    Use rsync to copy files to from source to destination. 
+    Use rsync to copy files to from source to destination.
     """
     try:
-        copy = subprocess.Popen(["rsync", "-vaE", "--exclude=\".*\"", "--progress", source, destination],
-        stderr=subprocess.PIPE, stdout=subprocess.PIPE, universal_newlines=True)
+        copy = subprocess.Popen(
+            ["rsync", "-vaE", '--exclude=".*"', "--progress", source, destination],
+            stderr=subprocess.PIPE,
+            stdout=subprocess.PIPE,
+            universal_newlines=True,
+        )
         stdout, stderr = copy.communicate()
         logger.info(stdout)
         if len(stderr) != 0:
             logger.error(stderr)
             return stderr
-        else: 
+        else:
             return stderr
 
     except Exception as e:
@@ -118,5 +125,5 @@ def file_copy(source, destination):
         logger.exception(copy_excp_msg)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     get_proxy(1)

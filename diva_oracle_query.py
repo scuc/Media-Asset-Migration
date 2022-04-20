@@ -10,10 +10,9 @@ import yaml
 
 import config as cfg
 
-cx_Oracle.init_oracle_client(
-    lib_dir="/opt/oracle/instantclient_19_8")
+cx_Oracle.init_oracle_client(lib_dir="/opt/oracle/instantclient_19_8")
 
-sql_query = '''
+sql_query = """
         SELECT
             dp_archived_objects.ao_id,
             dp_archived_objects.ao_UUID,
@@ -38,14 +37,27 @@ sql_query = '''
         INNER JOIN DP_CHECKSUMS ON DP_ARCHIVED_OBJECTS.AO_ID=DP_CHECKSUMS.CH_OBJECT_AO_ID
         INNER JOIN DP_CHECKSUM_TYPES ON DP_CHECKSUMS.CH_TYPE_CY_ID=DP_CHECKSUM_TYPES.CY_ID
         WHERE AO_CATEGORY = 'TACS-DIVA'
-        '''
+        """
 
-fieldnames = ['AO_ID', 'AO_UUID', 'GUID', 'AO_COMMENT',
-              'AO_CATEGORY', 'AO_DATE_ARCHIVE', 'AO_LAST_READ',
-              'AO_OBJECT_SIZE', 'OC_COMPONENT_NAME', 'OC_COMPONENT_IS_DELETED',
-              'ON_CATEGORY', 'ON_MEDIA_NAME', 'ON_DATE_CREATION',
-              'ON_LAST_ACCESS_TIME', 'CH_CHECKSUM_VALUE', 'CH_CHECKSUM_DATE',
-              'CY_CHECKSUM_TYPE']
+fieldnames = [
+    "AO_ID",
+    "AO_UUID",
+    "GUID",
+    "AO_COMMENT",
+    "AO_CATEGORY",
+    "AO_DATE_ARCHIVE",
+    "AO_LAST_READ",
+    "AO_OBJECT_SIZE",
+    "OC_COMPONENT_NAME",
+    "OC_COMPONENT_IS_DELETED",
+    "ON_CATEGORY",
+    "ON_MEDIA_NAME",
+    "ON_DATE_CREATION",
+    "ON_LAST_ACCESS_TIME",
+    "CH_CHECKSUM_VALUE",
+    "CH_CHECKSUM_DATE",
+    "CY_CHECKSUM_TYPE",
+]
 
 logger = logging.getLogger(__name__)
 
@@ -57,12 +69,12 @@ def buildcsv(date):
 
     config = cfg.get_config()
 
-    root_path = config['paths']['root_path']
-    csv_path = config['paths']['csv_path']
+    root_path = config["paths"]["root_path"]
+    csv_path = config["paths"]["csv_path"]
 
-    db_user = config['oracle-db-diva']['user']
-    db_pass = config['oracle-db-diva']['pass']
-    db_url = config['oracle-db-diva']['url']
+    db_user = config["oracle-db-diva"]["user"]
+    db_pass = config["oracle-db-diva"]["pass"]
+    db_url = config["oracle-db-diva"]["url"]
 
     os.chdir(csv_path)
 
@@ -72,8 +84,8 @@ def buildcsv(date):
         cursor = connection.cursor()
         results = cursor.execute(sql_query)
 
-        diva_csv = (date + "_" + "diva_db_export.csv")
-        writer = csv.writer(open(diva_csv, 'w', newline=''))
+        diva_csv = date + "_" + "diva_db_export.csv"
+        writer = csv.writer(open(diva_csv, "w", newline=""))
 
         export_1_msg = f"START DIVA DB EXPORT"
         logger.info(export_1_msg)
@@ -112,5 +124,6 @@ def buildcsv(date):
 
         logger.exception(db_export_excp_msg)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     buildcsv()

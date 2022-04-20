@@ -2,6 +2,7 @@
 
 import os
 from turtle import clear
+
 import yaml
 
 
@@ -11,10 +12,11 @@ def get_config():
     """
     path = "./config.yaml"
 
-    with open(path, 'rt') as f:
+    with open(path, "rt") as f:
         config = yaml.safe_load(f.read())
 
     return config
+
 
 def ensure_dirs():
 
