@@ -76,13 +76,23 @@ def main():
         crosscheck_assets,
     ) = ui.get_user_input()
 
-    if getnew_db is True:
+    if getnew_db is True and crosscheck_db is False and crosscheck_assets is False:
         gor_csv = g_query.buildcsv(date)
         diva_csv = d_query.buildcsv(date)
         merged_csv = mdb.pandas_merge(date, diva_csv, gor_csv)
         parsed_csv = csv_p.db_parse(date, merged_csv)
         cleaned_csv, tablename = csv_c.csv_clean(date)
         udb.update_db(date, tablename)
+        final_steps(xml_total, proxy_total)
+    elif getnew_db is True and crosscheck_db is True and crosscheck_assets is True:
+        gor_csv = g_query.buildcsv(date)
+        diva_csv = d_query.buildcsv(date)
+        merged_csv = mdb.pandas_merge(date, diva_csv, gor_csv)
+        parsed_csv = csv_p.db_parse(date, merged_csv)
+        cleaned_csv, tablename = csv_c.csv_clean(date)
+        udb.update_db(date, tablename)
+        cca.crosscheck_db(tablename)
+        cca.crosscheck_assets(tablename)
         final_steps(xml_total, proxy_total)
     elif getnew_db is False and crosscheck_db is True and crosscheck_assets is True:
         cca.crosscheck_db(tablename)
