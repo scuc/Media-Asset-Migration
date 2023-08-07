@@ -15,6 +15,7 @@ logger = logging.getLogger(__name__)
 
 config = cfg.get_config()
 xml_checkin_path = config["paths"]["xml_checkin_path"]
+xml_storage_paths = config["paths"]["xml_storage_paths"]
 proxy_storage_path = config["paths"]["proxy_storage_path"]
 proxy_tmp_path = config["paths"]["proxy_tmp_path"]
 proxy_failed_path = config["paths"]["proxy_failed_path"]
@@ -49,22 +50,26 @@ def get_checkedin_assets():
     Loop through a directory with xml or proxy files, and build a list of each.
     """
     xml_list = []
-    for xml in os.listdir(xml_checkin_path):
-        if (
-            xml.startswith(".")
-            or xml.endswith("_DONE") == False
-            or xml.find("test") == 0
-        ):
-            pass
-        elif (
-            re.search(r"\(\d+\)", xml) != None
-            and xml.endswith("_DONE")
-            and xml.startswith(".") == False
-        ):
-            xml_m = get_guid(xml, os.path.join(xml_checkin_path, xml))
-            xml_list.append(xml_m)
-        else:
-            xml_list.append(xml)
+    for path in xml_storage_paths:
+        for xml in os.listdir(path):
+            if (
+                xml.startswith(".")
+                or xml.endswith("_DONE") == False
+                or xml.find("test") == 0
+            ):
+                pass
+            elif (
+                re.search(r"\(\d+\)", xml) != None
+                and xml.endswith("_DONE")
+                and xml.startswith(".") == False
+            ):
+                xml_m = get_guid(xml, os.path.join(path, xml))
+                xml_list.append(xml_m)
+            else:
+                xml_list.append(xml)
+
+    xml_list_msg = f"XML list complete. Total checked in XML = {len(xml_list)}"
+    logger.info(xml_list_msg)
 
     proxy_list = []
     combined_proxy = (
@@ -77,6 +82,11 @@ def get_checkedin_assets():
             pass
         else:
             proxy_list.append(proxy)
+
+    proxy_list_msg = (
+        f"Proxy list complete. Total checked in Proxies = {len(proxy_list)}"
+    )
+    logger.info(proxy_list_msg)
 
     return xml_list, proxy_list
 
