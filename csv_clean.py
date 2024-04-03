@@ -13,7 +13,7 @@ import get_mediainfo as gmi
 logger = logging.getLogger(__name__)
 
 
-def csv_clean(date):
+def csv_clean(date, parsed_csv=None):
     """
     Cleaning the merged data follows mulitple steps:
         - put the merged CSV into a pandas dataframe
@@ -41,7 +41,11 @@ def csv_clean(date):
 
     os.chdir(csv_path)
 
-    parsed_csv = date + "_" + "gor_diva_merged_parsed.csv"
+    if parsed_csv is None:
+        parsed_csv = date + "_" + "gor_diva_merged_parsed.csv"
+    else:
+        parsed_csv = parsed_csv
+
     clean_csv = date + "_" + "gor_diva_merged_cleaned.csv"
 
     clean_1_msg = f"START GORILLA-DIVA DB CLEAN"
@@ -112,9 +116,21 @@ def csv_clean(date):
                 r"((?<![0-9]|[A-Z])|(?<=(-|_)))(XDCAM)(?=(-|_|[1-5]|HD)?)", cleaned_name
             )
 
+            # these video files will be filtered out, not used in the migration
+            video_check_5 = re.search(
+                r"((?<![0-9]|[A-Z])|(?<=(-|_)))(DV100|IMX50|CEM|CVM|SVM|DNXHD|XDCAM_MOV|PGS|DOLBY)(?=(-|_|[1-5])?)",
+                cleaned_name,
+            )
+
             vcheck_list = []
 
-            if (video_check_1, video_check_2, video_check_3, video_check_4) != (
+            if (
+                video_check_1,
+                video_check_2,
+                video_check_3,
+                video_check_4,
+                video_check_5,
+            ) != (
                 None,
                 None,
                 None,
@@ -137,6 +153,11 @@ def csv_clean(date):
                     vcheck_list.append(vcheck4)
                 content_type_v = ",".join(vcheck_list)
 
+                if video_check_5 is not None:
+                    vcheck5 = video_check_5.group(0)
+                    vcheck_list.append(vcheck5)
+                content_type_v = ",".join(vcheck_list)
+
             else:
                 content_type_v = None
 
@@ -157,7 +178,29 @@ def csv_clean(date):
             else:
                 content_type_a = None
 
-            if content_type_v is not None and archive_check is None:
+            content_type_d = None
+            doc_pattern = (
+                r"((?<![0-9]|[A-Za-z])|(?<=(-|_)))(Outgoing-QC)(?=(-|_)?)((?![A-Za-z]))"
+            )
+            document_check = re.search(doc_pattern, cleaned_name, re.IGNORECASE)
+
+            if document_check is not None:
+                dcheck = document_check.group(0)
+                content_type_d = dcheck
+                df.at[index, "TITLETYPE"] = "document"
+                df.at[index, "CONTENT_TYPE"] = "DOCX"
+                df.at[index, "FILENAME"] = f"{cleaned_name}.docx"
+
+                print("")
+                print(f"{cleaned_name} TITLE TYPE: document, CONTENT TYPE: QC-DOC")
+                print("")
+                continue
+
+            if (
+                content_type_v is not None
+                and archive_check is None
+                and content_type_d is None
+            ):
                 df.at[index, "TITLETYPE"] = "video"
                 mediainfo = gmi.get_mediainfo(df_row, metaxml)
 
@@ -173,7 +216,11 @@ def csv_clean(date):
                 df.at[index, "DURATION_MS"] = mediainfo[4]
                 df.at[index, "FILENAME"] = mediainfo[5]
 
-            elif content_type_v is None and archive_check is not None:
+            elif (
+                archive_check is not None
+                and content_type_v is None
+                and content_type_d is None
+            ):
                 title_type = get_title_type(content_type_a)
                 date = df.at[index, "SOURCECREATEDT"]
                 creation_date = format_creation_date(date)
@@ -190,7 +237,11 @@ def csv_clean(date):
                     "NULL",
                 ]
 
-            elif content_type_v is not None and archive_check is not None:
+            elif (
+                content_type_v is not None
+                and archive_check is not None
+                and content_type_d is None
+            ):
                 title_type = get_title_type(content_type_a)
                 date = df.at[index, "SOURCECREATEDT"]
                 creation_date = format_creation_date(date)
@@ -249,16 +300,11 @@ def get_title_type(content_type_a):
     """
     Check content_type for specific tags, and apply a title_type based on those tags.
     """
-    if content_type_a == "WAV":
-        title_type = "audio"
-    if content_type_a == "PTS":
-        title_type = "AdobeAuditionSession"
-    if content_type_a in ("FCP", "AVP", "PPRO"):
-        title_type = "AdobePremiereProject"
-    if content_type_a == "GRFX":
+
+    if content_type_a in ("FCP", "AVP", "PPRO", "PTS", "WAV", "GRFX"):
         title_type = "archive"
     else:
-        title_type == "archive"
+        title_type == "NULL"
 
     return title_type
 
@@ -270,14 +316,11 @@ def get_traffic_code(cleaned_name):
 
     name = str(cleaned_name)
 
-    if name.startswith("0") is not True:
-        code_search = re.search(
-            r"((?<![0-9]|[A-Z])|(?<=(-|_)))0[0-9]{5}(?=(_|-))", name
-        )
+    if not name.startswith("0"):
+        code_search = re.split(r"[_-]", name)
 
         if code_search is not None:
-            traffic_match = code_search.group(0)
-            # traffic_code_r = re.sub(r'(_|-)', '', traffic_match)
+            traffic_match = code_search[0]
             traffic_code = '="' + traffic_match + '"'
         else:
             err_msg = f"Incompatible file ID - {str(name)}. traffic_code set to NULL"
@@ -342,4 +385,7 @@ def clean_name(name):
 
 
 if __name__ == "__main__":
-    csv_clean("202003111354")
+    csv_clean(
+        "202404031245",
+        parsed_csv="",
+    )
