@@ -125,22 +125,18 @@ def get_codec(df_row):
     """
     Match the codec of a file using the info in the filename.
     """
+    doc_pattern = r"(((?<![A-Z])|(?<=(-|_)))(UHD|XAVC|UHD|PRORES|XDCAM|DNX|IMX50|DV100)(?=(-|_|HQ|HD)?))"
     codec_match = re.search(
-        r"(((?<![A-Z])|(?<=(-|_)))(UHD|XAVC|UHD|PRORES|XDCAM|DNX)(?=(-|_|HQ|HD)?))",
+        doc_pattern,
         df_row["NAME"],
+        re.IGNORECASE,
     )
 
     if codec_match is not None:
         codec_value = codec_match.group(0)
-        if str(codec_value) == "XDCAM":
-            codec = "MPEG Video"
-        elif str(codec_value) == "PRORES":
-            codec = "PRORES"
-        elif str(codec_value) == "DNXHD":
+        if str(codec_value) == "DNXHD":
             codec = "VC-3"
         elif str(codec_value) == "UHD":
-            codec = "XAVC"
-        elif str(codec_value) == "XAVC":
             codec = "XAVC"
         else:
             codec = codec_value
@@ -212,6 +208,7 @@ def est_resolution(df_row, codec_value):
         v_height = "2160"
         est_msg = f"{df_row['GUID']} - {df_row['NAME']} - filesize: {df_row['FILESIZE']} - Estimating file is UHD:3840x2160."
         logger.info(est_msg)
+
     else:
         v_width = "NULL"
         v_height = "NULL"
