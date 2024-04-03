@@ -14,7 +14,7 @@ import get_mediainfo as gmi
 logger = logging.getLogger(__name__)
 
 
-def update_db(date, tablename):
+def update_db(date, tablename, clean_csv=None):
     """
     Start by creating a backup of the exisiting DB.
     Then update the DB by comparing rows in new CSV export to rows in the existing DB.
@@ -25,7 +25,11 @@ def update_db(date, tablename):
     config = cfg.get_config()
     root_path = config["paths"]["root_path"]
     csv_path = config["paths"]["csv_path"]
-    clean_csv = date + "_" + "gor_diva_merged_cleaned.csv"
+
+    if clean_csv is None:
+        clean_csv = date + "_" + "gor_diva_merged_cleaned.csv"
+    else:
+        pass
 
     if os.path.isfile(os.path.join(root_path, "database.db")) is not True:
         return
@@ -163,4 +167,8 @@ def update_db(date, tablename):
 
 
 if __name__ == "__main__":
-    update_db("201908271802", "assets")
+    update_db(
+        "202404021315",
+        "assets",
+        clean_csv="",
+    )
