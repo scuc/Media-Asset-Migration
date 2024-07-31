@@ -80,28 +80,6 @@ def update_row(tablename, index, row):
     try:
         conn = connect()
         cur = conn.cursor()
-        # colname_list = config['database']['colname_list']
-        # keyed_row = dict(zip(colname_list, row))
-        # sql = f'''UPDATE {tablename}
-        #           SET 'DATATAPEID' = {keyed_row['DATATAPEID']},
-        #               'AO_ID' = {keyed_row['AO_ID']},
-        #               'AO_UUID' = {keyed_row['AO_UUID']},
-        #               'AO_COMMENT'= {keyed_row['AO_COMMENT']},
-        #               'AO_CATEGORY' = {keyed_row['AO_CATEGORY']},
-        #               'AO_DATE_ARCHIVE' = {keyed_row['AO_DATE_ARCHIVE']},
-        #               'AO_LAST_READ' = {keyed_row['AO_LAST_READ']},
-        #               'AO_OBJECT_SIZE' = {keyed_row['AO_OBJECT_SIZE']},
-        #               'OC_COMPONENT_NAME' = {keyed_row['OC_COMPONENT_NAME']},
-        #               'OC_COMPONENT_IS_DELETED' = {keyed_row['OC_COMPONENT_IS_DELETED']},
-        #               'ON_CATEGORY' = {keyed_row['ON_CATEGORY']},
-        #               'ON_MEDIA_NAME' = {keyed_row['ON_MEDIA_NAME']},
-        #               'ON_DATE_CREATION' = {keyed_row['ON_DATE_CREATION']},
-        #               'ON_LAST_ACCESS_TIME' = {keyed_row['ON_LAST_ACCESS_TIME']},
-        #               'CH_CHECKSUM_VALUE' = {keyed_row['CH_CHECKSUM_VALUE']},
-        #               'CH_CHECKSUM_DATE' = {keyed_row['CH_CHECKSUM_DATE']},
-        #               'CY_CHECKSUM_TYPE' = {keyed_row['CY_CHECKSUM_TYPE']},
-        #               '_merge' = {keyed_row['_merge']},
-        #          WHERE 'ROWID' = {index};'''
         sql = """UPDATE assets
                  SET DATATAPEID = ?,
                      AO_ID = ?, 
@@ -264,8 +242,3 @@ def fetchone_proxy(guid):
 
 if __name__ == "__main__":
     fetchone_guid("00215AD34D20-8000FFFF-FFFF-C2F5-C5E0")
-    # fetchone_xml('FC15B4F7AB88-80001000-0000-734F-D554')
-    # drop_row('assets', 67339,  '40A8F02A4440-8000FFFF-FFFF-8CE6-C2A4')
-#    insert_row(67339,  (67339,'40A8F02A4440-8000FFFF-FFFF-8CE6-C2A4', 'BLAH_BLAH', 1106412688.0, '151479', '051984_RaceOfLife_TheEarlyBirds_VM_SMLS_WAV', 0.0, '2016-03-02 16:40:00', '2016-03-02 16:37:24', '2016-03-03 14:46:42', '00:00:00:00', '00:00:00:00', '051984', '40A8F02A4440-8000FFFF-FFFF-8DA3-AC98', 'archive', 'NULL', 'NULL', 'NULL', 'NULL', '="051984"', 'NULL', 0, 0, 'WAV', 138949.0, 'f3ccc2a3-cfe1-4b68-9b08-177a44519619', '051984_RaceOfLife_TheEarlyBirds_VM_SMLS_WAV', 'TACS-DIVA', '2016-03-03 14:51:25', '2016-03-04 01:26:59', 1080481.0, 'mnt\\lun02\\Gorilla\\RuriStorage\\AC\\98\\40A8F02A4440-8000FFFF-FFFF-8DA3-AC98', 'N', 'TACS-DIVA', 'G_0', '2016-03-04 01:26:59', '2016-03-04 01:26:59', '3136ac9f00ab3bd50b191fbc94d28d3a', '2016-03-03 14:51:25', 'MD5', 'both')
-#   )
-# test_row = (67339, '40A8F02A4440-8000FFFF-FFFF-8CE6-C2A4', 'BLAH_BLAH', 1106412688.0, '151479', '051984_RaceOfLife_TheEarlyBirds_VM_SMLS_WAV', 0.0, '2016-03-02 16:40:00', '2016-03-02 16:37:24', '2016-03-03 14:46:42', '00:00:00:00', '00:00:00:00', '051984', '40A8F02A4440-8000FFFF-FFFF-8DA3-AC98', 'archive', 'NULL', 'NULL', 'NULL', 'NULL', '="051984"', 'NULL', 0, 0, 'WAV', 138949.0, 'f3ccc2a3-cfe1-4b68-9b08-177a44519619', '051984_RaceOfLife_TheEarlyBirds_VM_SMLS_WAV', 'TACS-DIVA', '2016-03-03 14:51:25', '2016-03-04 01:26:59', 1080481.0, 'mnt\\lun02\\Gorilla\\RuriStorage\\AC\\98\\40A8F02A4440-8000FFFF-FFFF-8DA3-AC98', 'N', 'TACS-DIVA', 'G_0', '2016-03-04 01:26:59', '2016-03-04 01:26:59', '3136ac9f00ab3bd50b191fbc94d28d3a', '2016-03-03 14:51:25', 'MD5', 'both')
