@@ -47,15 +47,19 @@ def extract_from_metaxml(df_row, metaxml):
     tree = ET.ElementTree(ET.fromstring(metaxml, parser=parser))
     root = tree.getroot()
 
+    def safe_find_text(path):
+        element = root.find(path)
+        return element.text if element is not None else "NULL"
+
     mediainfo = [
-        root.find("VideoTrack/Video/AverageFrameRate").text,
-        root.find("VideoTrack/Video/Format").text,
+        safe_find_text("VideoTrack/Video/AverageFrameRate"),
+        safe_find_text("VideoTrack/Video/Format"),
         adjust_resolution(
-            root.find("VideoTrack/Video/Width").text,
-            root.find("VideoTrack/Video/Height").text,
+            safe_find_text("VideoTrack/Video/Width"),
+            safe_find_text("VideoTrack/Video/Height"),
         ),
-        root.find("DurationInMs").text,
-        adjust_filename(root.find("FileName").text),
+        safe_find_text("DurationInMs"),
+        adjust_filename(safe_find_text("FileName")),
     ]
 
     return mediainfo

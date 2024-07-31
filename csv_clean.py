@@ -182,13 +182,16 @@ def set_video_info(
     mediainfo = gmi.get_mediainfo(row, row["METAXML"])
     logger.info(f"MEDIA-INFO: {mediainfo}")
 
-    df.at[index, "CONTENT_TYPE"] = content_type_v
-    df.at[index, "FRAMERATE"] = mediainfo[0]
-    df.at[index, "CODEC"] = mediainfo[1]
-    df.at[index, "V_WIDTH"] = mediainfo[2]
-    df.at[index, "V_HEIGHT"] = mediainfo[3]
-    df.at[index, "DURATION_MS"] = mediainfo[4]
-    df.at[index, "FILENAME"] = mediainfo[5]
+    if len(mediainfo) >= 6:
+        df.at[index, "CONTENT_TYPE"] = content_type_v
+        df.at[index, "FRAMERATE"] = mediainfo[0]
+        df.at[index, "CODEC"] = mediainfo[1]
+        df.at[index, "V_WIDTH"] = mediainfo[2]
+        df.at[index, "V_HEIGHT"] = mediainfo[3]
+        df.at[index, "DURATION_MS"] = mediainfo[4]
+        df.at[index, "FILENAME"] = mediainfo[5]
+
+    return
 
 
 def set_archive_info(
@@ -245,10 +248,32 @@ def clean_name(name: str) -> str:
     return name
 
 
-def clean_metaxml(metaxml: str, cleaned_name: str) -> str:
-    new_mx = re.sub(r"PATH/TO/OLD/NAME", cleaned_name, metaxml)
-    new_mx = re.sub(r"<SOME_OTHER_PATTERN>", "REPLACEMENT", new_mx)
-    return new_mx
+def clean_metaxml(metaxml: str, name: str) -> str:
+    """
+    Clean the metaxml content by replacing problematic characters.
+
+    Args:
+        name (str): The name of the item being processed.
+        xml_search (re.Match[str]): The regex match object containing problematic XML.
+        r_metaxml (str): The replacement metaxml content.
+
+    Returns:
+        str: The cleaned metaxml content.
+    """
+    xml_pattern = re.compile(r"&[^;]+;")
+    xml_search = xml_pattern.search(metaxml)
+
+    if xml_search:
+        # Replace characters in the matched XML string
+        bad_xml = xml_search.group(0)
+        metaxml_1 = bad_xml.replace("&", "and").replace("\\", "/")
+        metaxml_2 = re.sub(r"&[^;]+;", "", metaxml_1)
+        logger.info(f"metaxml for {name} was modified to remove illegal characters.")
+    else:
+        # Clean the replacement metaxml
+        metaxml_2 = metaxml.replace("\\", "/")
+
+    return metaxml_2
 
 
 def get_traffic_code(cleaned_name: str) -> str:

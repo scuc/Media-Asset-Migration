@@ -14,7 +14,29 @@ logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
 
 # Constants for regex patterns
-EM_CHECK_PATTERN = r"^(?!.*(?:PGS|SVM|SDM|CEM|PROMO))[-_]*(VM|EM|AVP|PPRO|FCP|PTS|GRFX|GFX|UHD|XDCAM|XDCAMHD|WAV|WAVS|OUTGOING)[-_]*$"
+include_patterns = [
+    "VM",
+    "EM",
+    "AVP",
+    "PPRO",
+    "FCP",
+    "PTS",
+    "GRFX",
+    "GFX",
+    "UHD",
+    "XDCAM",
+    "XDCAMHD",
+    "WAV",
+    "WAVS",
+    "OUTGOING",
+]
+exclude_patterns = ["PGS", "SVM", "SDM", "CEM", "PROMO"]
+
+include_pattern = r"(?i)(?:[-_])(VM|EM|AVP|PPRO|FCP|PTS|GRFX|GFX|UHD|XDCAM|XDCAMHD|WAV|WAVS|OUTGOING)(?:[-_]|$)"
+exclude_pattern = r"(?i)(?:[-_])(PGS|SVM|SDM|CEM|PROMO)(?:[-_]|$)"
+
+pattern = f"^(?!.*{exclude_pattern}).*{include_pattern}.*$"
+compiled_pattern = re.compile(pattern, re.IGNORECASE)
 
 # Constants
 MAX_INDEX_COUNT = 200000
@@ -39,15 +61,19 @@ def parse_csv(date: str, merged_csv: str):
             pd_reader = pd.read_csv(m_csv, header=0)
             df = pd.DataFrame(pd_reader)
 
+            # write header to parsed csv
+            write_row(p_csv, df.iloc[0], parsed_count)
+            parsed_count += 1
+
             for index, row in df.iterrows():
                 name = str(row["NAME"]).upper()
                 logger.info(f"Index {index_count}: {name}")
 
                 if index_count <= MAX_INDEX_COUNT:
                     if should_parse_row(name):
-                        write_row(p_csv, row, parsed_count)
-                    else:
                         parsed_count += 1
+                    else:
+                        write_row(p_csv, row, parsed_count)
 
                     index_count += 1
 
@@ -63,7 +89,7 @@ def should_parse_row(name: str) -> bool:
     """
     Determine if the row should be parsed based on the name.
     """
-    em_check = re.search(EM_CHECK_PATTERN, name, re.IGNORECASE)
+    em_check = compiled_pattern.search(name)
 
     print(f"\nEM CHECK: {em_check}\n")
 
