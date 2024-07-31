@@ -101,25 +101,31 @@ def csv_clean(date, parsed_csv=None):
                 metaxml = df.at[index, "METAXML"]
 
             video_check_1 = re.search(
-                r"((?<![0-9]|[A-Z])|(?<=(-|_)))(VM)(?=(-|_|[1-5])?)(?![A-Z])",
+                r"(?<![0-9]|[A-Z])(?<=[-_])(VM|EM|UHD)(?=(-|_|[1-5])?)(?![A-Z])",
                 cleaned_name,
+                re.IGNORECASE,
             )
             video_check_2 = re.search(
-                r"((?<![0-9]|[A-Z])|(?<=(-|_)))(EM)(?=(-|_|[1-5])?)(?![A-Z])",
+                r"(?<![0-9]|[A-Z])(?<=[-_])(SMLS|TXTLS|TXTD|CTC)(?=(-|_|[1-5])?)(?![A-Z])",
                 cleaned_name,
+                re.IGNORECASE,
             )
             video_check_3 = re.search(
-                r"((?<![0-9]|[A-Z])|(?<=(-|_)))(UHD)(?=(-|_|[1-5])?)(?![A-Z])",
+                r"(?<=[_-])(PATCH|MXF|MOV)(?=(-|_|[1-5])?)(?![A-Z])",
                 cleaned_name,
+                re.IGNORECASE,
             )
             video_check_4 = re.search(
-                r"((?<![0-9]|[A-Z])|(?<=(-|_)))(XDCAM)(?=(-|_|[1-5]|HD)?)", cleaned_name
+                r"(?<![0-9A-Z])(?<=(-|_))(XDCAM|DNX(HD)?)(?=(-|_|[1-5]|HD)?)",
+                cleaned_name,
+                re.IGNORECASE,
             )
 
             # these video files will be filtered out, not used in the migration
             video_check_5 = re.search(
-                r"((?<![0-9]|[A-Z])|(?<=(-|_)))(DV100|IMX50|CEM|CVM|SVM|DNXHD|XDCAM_MOV|PGS|DOLBY)(?=(-|_|[1-5])?)",
+                r"(?<![0-9A-Z])(?<=(-|_))(DV100|IMX50|CEM|CVM|SVM|PGS|DOLBY|PROMOSELECTS|CLEANCOVERS|CREDITPATCH|DELETEDSCENES)(?=(-|_|[1-5])?)",
                 cleaned_name,
+                re.IGNORECASE,
             )
 
             vcheck_list = []
@@ -131,6 +137,7 @@ def csv_clean(date, parsed_csv=None):
                 video_check_4,
                 video_check_5,
             ) != (
+                None,
                 None,
                 None,
                 None,
@@ -155,46 +162,53 @@ def csv_clean(date, parsed_csv=None):
 
                 if video_check_5 is not None:
                     vcheck5 = video_check_5.group(0)
-                    vcheck_list.append(vcheck5)
+                    if vcheck5 in [
+                        "PROMOSELECTS",
+                        "CLEANCOVERS",
+                        "CREDITPATCH",
+                        "DELETEDSCENES",
+                    ]:
+                        vcheck5_abrv = abbreviate(vcheck5)
+                        vcheck_list.append(vcheck5_abrv)
+                    else:
+                        vcheck_list.append(vcheck5)
                 content_type_v = ",".join(vcheck_list)
 
             else:
                 content_type_v = None
 
-            archive_check = re.search(
-                r"((?<![0-9]|[A-Z])|(?<=(-|_)))(AVP|PPRO|FCP|PTS|AVP|GRFX|GFX|WAV|WAVS|SPLITS)(?=(-|_)?)(?![0-9]|[A-Z])",
-                cleaned_name,
-            )
+            archive_pattern = r"((?<![0-9A-Z])|(?<=(-|_)))(AVP|PPRO|FCP|PTS|AVP|GRFX|GFX|WAV|WAVS|SPLITS|GFXPACKAGE|GRAPHICS)(?=(-|_)?)(?![0-9A-Z])"
+            archive_check = re.search(archive_pattern, cleaned_name, re.IGNORECASE)
 
             if archive_check is not None:
                 if archive_check.group(0) == "SPLITS":
                     content_type_a = "WAV"
                 elif archive_check.group(0) == "WAVS":
                     content_type_a = "WAV"
-                elif archive_check.group(0) == "GFX":
+                elif archive_check.group(0) in ["GFX", "GFXPACKAGE", "GRAPHICS"]:
                     content_type_a = "GRFX"
                 else:
                     content_type_a = archive_check.group(0)
+
             else:
                 content_type_a = None
 
             content_type_d = None
-            doc_pattern = (
-                r"((?<![0-9]|[A-Za-z])|(?<=(-|_)))(Outgoing-QC)(?=(-|_)?)((?![A-Za-z]))"
-            )
+            doc_pattern = r"((?<![0-9]|[A-Za-z])|(?<=(-|_)))(Outgoing[-_]?QC)(?=(-|_)?)"
             document_check = re.search(doc_pattern, cleaned_name, re.IGNORECASE)
 
-            if document_check is not None:
-                dcheck = document_check.group(0)
-                content_type_d = dcheck
+            if (
+                document_check is not None
+                and content_type_v is None
+                and content_type_a is None
+            ):
                 df.at[index, "TITLETYPE"] = "document"
                 df.at[index, "CONTENT_TYPE"] = "DOCX"
                 df.at[index, "FILENAME"] = f"{cleaned_name}.docx"
 
                 print("")
-                print(f"{cleaned_name} TITLE TYPE: document, CONTENT TYPE: QC-DOC")
+                print(f"{cleaned_name} TITLE TYPE: document, CONTENT TYPE: docx")
                 print("")
-                continue
 
             if (
                 content_type_v is not None
@@ -246,7 +260,7 @@ def csv_clean(date, parsed_csv=None):
                 date = df.at[index, "SOURCECREATEDT"]
                 creation_date = format_creation_date(date)
                 df.at[index, "TITLETYPE"] = title_type
-                df.at[index, "CONTENT_TYPE"] = content_type_a
+                df.at[index, "CONTENT_TYPE"] = f"{content_type_a}, {content_type_v}"
                 df.at[index, "PROXY_COPIED"] = 3
                 df.at[index, "FILENAME"] = f"{cleaned_name}_{creation_date}.zip"
                 mediainfo = [
@@ -259,10 +273,10 @@ def csv_clean(date, parsed_csv=None):
                 ]
 
             else:
-                df.at[index, "TITLETYPE"] = "NULL"
                 clean_2_msg = f"TITLETYPE for {name} is NULL. "
                 logger.info(clean_2_msg)
                 df.at[index, "CONTENT_TYPE"] = "NULL"
+                df.at[index, "TITLETYPE"] = "NULL"
                 mediainfo = [
                     "NULL",
                     "NULL",
@@ -271,8 +285,8 @@ def csv_clean(date, parsed_csv=None):
                     "NULL",
                     "NULL",
                 ]
+                df.at[index, "FILENAME"] = df.at[index, "NAME"]
 
-        df.at[index, "FILENAME"] = mediainfo[5]
         df.drop("METAXML", axis=1, inplace=True)
         df.to_csv(clean_csv)
         os.chdir(db_path)
@@ -384,8 +398,25 @@ def clean_name(name):
     return cleaned_name
 
 
+def abbreviate(vcheck5):
+    """
+    Abbreviate the content type for the content_type field.
+    """
+
+    abrv_dict = {
+        "PROMOSELECTS": "PSEL",
+        "CLEANCOVERS": "CCOV",
+        "CREDITPATCH": "CREDP",
+        "DELETEDSCENES": "DSCN",
+    }
+
+    vcheck5_abrv = abrv_dict.get(vcheck5)
+
+    return vcheck5_abrv
+
+
 if __name__ == "__main__":
     csv_clean(
-        "202404031245",
-        parsed_csv="",
+        "202404041800",
+        parsed_csv="/Users/cucos001/GitHub/Media-Asset-Migration/_CSV/202312271437_gor_diva_merged_export.csv",
     )

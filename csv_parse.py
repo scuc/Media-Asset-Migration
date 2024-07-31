@@ -86,7 +86,7 @@ def db_parse(date, merged_csv):
                     #     name,
                     # )
                     em_check = re.search(
-                        r"^(?!.*(PGS|SVM|SDM))((?<![0-9]|[A-Z])|(?<=(-|_)))VM|EM|AVP|PPRO|FCP|PTS|GRFX|GFX|UHD|XDCAM|XDCAMHD|WAV|WAVS(?=(-|_|[1-5])?)(?![A-Z])",
+                        r"^(?!.*(?:PGS|SVM|SDM|CEM|PROMO))[-_]*(VM|EM|AVP|PPRO|FCP|PTS|GRFX|GFX|UHD|XDCAM|XDCAMHD|WAV|WAVS)[-_]*$",
                         name,
                     )
 
