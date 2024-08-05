@@ -9,6 +9,7 @@ import yaml
 
 import csv_clean
 import csv_parse
+import csv_clean_final
 
 
 logger = logging.getLogger(__name__)
@@ -40,6 +41,7 @@ def main(csv_file: str) -> None:
 
     parsed_csv = csv_parse.parse_csv(date, csv_file)
     clean_csv, table = csv_clean.csv_clean(date, parsed_csv)
+    clean_csv_final, table_final = csv_clean_final.final_pass(date, clean_csv)
 
     complete_msg = f"\n\n{'='*25}  SCRIPT COMPLETE  {'='*25}"
     logger.info(complete_msg)
