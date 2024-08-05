@@ -33,7 +33,7 @@ include_patterns = [
 exclude_patterns = ["PGS", "SVM", "SDM", "CEM", "PROMO"]
 
 include_pattern = r"(?i)(?:[-_])(VM|EM|AVP|PPRO|FCP|PTS|GRFX|GFX|UHD|XDCAM|XDCAMHD|WAV|WAVS|OUTGOING)(?:[-_]|$)"
-exclude_pattern = r"(?i)(?:[-_])(PGS|SVM|SDM|CEM|PROMO)(?:[-_]|$)"
+exclude_pattern = r"(?i)(?:[-_])(PGS|SVM|SDM|CEM|PROMO|TACHYON)(?:[-_]|$)"
 
 pattern = f"^(?!.*{exclude_pattern}).*{include_pattern}.*$"
 compiled_pattern = re.compile(pattern, re.IGNORECASE)
@@ -67,7 +67,7 @@ def parse_csv(date: str, merged_csv: str):
 
             for index, row in df.iterrows():
                 name = str(row["NAME"]).upper()
-                logger.info(f"Index {index_count}: {name}")
+                # logger.info(f"Index {index_count}: {name}")
 
                 if index_count <= MAX_INDEX_COUNT:
                     if should_parse_row(name):
