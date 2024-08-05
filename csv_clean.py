@@ -75,8 +75,6 @@ def csv_clean(date: str, parsed_csv: Optional[str] = None) -> Tuple[str, str]:
         for index, row in df.iterrows():
             cleaned_name = clean_name(str(row["NAME"]).upper())
             df.at[index, "NAME"] = cleaned_name
-            logger.info(f"Index: {index} cleaned filename: {cleaned_name}")
-
             df.at[index, "TRAFFIC_CODE"] = get_traffic_code(cleaned_name)
 
             if row["_merge"] != "both":
@@ -180,16 +178,20 @@ def set_video_info(
 ):
     df.at[index, "TITLETYPE"] = "video"
     mediainfo = gmi.get_mediainfo(row, row["METAXML"])
+
     logger.info(f"MEDIA-INFO: {mediainfo}")
 
-    if len(mediainfo) >= 6:
+    if mediainfo:
         df.at[index, "CONTENT_TYPE"] = content_type_v
-        df.at[index, "FRAMERATE"] = mediainfo[0]
-        df.at[index, "CODEC"] = mediainfo[1]
-        df.at[index, "V_WIDTH"] = mediainfo[2]
-        df.at[index, "V_HEIGHT"] = mediainfo[3]
-        df.at[index, "DURATION_MS"] = mediainfo[4]
-        df.at[index, "FILENAME"] = mediainfo[5]
+        df.at[index, "FRAMERATE"] = mediainfo["framerate"]
+        df.at[index, "CODEC"] = mediainfo["codec"]
+        df.at[index, "V_WIDTH"] = mediainfo["resolution"][0]
+        df.at[index, "V_HEIGHT"] = mediainfo["resolution"][1]
+        df.at[index, "DURATION_MS"] = mediainfo["duration_ms"]
+        df.at[index, "FILENAME"] = mediainfo["filename"]
+    else:
+        df.at[index, "CONTENT_TYPE"] = content_type_v
+        set_null_mediainfo(df, index)
 
     return
 
@@ -277,11 +279,12 @@ def clean_metaxml(metaxml: str, name: str) -> str:
 
 
 def get_traffic_code(cleaned_name: str) -> str:
-    return (
-        re.search(r"\bTC\d+\b", cleaned_name).group(0)
-        if re.search(r"\bTC\d+\b", cleaned_name)
-        else "UNKNOWN"
-    )
+    tcode = cleaned_name.split("_")
+    if "_" in cleaned_name and len(tcode) >= 2:
+        traffic_code = tcode[0]
+    else:
+        traffic_code = "UNKNOWN"
+    return traffic_code
 
 
 def get_title_type(content_type_a: str) -> str:
