@@ -1,8 +1,8 @@
 #! /usr/bin/env python3
 
 import logging
-import os
 import re
+from xml.dom import minidom
 import xml.etree.ElementTree as ET
 
 logger = logging.getLogger(__name__)
@@ -47,20 +47,23 @@ def extract_from_metaxml(df_row, metaxml):
     tree = ET.ElementTree(ET.fromstring(metaxml, parser=parser))
     root = tree.getroot()
 
+    pretty_xml = prettify_xml(root)
+    logger.info(f"Pretty XML: {pretty_xml}")
+
     def safe_find_text(path):
         element = root.find(path)
         return element.text if element is not None else "NULL"
 
-    mediainfo = [
-        safe_find_text("VideoTrack/Video/AverageFrameRate"),
-        safe_find_text("VideoTrack/Video/Format"),
-        adjust_resolution(
+    mediainfo = {
+        "framerate": safe_find_text("VideoTrack/Video/AverageFrameRate"),
+        "codec": safe_find_text("VideoTrack/Video/Format"),
+        "resolution": adjust_resolution(
             safe_find_text("VideoTrack/Video/Width"),
             safe_find_text("VideoTrack/Video/Height"),
         ),
-        safe_find_text("DurationInMs"),
-        adjust_filename(safe_find_text("FileName")),
-    ]
+        "duration_ms": safe_find_text("DurationInMs"),
+        "filename": adjust_filename(safe_find_text("FileName")),
+    }
 
     return mediainfo
 
@@ -73,6 +76,7 @@ def adjust_resolution(v_width, v_height):
         v_width, v_height = "1920", "1080"
     elif v_height == "360" and v_width == "640":
         v_width, v_height = "1920", "1080"
+
     return v_width, v_height
 
 
@@ -104,7 +108,13 @@ def get_estimated_mediainfo(df_row):
     )
     filename = get_estimated_filename(df_row, codec)
 
-    return [framerate, codec, v_width, v_height, duration, filename]
+    return {
+        "framerate": framerate,
+        "codec": codec,
+        "resolution": (v_width, v_height),
+        "duration_ms": duration,
+        "filename": filename,
+    }
 
 
 def get_estimated_filename(df_row, codec):
@@ -187,6 +197,13 @@ def est_resolution(df_row, codec_value):
         logger.info(
             f"{df_row['GUID']} - {df_row['NAME']} - filesize: {df_row['FILESIZE']} - Estimating file is UHD:3840x2160."
         )
+    elif (
+        18000000000 < filesize < 200000000000
+        and codec_value not in ["XAVC", "UHD"]
+        and df_row["CONTENTLENGTH"] != 0
+        and "_xdcam_" in df_row["NAME"].lower()
+    ):
+        v_width, v_height = "1920", "1080"
     else:
         v_width, v_height = "NULL", "NULL"
         logger.info(
@@ -203,6 +220,14 @@ def log_exception(msg, df_row, e):
     logger.exception(
         f"{msg}\nGUID: {df_row['GUID']}\nNAME: {df_row['NAME']}\nERROR: {str(e)}\n"
     )
+
+
+def prettify_xml(elem):
+    """Return a pretty-printed XML string for the Element."""
+
+    rough_string = ET.tostring(elem, "utf-8")
+    reparsed = minidom.parseString(rough_string)
+    return reparsed.toprettyxml(indent="  ")
 
 
 if __name__ == "__main__":
