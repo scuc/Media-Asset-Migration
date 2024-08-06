@@ -32,7 +32,7 @@ def main(csv_file: str) -> None:
     start_msg = f"\n\
     ================================================================\n \
                 Gorilla-Diva Asset Migration Script\n\
-                Version: 0.0.4\n\
+                Version: 1.0.0\n\
                 Date: {date}\n\
     ================================================================\n\
     \n"
