@@ -6,6 +6,7 @@ import pandas as pd
 
 import config as cfg
 import get_mediainfo as gmi
+import re
 
 # Configure logger
 logger = logging.getLogger(__name__)
@@ -33,22 +34,23 @@ def csv_clean_final(date: str, cleaned_csv: Optional[str] = None) -> Tuple[str, 
     df.index.name = "ROWID"
 
     for index, row in df.iterrows():
-        original_row = row.copy()
-
         if row["TITLETYPE"] != "video":
             continue
 
-        row = check_codec(row)
-        row = check_framerate(row, df)
-        row = check_resolution(row)
+        else:
+            logger.info(f"Final Check for row {index} for {row['NAME']}")
+            original_row = row.copy()
+            row = check_codec(row)
+            row = check_framerate(row, df)
+            row = check_resolution(row)
 
-        # Log changes
-        log_changes(original_row, row, index)
+            # Log changes
+            log_changes(original_row, row, index)
 
-        # Update specific columns in the DataFrame
-        df.loc[index, ["CODEC", "FRAMERATE", "V_WIDTH", "V_HEIGHT"]] = row[
-            ["CODEC", "FRAMERATE", "V_WIDTH", "V_HEIGHT"]
-        ]
+            # Update specific columns in the DataFrame
+            df.loc[index, ["CODEC", "FRAMERATE", "V_WIDTH", "V_HEIGHT"]] = row[
+                ["CODEC", "FRAMERATE", "V_WIDTH", "V_HEIGHT"]
+            ]
 
     df.to_csv(clean_csv_final, index=False)
 
@@ -66,7 +68,7 @@ def log_changes(original_row, updated_row, index):
 
 
 def check_codec(row):
-    logger.info(f"Checking codec for {row['NAME']}")
+    # logger.info(f"Checking codec for {row['NAME']}")
     codec_list = [
         "XAVC",
         "UHD",
@@ -97,48 +99,78 @@ def check_codec(row):
 
 
 def check_framerate(row, df):
-    logger.info(f"Checking framerate for {row['NAME']}")
+    # logger.info(f"Checking framerate for {row['NAME']}")
     framerate_list = ["23.976", "23.98", "25", "29.97", "59.94"]
 
-    if row["TITLETYPE"] != "video" or row["FRAMERATE"] in framerate_list:
+    if row["TITLETYPE"] != "video" or str(row["FRAMERATE"]) in framerate_list:
+        logger.info(
+            f"Skipping framerate check for {row['NAME']}, framerate is {row['FRAMERATE']}"
+        )
         return row
 
-    if row["FRAMERATE"] == "NULL" or pd.isnull(row["FRAMERATE"]):
-        traffic_code = row["TRAFFIC_CODE"]
-        matching_rows = df[df["TRAFFIC_CODE"] == traffic_code]
+    if (
+        row["FRAMERATE"] == "NULL"
+        or pd.isnull(row["FRAMERATE"])
+        or len(str(row["FRAMERATE"])) == 0
+    ):
+        logger.info(f"No framerate for {row['OBJECTNM']}, attempting best estimate.")
+        # #split the trafficode value to eliminate the suffix
+        org_traffic_code = re.split(r"[_-]", row["TRAFFIC_CODE"])
+        df_traffic_code = df["TRAFFIC_CODE"].str.split(r"[_-]", expand=True)
+        matching_rows = df[df_traffic_code[0] == org_traffic_code[0]]
 
         em_matching_rows = matching_rows[
-            matching_rows["CONTENT_TYPE"].str.contains("EM", na=False)
+            (matching_rows["CONTENT_TYPE"].str.contains("EM", na=False))
+            & (matching_rows["TITLETYPE"] == "video")
         ]
 
+        if len(em_matching_rows) == 0:
+            logger.info(
+                f"No matching rows for TRAFFIC_CODE {org_traffic_code[0]} with CONTENT_TYPE containing 'EM'"
+            )
+            return row
+
+        else:
+            logger.info(
+                f"Matching rows for TRAFFIC_CODE {org_traffic_code[0]} with CONTENT_TYPE containing 'EM': { em_matching_rows['OBJECTNM']}"
+            )
+            for _, matching_row in em_matching_rows.iterrows():
+                logger.info(matching_row.to_dict())
+                framerate = matching_row["FRAMERATE"]
+                if framerate != "NULL":
+                    logger.info(
+                        f"Found framerate {framerate} for {matching_row['OBJECTNM']}"
+                    )
+                    row["FRAMERATE"] = framerate
+                else:
+                    logger.error(
+                        f"Could not find framerate for {matching_row['OBJECTNM']}"
+                    )
+
+    else:  # Framerate is not NULL
         logger.info(
-            f"Matching rows for TRAFFIC_CODE {traffic_code} with CONTENT_TYPE containing 'EM':"
+            f"Final Check of Framerate for {row['NAME']} - no changes made: {row['FRAMERATE']}"
         )
-        for _, matching_row in em_matching_rows.iterrows():
-            logger.info(matching_row.to_dict())
-            framerate = gmi.get_framerate(matching_row)
-            if framerate != "NULL":
-                logger.info(f"Found framerate {framerate} for {matching_row['NAME']}")
-                row["FRAMERATE"] = framerate
-            else:
-                logger.error(f"Could not find framerate for {matching_row['NAME']}")
 
     return row
 
 
 def check_resolution(row):
-    logger.info(f"Checking resolution for {row['NAME']}")
+    # logger.info(f"Checking resolution for {row['NAME']}")
 
     if (
         row["V_WIDTH"] != "NULL"
         and row["V_HEIGHT"] != "NULL"
         and not pd.isnull(row["V_WIDTH"])
         and not pd.isnull(row["V_HEIGHT"])
+        and len(str(row["V_WIDTH"])) != 0
+        and len(str(row["V_HEIGHT"])) != 0
     ):
         return row
 
     else:
-        logger.info(f"No resolution for {row['NAME']}, using best estimate.")
+        logger.info(f"No resolution for {row['NAME']}, attempting best estimate.")
+
         if (
             "UHD" in str(row["CONTENT_TYPE"])
             or "HDR" in str(row["NAME"])
@@ -155,6 +187,16 @@ def check_resolution(row):
         ):
             row["V_WIDTH"], row["V_HEIGHT"] = "1920", "1080"
 
+        elif (
+            "_xdcam_" in row["FILENAME"].lower()
+            or "_xdcamhd_" in row["FILENAME"].lower()
+        ):
+            row["V_WIDTH"], row["V_HEIGHT"] = "1920", "1080"
+
+        else:
+            logger.info(f"Could not estimate resolution for {row['NAME']}")
+            return row
+
         logger.info(
             f"Setting (estimated) resolution to '1920 x 1080' for {row['NAME']}"
         )
@@ -163,6 +205,6 @@ def check_resolution(row):
 
 
 if __name__ == "__main__":
-    date = "202108051600"
-    cleaned_csv = "202408011717_gor_diva_merged_cleaned.csv"
+    date = "202408071320"
+    cleaned_csv = "202408071302_gor_diva_merged_cleaned.csv"
     csv_clean_final(date, cleaned_csv)
