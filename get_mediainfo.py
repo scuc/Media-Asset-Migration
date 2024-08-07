@@ -47,8 +47,8 @@ def extract_from_metaxml(df_row, metaxml):
     tree = ET.ElementTree(ET.fromstring(metaxml, parser=parser))
     root = tree.getroot()
 
-    pretty_xml = prettify_xml(root)
-    logger.info(f"Pretty XML: {pretty_xml}")
+    # pretty_xml = prettify_xml(root)
+    # logger.info(f"Pretty XML: {pretty_xml}")
 
     def safe_find_text(path):
         element = root.find(path)
@@ -144,7 +144,7 @@ def get_codec(df_row):
         else "XAVC" if codec_value == "UHD" else codec_value
     )
     logger.info(
-        f'{df_row["GUID"]} - {df_row["NAME"]} - Estimating Codec based on filename: {codec}'
+        f'{df_row["GUID"]} - {df_row["NAME"]} - Estimating Codec based on filename'
     )
 
     return codec, codec_value
@@ -192,16 +192,15 @@ def est_resolution(df_row, codec_value):
         logger.info(
             f"{df_row['GUID']} - {df_row['NAME']} - filesize: {df_row['FILESIZE']} - Estimating file is HD: 1920x1080."
         )
-    elif codec_value in ["XAVC", "UHD"] and filesize > 18000000000:
+    elif codec_value in ["XAVC", "UHD"]:
         v_width, v_height = "3840", "2160"
         logger.info(
             f"{df_row['GUID']} - {df_row['NAME']} - filesize: {df_row['FILESIZE']} - Estimating file is UHD:3840x2160."
         )
     elif (
-        18000000000 < filesize < 200000000000
-        and codec_value not in ["XAVC", "UHD"]
-        and df_row["CONTENTLENGTH"] != 0
+        codec_value not in ["XAVC", "UHD"]
         and "_xdcam_" in df_row["NAME"].lower()
+        or "_xdcamhd_" in df_row["NAME"].lower()
     ):
         v_width, v_height = "1920", "1080"
     else:
