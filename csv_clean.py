@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 # Constants for regex patterns
 VIDEO_PATTERN_1 = r"(?<![0-9]|[A-Z])(?<=[-_])(VM|EM|UHD)(?=(-|_|[1-5])?)(?![A-Z])"
 VIDEO_PATTERN_2 = (
-    r"(?<![0-9]|[A-Z])(?<=[-_])(SMLS|TXTLS|TXTD|CTC)(?=(-|_|[1-5])?)(?![A-Z])"
+    r"(?<![0-9]|[A-Z])(?<=[-_])(SMLS|TXTLS|TXTD|CTC|HDR)(?=(-|_|[1-5])?)(?![A-Z])"
 )
 VIDEO_PATTERN_3 = r"(?<=[_-])(PATCH|MXF|MOV)(?=(-|_|[1-5])?)(?![A-Z])"
 VIDEO_PATTERN_4 = r"(?<![0-9A-Z])(?<=(-|_))(XDCAM|DNX(HD)?)(?=(-|_|[1-5]|HD)?)"
