@@ -205,6 +205,6 @@ def check_resolution(row):
 
 
 if __name__ == "__main__":
-    date = "202408071320"
-    cleaned_csv = "202408071302_gor_diva_merged_cleaned.csv"
+    date = "202408071645"
+    cleaned_csv = "202408071600_gor_diva_merged_cleaned.csv"
     csv_clean_final(date, cleaned_csv)
