@@ -114,14 +114,7 @@ def csv_clean(date: str, parsed_csv: Optional[str] = None) -> Tuple[str, str]:
         df.drop("METAXML", axis=1, inplace=True)
         df.to_csv(clean_csv)
 
-        os.chdir(db_path)
-        conn = db.connect()
-        db.create_table("database.db", "assets", df)
-
-        logger.info("GORILLA-DIVA DB CLEAN COMPLETE, NEW DB TABLE CREATED")
-
-        os.chdir(root_path)
-        return clean_csv, "assets"
+        return clean_csv
 
     except Exception as e:
         logger.exception(
