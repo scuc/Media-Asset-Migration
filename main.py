@@ -40,8 +40,8 @@ def main(csv_file: str) -> None:
     logger.error(start_msg)
 
     parsed_csv = csv_parse.parse_csv(date, csv_file)
-    clean_csv, table = csv_clean.csv_clean(date, parsed_csv)
-    clean_csv_final, table_final = csv_clean_final.csv_clean_final(date, clean_csv)
+    clean_csv = csv_clean.csv_clean(date, parsed_csv)
+    clean_csv_final = csv_clean_final.csv_clean_final(date, clean_csv)
 
     complete_msg = f"\n\n{'='*25}  SCRIPT COMPLETE  {'='*25}"
     logger.info(complete_msg)
