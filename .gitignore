@@ -4,3 +4,6 @@
 *.db
 config.yaml
 .DS_Store
+database.db
+_*
+.venv
